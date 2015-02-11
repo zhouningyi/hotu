@@ -1,0 +1,21 @@
+{
+  "name": "anim",
+  "main": "anim.js",
+  "version": "0.0.0",
+  "homepage": "https://github.com/zhouningyi/anim",
+  "authors": [
+    "野狩 <ningyi.zny@alibaba-inc.com>"
+  ],
+  "description": "jquery zepto的keyframe动画",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ionicons": "~2.0.1"
+  }
+}

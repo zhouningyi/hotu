@@ -1,0 +1,255 @@
+/**
+ * 全局层
+ */
+
+div, body {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+}
+.transiton {
+  -webkit-transition: all 0.4s ease-in-out;
+  -moz-transition: all 0.4s ease-in-out;
+  -o-transition: all 0.4s ease-in-out;
+  transition: all 0.4s ease-in-out;
+}
+body {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  padding: 0;
+  margin: 0;
+}
+.container {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+.draw-container {
+  display: block;
+}
+.ui-container {
+  pointer-events: none;
+}
+/**
+ * ui细节层
+ */
+.entry {
+  position: absolute;
+  background-color: rgba(250, 250, 250, 0.9);
+  top: 20%;
+  width: 100%;
+  height: 0px;
+  vertical-align: middle;
+  padding-top: 100%;
+  pointer-events: none;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+.entry-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80%;
+  pointer-events: none;
+}
+.important-tools {
+  top: 40px;
+  left: 5px;
+}
+.shrink-expand {
+  border: 6px dashed rgba(100, 100, 100, 0.3);
+  color: rgba(100, 100, 100, 1);
+  font-weight: bold;
+}
+.button {
+  top: 85%;
+  left: 20%;
+  width: 60%;
+  background-color: rgba(40, 40, 40, 0.8);
+  text-align: center;
+  vertical-align: middle;
+  height: 40px;
+  line-height: 40px;
+  color: #f90;
+}
+.tools {
+  top: 25%;
+  left: 5px;
+  width: auto;
+  height: auto;
+  pointer-events: auto;
+  border-radius: 0px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  background-color: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  display: block;
+}
+.draw-tools-icons{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.draw-tools-icon-help{
+  position: absolute;
+  top: 0;
+  left: 100%;
+  height: 100%;
+  width:auto;
+}
+
+.end-tools {
+  position: absolute;
+  bottom: 0%;
+  right: 0px;
+  width: 100%;
+  height: auto;
+  pointer-events: auto;
+  padding: 0px 5px 10px 5px;
+  border-radius: 0px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  /*background-color: rgba(255,255,255,0.2);*/
+}
+.btn {
+  position: relative;
+  height: 35px;
+  line-height: 35px;
+  width: 35px;
+  pointer-events: auto;
+}
+.vertical-btn {
+  margin: 10px 0px;
+}
+.horizontal-btn {
+  margin: 0px 10px;
+}
+.dot {
+  border-radius: 20px;
+  background-color: rgba(130, 130, 130, 1);
+  color: rgba(250, 250, 250, 1);
+  display: block;
+  text-align: center;
+  vertical-align: middle;
+  box-shadow: 0px 1px 1px rgb(40, 40, 40);
+}
+/*
+  .btn-middle{
+    height: 30px;
+    line-height: 30px;
+    width: 30px;
+    margin-left: 5px;
+    margin-bottom: 10px;
+  }
+  .btn-small{
+    height: 20px;
+    line-height: 20px;
+    width: 20px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+  }*/
+
+
+.transparent {
+  background-color: transparent;
+  color: rgba(100, 100, 100, 1);
+}
+.big-font {
+  font-size: 30px;
+}
+/**
+ * buttons
+ */
+.btn-mobile{
+  position: relative;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  vertical-align: middle;
+}
+.block{
+  display: block;
+}
+.linline-block{
+  display: inline-block;
+}
+.iconfont-mobile{
+
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 30px;
+  margin: 10px 5px;
+  pointer-events:auto;
+}
+
+.red-bg {
+  background-color: rgba(150, 0, 0, 1);
+  color:#fff;
+}
+.gray-bg {
+  background-color: rgba(130, 130, 130, 1);
+  color: #fff;
+}
+
+.gray-transparent-middle{
+  background-color: rgba(130, 130, 130, 0.6);
+  color: #fff;
+}
+
+.gray-transparent-light{
+  background-color: rgba(130, 130, 130, 0.2);
+  color: #fff;
+}
+
+.red {
+  color:#900;
+}
+
+.gray-high {
+  color: rgba(130, 130, 130, 1);
+}
+
+.gray-middle{
+  color: rgba(150, 150, 150, 1);
+}
+
+.gray-light{
+  color: rgba(130, 130, 130, 1);
+}
+
+/*动画效果*/
+@-webkit-keyframes fadeOutIn {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOutIn {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
