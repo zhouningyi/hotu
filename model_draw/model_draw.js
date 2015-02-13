@@ -2,7 +2,7 @@
 
 //数据格式
 // 对于画的数据，有很多层次，每层都是对象{}, 他们有相似的结构：
-// @type 这个层级的类型，共6层： "scene" "frame" "styleGroup" "lineGroup" "line" "pt"
+// @type 这个层级的类型，5层结构： "scene" "frame" "group" "curve" "pt"
 // @t 开始时间(相对于frame开始的时间)
 // @c 下级元素的数组集合(除了点数据外都有)
 // @i 在元素中的时间序号
@@ -151,6 +151,9 @@ define(['zepto'], function($) {
     return this.curData;
   };
 
+  ModelDraw.prototype.getCurve = function() {
+    return this.curCurve;
+  };
 
   //时间控制相关
   ModelDraw.prototype.getTimeRelative = function() {

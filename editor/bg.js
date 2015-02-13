@@ -34,7 +34,7 @@ define(['zepto'], function($) {
 ///////////////////////////////////////////////背景替换///////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
   Bg.prototype.setBg = function(index) {
-    var list = ['Light','Dark'];
+    var list = ['Dark', 'Light'];
     if(index ===null || index ===undefined){
       index = this.bgIndex = (this.bgIndex +1)%list.length;
     }

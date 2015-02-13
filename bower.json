@@ -16,6 +16,7 @@
     "tests"
   ],
   "dependencies": {
+    "requirejs":"",
     "ionicons": "~2.0.1"
   }
 }

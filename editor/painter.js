@@ -1,21 +1,25 @@
 'use strict';
+
 //'./../ui/util' 目前暂时不用
-define(['zepto', './../model_draw/model_draw', './../brush/brushes'], function($, ModelDraw, Brushes) {
+define(['zepto', './../model_draw/model_draw', './../brush/brushes','./../render/renderer'], function($, ModelDraw, Brushes, Renderer) {
   function Painter(container) {
     container = container || $('.container');
     this.container = container;
     this.containerW = container.width();
     this.containerH = container.height();
 
-    this.modelDraw = new ModelDraw(); //数据
+    var modelDraw = this.modelDraw = new ModelDraw(); //数据
     this.dom();
     // this.ui();
     //画笔相关
-    this.brushes = new Brushes(this.ctx);
-    this.brushList = ['fatdot', 'ink', 'light'];
+
+    var brushes = this.brushes = new Brushes(this.ctxMain, modelDraw);
+    this.brushList = ['light', 'ink', 'fatdot', 'thin', ];
     this.brushIndex = 0;
     this.setBrush(this.brushIndex);
     this.isNew = true;
+
+    this.renderer = new Renderer(this.ctxMain, brushes);
 
     this.events();
   }
@@ -24,21 +28,18 @@ define(['zepto', './../model_draw/model_draw', './../brush/brushes'], function($
     this.modelDraw.start('frame', this.curBrushName);
   };
 
-
-
   Painter.prototype.dom = function(obj) {
     obj = obj || {};
-    var quality = obj.quality || 2;
+    var quality = obj.quality || 1.5;
     var container = this.container;
-    var canvas = $('<canvas width="' + this.containerW * quality + '" height="' + this.containerH * quality + '"></canvas>').css({
+    var canvasMain = $('<canvas width="' + this.containerW * quality + '" height="' + this.containerH * quality + '"></canvas>').css({
       width: this.containerW,
       height: this.containerH
-    });
-    container.append(canvas);
+    }).appendTo(container);
 
-    canvas = this.canvas = canvas[0];
-    var ctx = this.ctx = canvas.getContext('2d');
-    ctx.scale(quality, quality);
+    canvasMain = this.canvasMain = canvasMain[0];
+    var ctxMain = this.ctxMain = canvasMain.getContext('2d');
+    ctxMain.scale(quality, quality);
   };
 
 
@@ -67,7 +68,7 @@ define(['zepto', './../model_draw/model_draw', './../brush/brushes'], function($
     this.status = 'none';
     var self = this;
     var container = this.container;
-    var startPt, endPt, touchStartTime, touchEndTime, isAfterDown = false;
+    var startPt, mvPt, touchStartTime, isAfterDown = false;
     container
       .on('touchstart mousedown', function(e) {
         prevant(e);
@@ -80,7 +81,7 @@ define(['zepto', './../model_draw/model_draw', './../brush/brushes'], function($
         self.curBrush.begin(pt);
         startPt = pt;
         touchStartTime = getTimeAbsolute();
-        endPt = null;
+        mvPt = null;
         isAfterDown = true; //主要解决pc、mac的问题。
       })
       .on('touchmove mousemove', function(e) {
@@ -89,7 +90,7 @@ define(['zepto', './../model_draw/model_draw', './../brush/brushes'], function($
         if (isAfterDown) {
           self.curBrush.draw(pt);
           self.modelDraw.addPt(pt);
-          endPt = pt;
+          mvPt = pt;
         }
       })
       .on('touchend mouseup touchleave mouseout', function(e) {
@@ -98,15 +99,15 @@ define(['zepto', './../model_draw/model_draw', './../brush/brushes'], function($
         self.curBrush.end();
         var dt = getTimeAbsolute() - touchStartTime;
 
-        if(endPt){//具有touch事件
-          var distance = Math.sqrt(Math.pow(endPt[0] - startPt[0], 2) + Math.pow(endPt[1] - startPt[1], 2));
-          if(distance<3){
+        if (mvPt) { //具有touch事件
+          var distance = Math.sqrt(Math.pow(mvPt[0] - startPt[0], 2) + Math.pow(mvPt[1] - startPt[1], 2));
+          if (distance < 3) {
             container.trigger('painter-click');
           }
-        }else{
-          if(dt>0.15){
+        } else {
+          if (dt > 0.15) {
             self.curBrush.dot(startPt, dt);
-          }else{
+          } else {
             container.trigger('painter-click');
           }
         }
@@ -173,85 +174,26 @@ define(['zepto', './../model_draw/model_draw', './../brush/brushes'], function($
     return new Date().getTime() * 0.001;
   }
 
-  Painter.prototype.clean = function() {
-    var ctx = this.ctx;
-    ctx.closePath();
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    this.isNew = true;
+  Painter.prototype.clean = function() {//只是清除画面
+    var containerH = this.containerH;
+    var containerW = this.containerW;
+    var ctxMain = this.ctxMain;
+    ctxMain.closePath();
+    ctxMain.clearRect(0, 0, containerW, containerH);
   };
+
+  Painter.prototype.clear = function() {//数据都初始化
+    this.clean();
+    this.isNew = true;
+  }
 
   Painter.prototype.redraw = function() {
     this.clean();
     var data = this.modelDraw.getData();
-    console.log(data);
-    var groups, frame, dType = data.type;
-
-    if (dType === 'frame') {
-      groups = data.c;
-      this.drawGroups(groups);
-      return;
-    } else if (dType === 'scene') {
-      var frames = data.c;
-      for (var i in frames) {
-        frame = frames[i];
-        groups = frame.c;
-        this.drawGroups(groups);
-      }
-      return;
-    } else if (dType === 'group') {
-      this.drawGroup(data);
-    }
+    console.log(JSON.stringify(data));
+    this.renderer.drawDatas(data);
   };
 
-  Painter.prototype.drawGroups = function(groups) {
-    if (groups) {
-      var group; //直接遍历
-      for (var k in groups) {
-        group = groups[k];
-        this.drawGroup(group);
-      }
-    }
-  };
-
-  Painter.prototype.drawGroup = function(group) {
-    var brushes = this.brushes;
-    var drawCurve = this.drawCurve;
-    if (group) {
-      var brushType = group.brushType;
-      var brush = brushes[brushType];
-      var curve, curves = group.c;
-      if (curves) {
-        for (var i in curves) {
-          curve = curves[i];
-          drawCurve(curve, brush);
-        }
-      }
-    }
-  };
-
-  // Painter.prototype.animateGroup = function(group) {
-  //   var brushes = this.brushes;
-  //   var drawCurve = this.drawCurve;
-
-  // };
-
-  Painter.prototype.drawCurve = function(curve, brush) {
-    if (curve) {
-      var pts = curve.c;
-      if (pts) {
-        for (var k in pts) {
-          var pt = pts[k];
-          if (k === '0' || k === 0) {
-            brush.begin(pt);
-          } else if (k == pts.length - 1) {
-            brush.end();
-          } else {
-            brush.draw(pt);
-          }
-        }
-      }
-    }
-  };
 
   //算对象的keys
   function keys(o) {
@@ -263,7 +205,7 @@ define(['zepto', './../model_draw/model_draw', './../brush/brushes'], function($
   }
 
 
-//暂时不用
+  //暂时不用
 
   // Painter.prototype.ui = function() { //生成控制面板
   //   this.leftToolPanel();

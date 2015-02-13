@@ -59,7 +59,11 @@ define(function() {
     var opt = this.opt;
     if (opt) {
       var ctx = this.ctx;
+      for(var name in opt){
+        this[name] = opt[name];
+      }
       //绘图本身的设置
+      this.hue = opt.hue || this.hue || 170;
       this.maxSize = opt.maxSize;
       this.distLimit = opt.distLimit || this.distLimit || 10;
       //画布相关的设置
@@ -105,7 +109,6 @@ define(function() {
     var ctx = this.ctx;
     var record = this.record(pt) || {};
     if (record.drawBol) {
-      console.log(record)
       this.check();//是否ctx的类型是正确的
       this._drawFunc({
        'pt': pt,

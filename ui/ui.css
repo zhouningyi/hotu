@@ -157,7 +157,16 @@ body {
     margin-left: 10px;
   }*/
 
-
+.small-helper-node{
+  position:relative;
+  display: block;
+  margin: 5px 0px;
+}
+.small-helper{
+  width: 100%;
+  display: block;
+  margin-bottom: 15px;
+}
 .transparent {
   background-color: transparent;
   color: rgba(100, 100, 100, 1);
@@ -172,6 +181,7 @@ body {
   position: relative;
   width: 40px;
   height: 40px;
+  margin-top: 10px;
   line-height: 40px;
   text-align: center;
   vertical-align: middle;
@@ -179,18 +189,18 @@ body {
 .block{
   display: block;
 }
-.linline-block{
+.inline-block{
   display: inline-block;
 }
 .iconfont-mobile{
-
   width: 40px;
   height: 40px;
+  top: 10px;
   line-height: 40px;
   text-align: center;
-  vertical-align: middle;
+  vertical-align: bottom;
   font-size: 30px;
-  margin: 10px 5px;
+  margin: 10px 5px 0px 10px;
   pointer-events:auto;
 }
 

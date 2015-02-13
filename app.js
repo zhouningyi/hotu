@@ -1,14 +1,14 @@
 'use strict';
 
 define(['./config'], function() {
-  require(['zepto', 'ui/helper', 'ui/gui', 'editor/bg', 'editor/painter'], function($, Helper, Gui, Bg, Painter) {
+  require(['zepto', 'ui/loading_qingren', 'ui/gui', 'editor/bg', 'editor/painter'], function($, Loading, Gui, Bg, Painter) {
 
-    var mode = 'direct';
+    var mode = 'direc1t';
 
     if (mode === 'direct') {
       init();
     } else {
-      var helper = new Helper($('.container'));
+      var loading = new Loading($('.main-container'));
       $('body').one('start', init);
       $('.tools').keyAnim('fadeInLeft', {
         time: 2.5
@@ -31,6 +31,7 @@ define(['./config'], function() {
       var bg = new Bg(bgContainer);
       var gui = new Gui();
 
+      //所有的iconFont在点击后都会山闪动
       $('.iconfont-mobile').on('touchstart', function() {
         $(this).keyAnim('fadeOutIn', {
           'time': 1,
@@ -41,9 +42,11 @@ define(['./config'], function() {
         });
       });
 
+
+
       $('#clear').on('touchstart', function(e) {
         prevant(e);
-        painter.clean();
+        painter.clear();
       });
       $('#download').on('touchstart', function(e) {
         prevant(e);
