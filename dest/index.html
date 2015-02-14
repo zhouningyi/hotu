@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" charset="UTF-8">
+  <title id="title">糊涂</title>
+  <link rel="stylesheet" href="./css/hotu.min.css">
+</head>
+
+<body>
+  <div class="container main-container">
+    <div class="bg-container container transiton"></div>
+    <div class="draw-container container transiton"></div>
+    <div class="ui-container container">
+      <div class="important-tools" id="important-tools"><i class="dot iconfont-mobile ion-ios-trash transiton" id="clear"></i>
+      </div>
+      <div class="tools" id="draw-tools">
+        <div class="small-helper-node"><i class="gray-high iconfont-mobile block ion-android-create" id="brush"></i> <span class="small-helper gray-middle">换笔<span></span></span>
+        </div>
+        <div class="small-helper-node"><i class="gray-high iconfont-mobile block ion-social-buffer" id="background"></i> <span class="small-helper gray-middle">换底<span></span></span>
+        </div>
+        <div class="small-helper-node"><i class="gray-high iconfont-mobile block ion-social-youtube" id="broadcast"></i>
+        </div>
+      </div>
+      <div class="end-tools" id="end-tools">
+      <i class="gray-high iconfont-mobile ion-archive inline-block" id="download"></i>
+      <i class="gray-high iconfont-mobile ion-ios-cloud-upload-outline inline-block" id="submit-message"></i>
+        <div></div>
+      </div>
+      <script src="./js/color.js"></script>
+      <script>
+      var Color = net.brehaut.Color;
+      </script>
+      <script data-main="./hotu.min.js" src="http://www.cdnjs.net/ajax/libs/require.js/2.0.1/require.min.js"></script>
+      <!-- <script data-main="./hotu.min.js" src="./require.js"></script> -->
+    </div>
+  </div>
+</body>

@@ -1,14 +1,10 @@
-'use strict';
 require.config({
-  paths: {
+  'paths': {
     'zepto': './bower_components/zepto/zepto',
     'anim': './bower_components/anim/anim',
   },
-  shim: {
+  'shim': {
     'zepto': {
-      'exports': '$'
-    },
-    'anim': {
       'exports': '$'
     }
   }

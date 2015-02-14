@@ -1,20 +1,41 @@
 'use strict';
 define(function(){
 
-  function Renderer(ctx, brushes){
+  function Renderer(ctx, brushes, opt){
     if(ctx){
       this.ctx(ctx);
     }
     if(brushes){
       this.brushes = brushes;
     }
+    if(opt){
+      this.frameH = opt.frameH;
+      this.frameW = opt.frameW;
+    }
   }
 
   Renderer.prototype.ctx = function(ctx) {
     this._ctx = ctx;
-  }
+  };
+
+  Renderer.prototype.ptTransform = function(frameW, frameH, dataFrameW, dataFrameH){
+  };
+
+  Renderer.prototype._ptTransform = function(pt){//绘制的面板可能和看到的不一致
+    var frameW = this.frameW;
+    pt = [pt[0]*frameW, pt[1]*frameW,pt[2]];
+    return pt;
+  };
 
   Renderer.prototype.drawDatas = function(data) {
+    var dataFrameH = this.dataFrameH = data.frameH;
+    var dataFrameW = this.dataFrameW = data.frameW;
+    var frameW = this.frameW;
+    var frameH = this.frameH;
+    if(frameW!==dataFrameW&&frameH!==dataFrameH){
+      this.ptTransform(frameW, frameH, dataFrameW, dataFrameH);
+    }
+
     var groups, frame, dType = data.type;
     if (dType === 'frame') {
       groups = data.c;
@@ -46,7 +67,7 @@ define(function(){
   Renderer.prototype.drawGroup = function(group, type, timeout) {
     type = type || 'sync';
     var brushes = this.brushes;
-    var drawCurve = this.drawCurve;
+    var drawCurve = this.drawCurve.bind(this);
     if (group) {
       var brushType = group.brushType;
       var brush = brushes[brushType];
@@ -85,11 +106,13 @@ define(function(){
     }
 
   Renderer.prototype.drawCurve = function(curve, brush) {
+    var _ptTransform = this._ptTransform.bind(this);
     if (curve) {
       var pts = curve.c;
       if (pts) {
         for (var k in pts) {
           var pt = pts[k];
+          pt = _ptTransform(pt);
           if (k === '0' || k === 0) {
             brush.begin(pt);
           } else if (k == pts.length - 1) {
