@@ -31,22 +31,42 @@ define(['zepto'], function($) {
     }
   };
 
+  var body = $('body');
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
   function ModelDraw(obj) {
     obj = obj || {};
     this.frameH = obj.frameH || $(window).height();
     this.frameW = obj.frameW || $(window).width();
     this.recordPtBol = true;
     this.olderData = null;
+    this.events();
+    this.drawid = getQueryString('drawid') || getId('frame');
   }
+
+  ModelDraw.prototype.events = function(){
+    var self = this;
+    body
+    .on('openid',function(e, openid){
+      self.userid = openid;
+    })
+    .on('refresh-dataid', function(){
+      var drawid = self.drawid = getId('frame');
+      body.trigger('drawid',drawid);
+    });
+  };
 
   ModelDraw.prototype.oldData = function(d) {
     this.curData = d;
   };
 
   ModelDraw.prototype.beginRecord = function(opt) { //开始一组新的绘制 分有数据和没数据2种情况
+    opt = opt || {};
     this.curBrush = opt.brush;
-    this.userid = opt.userid;
-    this.drawid = opt.drawid;
 
     var curData = this.curData;//开始编辑过去的数据
     var type;
@@ -72,7 +92,6 @@ define(['zepto'], function($) {
     if (obj) {
       var childrenName = obj.children;
       if (childrenName) {
-        console.log(brush);
         this['add' + upper(childrenName)]();
       }
     } else {
@@ -90,7 +109,7 @@ define(['zepto'], function($) {
    * @param {Function} addFunc 额外的增加字段的方法
    * @param {Object} idBol   是否生成id
    */
-  ModelDraw.prototype.add = function(type, idBol, addFunc) { //
+  ModelDraw.prototype.add = function(type, idBol, addFunc) {
     var meta = metas[type];
     if (meta) {
       var parent = meta.parent;
@@ -145,6 +164,9 @@ define(['zepto'], function($) {
     this.addGroup(brushType);
   };
 
+  ModelDraw.prototype.back = function(pt) {
+    console.log('back');
+  };
 
   // ModelDraw.prototype.register = function() {
 
@@ -185,28 +207,31 @@ define(['zepto'], function($) {
     window.clearTimeout(this.submitID);
   };
 
-  var server = 'http://localhost:9101/';
 
-  ModelDraw.prototype.save = function() { //取回数据库已经存的内容
+  ModelDraw.prototype.save = function(obj, cb) { //取回数据库已经存的内容
     var curData = this.curData;
     curData.timeEnd = this.getTimeRelative();
     curData.frameH = this.frameH;
     curData.frameW = this.frameW;
-    console.log(this.curData);
+    cb = cb || function(){};
     var saveData = {
       'userid': this.userid || 'first',
       'drawid': this.drawid || 'draw',
-      'data': JSON.stringify(this.curData)
+      'data':JSON.stringify(this.curData)
     };
+
     $.ajax({
-      'url': server + 'api/hotu/drawing',
+      'url': 'http://mankattan.mathartworld.com/hotu-api/api/hotu/drawing',
       'type': 'POST',
+      'dataType':'json',
       'data': saveData,
       'success': function(d) {
-        console.log(d, 'save');
+        console.log(d,'save-data');
+        cb(1);
       },
       'error': function(e) {
-        console.log(e);
+        console.log(e,'save-err');
+        cb(0);
       }
     });
   };
@@ -220,20 +245,24 @@ define(['zepto'], function($) {
   };
 
   ModelDraw.prototype.getLast = function(query, cb) { //取回数据库已经存的内容
-    var query = {
+    query = {
       'userid': query.userid || 'first',
       'drawid': query.drawid || 'draw',
     };
     $.ajax({
-      'url': server+'api/hotu/drawing',
+      'url': 'http://mankattan.mathartworld.com/hotu-api/api/hotu/drawing',
       'type': 'GET',
       'data': query,
       'success': function(d) {
-        var data = JSON.parse(d.data);
-        cb(data);
+        if(d&&d.data){
+          cb(d.data);
+        }else{
+          cb(null);
+        }
       },
       'error': function(e) {
-        console.log(e);
+        cb(null);
+        console.log(e,'getlast-err');
       }
     });
   };

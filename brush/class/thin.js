@@ -21,6 +21,12 @@ define(function() {
       ctx.lineWidth = self.maxSize;
       ctx.lineTo(pt[0], pt[1]);
       ctx.stroke();
+    },
+    buttonStyle: function(node){
+      node.css({
+        'textShadow': '0 0 2px #000',
+        'color': '#fff'
+      });
     }
   };
 });

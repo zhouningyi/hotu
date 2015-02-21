@@ -1,5 +1,7 @@
 'use strict';
 
-require(['./config','./controller'],function(a,start){
-  return start();
+require(['./config'], function(a) {
+  require(['./controller'], function(Controller) {
+    return new Controller();
+  })
 });

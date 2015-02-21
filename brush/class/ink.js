@@ -15,13 +15,13 @@ define(function() {
     draw: function(opt) {
       var record = opt.record || {};
       var pt = opt.pt || {};
-      var ctx = this.ctx;
+      var ctx = opt.ctx;
       var dist = record.dist || 3;
       var speed = record.speed || 3; //速度
       var lineWidthMax = 15;
-      var lineWidth = Math.min(lineWidthMax / (dist * dist * 0.02 + 0.5), 3 * lineWidthMax);
+      var lineWidth = Math.min(lineWidthMax / (Math.pow(dist,1.5)  * 0.05 + 0.5), 3 * lineWidthMax);
       lineWidth = lineWidth * 0.9;
-      lineWidth = lineWidth + lineWidthMax * 0.5 * Math.random();
+      lineWidth = lineWidth + lineWidthMax * 0.1 * Math.sin(lineWidth);
 
       for (var i = 0; i < 2; i++) {
         var ki = 1 / (i + 1);
@@ -32,6 +32,12 @@ define(function() {
       }
       ctx.beginPath();
       ctx.moveTo(pt[0], pt[1]);
+    },
+    buttonStyle: function(node){
+      node.css({
+        'textShadow': '0 0 1px #000',
+        'color': '#000'
+      });
     }
   };
 })

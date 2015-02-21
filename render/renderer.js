@@ -1,10 +1,7 @@
 'use strict';
 define(function(){
 
-  function Renderer(ctx, brushes, opt){
-    if(ctx){
-      this.ctx(ctx);
-    }
+  function Renderer(brushes, opt){
     if(brushes){
       this.brushes = brushes;
     }
@@ -14,11 +11,9 @@ define(function(){
     }
   }
 
-  Renderer.prototype.ctx = function(ctx) {
-    this._ctx = ctx;
-  };
-
   Renderer.prototype.ptTransform = function(frameW, frameH, dataFrameW, dataFrameH){
+    // var phi = frameW
+    // if()
   };
 
   Renderer.prototype._ptTransform = function(pt){//绘制的面板可能和看到的不一致
@@ -27,7 +22,7 @@ define(function(){
     return pt;
   };
 
-  Renderer.prototype.drawDatas = function(data) {
+  Renderer.prototype.drawDatas = function(ctx, data) {
     var dataFrameH = this.dataFrameH = data.frameH;
     var dataFrameW = this.dataFrameW = data.frameW;
     var frameW = this.frameW;
@@ -39,14 +34,14 @@ define(function(){
     var groups, frame, dType = data.type;
     if (dType === 'frame') {
       groups = data.c;
-      this.drawGroups(groups);
+      this.drawGroups(ctx, groups);
       return;
     } else if (dType === 'scene') {
       var frames = data.c;
       for (var i in frames) {
         frame = frames[i];
         groups = frame.c;
-        this.drawGroups(groups);
+        this.drawGroups(ctx, groups);
       }
       return;
     } else if (dType === 'group') {
@@ -54,17 +49,17 @@ define(function(){
     }
   };
 
-  Renderer.prototype.drawGroups = function(groups) {
+  Renderer.prototype.drawGroups = function(ctx, groups) {
     if (groups) {
       var group; //直接遍历
       for (var k in groups) {
         group = groups[k];
-        this.drawGroup(group, 'async', 50);
+        this.drawGroup(ctx, group, 'async', 50);
       }
     }
   };
 
-  Renderer.prototype.drawGroup = function(group, type, timeout) {
+  Renderer.prototype.drawGroup = function(ctx, group, type, timeout) {
     type = type || 'sync';
     var brushes = this.brushes;
     var drawCurve = this.drawCurve.bind(this);
@@ -76,14 +71,14 @@ define(function(){
         if (type === 'sync') {
           for (var i in curves) {
             curve = curves[i];
-            drawCurve(curve, brush);
+            drawCurve(ctx, curve, brush);
           }
         } else if (type === 'async') {
           var aniList = [];
           for (var j in curves) {
             curve = curves[j];
             aniList.push((function(c,b){return function() {
-              drawCurve(c, b);
+              drawCurve(ctx, c, b);
             };})(curve, brush));
           }
           animateDisplay(aniList, timeout);
@@ -105,7 +100,7 @@ define(function(){
       })();
     }
 
-  Renderer.prototype.drawCurve = function(curve, brush) {
+  Renderer.prototype.drawCurve = function(ctx, curve, brush) {
     var _ptTransform = this._ptTransform.bind(this);
     if (curve) {
       var pts = curve.c;
@@ -114,11 +109,11 @@ define(function(){
           var pt = pts[k];
           pt = _ptTransform(pt);
           if (k === '0' || k === 0) {
-            brush.begin(pt);
+            brush.begin(ctx, pt);
           } else if (k == pts.length - 1) {
-            brush.end();
+            brush.end(ctx);
           } else {
-            brush.draw(pt);
+            brush.draw(ctx, pt);
           }
         }
       }

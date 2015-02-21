@@ -11,21 +11,39 @@
     <div class="bg-container container transiton"></div>
     <div class="draw-container container transiton"></div>
     <div class="ui-container container">
-      <div class="important-tools" id="important-tools"><i class="dot iconfont-mobile ion-ios-trash transiton" id="clear"></i>
+      <div class="important-tools" id="important-tools">
+       <!-- <i class="gray-high iconfont-mobile block dot ion-ios-undo" id="back"></i> -->
+       <i class="gray-high dot iconfont-mobile ion-ios-trash transiton" id="restart"></i>
       </div>
-      <div class="tools" id="draw-tools">
-        <div class="small-helper-node"><i class="gray-high iconfont-mobile block ion-android-create" id="brush"></i> <span class="small-helper gray-middle">换笔<span></span></span>
+
+      <div class="tools transiton" id="draw-tools">
+        <div class="small-helper-node">
+          <i class="gray-high iconfont-mobile block ion-android-create" id="brush"></i>
+          <span class="small-helper gray-middle">换笔<span>
         </div>
-        <div class="small-helper-node"><i class="gray-high iconfont-mobile block ion-social-buffer" id="background"></i> <span class="small-helper gray-middle">换底<span></span></span>
+
+        <div class="small-helper-node">
+         <i class="gray-high iconfont-mobile block ion-social-buffer" id="background"></i>
+         <span class="small-helper gray-middle">换底<span>
         </div>
-        <div class="small-helper-node"><i class="gray-high iconfont-mobile block ion-social-youtube" id="broadcast"></i>
+
+       <!-- <i class="gray-high iconfont-mobile block ion-shuffle" id="transfer"></i> -->
+        <div class="small-helper-node">
+         <i class="gray-high iconfont-mobile block ion-social-youtube" id="broadcast"></i>
         </div>
+
+<!--         <div class="small-helper-node">
+         <i class="gray-high iconfont-mobile block ion-arrow-return-right" id="refresh"></i>
+        </div> -->
       </div>
-      <div class="end-tools" id="end-tools">
+    </div>
+
+    <div class="end-tools transiton" id="end-tools">
       <i class="gray-high iconfont-mobile ion-archive inline-block" id="download"></i>
-      <i class="gray-high iconfont-mobile ion-ios-cloud-upload-outline inline-block" id="submit-message"></i>
-        <div></div>
-      </div>
+      <i class="gray-high iconfont-mobile ion-android-upload inline-block" id="submit-message"></i>
+    <div>
+  </div>
+  </div>
       <script src="./js/color.js"></script>
       <script>
       var Color = net.brehaut.Color;

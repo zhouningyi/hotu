@@ -13,9 +13,8 @@ define(function() {
       'distLimit': 1,
       'maxSize': 8,
     },
-    dot: function(pt, dt) {
+    dot: function(ctx, pt, dt) {
       if (pt && dt) {
-        var ctx = this.ctx;
         ctx.closePath();
         ctx.beginPath();
         var x = pt[0];
@@ -46,6 +45,12 @@ define(function() {
         ctx.fill();
         ctx.stroke();
       }
+    },
+    buttonStyle: function(node){
+      node.css({
+        'textShadow': '0 0 2px #000',
+        'color': '#fff'
+      });
     }
   };
 });

@@ -25,17 +25,17 @@ define(function() {
       var N = 5;
       if (ptPrev) {
         var dist = record.dist;
+        var color = Color({
+            hue: hue,
+            saturation: 0.6,
+            value: 0.6
+          });
         for (var i = 0; i < N; i++) {
           ctx.moveTo(ptPrev[0], ptPrev[1]);
           var ki = i / (N - 1);
           var kc = ki * ki;
           var kw = Math.sqrt(ki);
           var opacity = ki * 0.6;
-          var color = Color({
-            hue: hue,
-            saturation: 0.6,
-            value: 0.6
-          });
           var r = Math.floor(color.getRed() * 255);
           var g = Math.floor(color.getGreen() * 255);
           var b = Math.floor(color.getBlue() * 255);
@@ -50,9 +50,15 @@ define(function() {
           ctx.stroke();
         }
       }
-      ctx.closePath();
+      // ctx.closePath();
       ctx.beginPath();
       ctx.moveTo(pt[0], pt[1]);
+    },
+    buttonStyle: function(node){
+      node.css({
+        'textShadow': '0 0 9px #707',
+        'color': '#f9f'
+      });
     }
   };
 });

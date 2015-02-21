@@ -53,6 +53,12 @@ define(function() {
       ctx.closePath();
       ctx.beginPath();
       ctx.moveTo(pt[0], pt[1]);
+    },
+    buttonStyle: function(node){
+      node.css({
+        'textShadow': '0 0 9px #099',
+        'color': '#9ff'
+      });
     }
   };
 });

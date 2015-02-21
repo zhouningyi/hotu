@@ -3,15 +3,12 @@
 // brush 初始设置为this.style() 绘制有3个过程 开始画线 画线和 结束
 define(function() {
 
-  function Brush(ctx, opt){
-    var emptyFunc = function(){};
-    this.ctx = ctx;
+  var emptyFunc = function(){};
+  function Brush(opt){
     opt = opt || {};
 
     this.opt = opt;
     this.styles();
-    this._drawFunc = emptyFunc;
-    this._dotFunc = emptyFunc;
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,18 +52,19 @@ define(function() {
     }
   };
 
-  Brush.prototype.styles = function() { //静态的设置
+  Brush.prototype.styles = function(ctx) { //静态的设置
     var opt = this.opt;
     if (opt) {
-      var ctx = this.ctx;
       for(var name in opt){
         this[name] = opt[name];
       }
+
       //绘图本身的设置
       this.hue = opt.hue || this.hue || 170;
       this.maxSize = opt.maxSize;
       this.distLimit = opt.distLimit || this.distLimit || 10;
       //画布相关的设置
+      if(ctx){
       ctx.globalCompositeOperation = opt.globalCompositeOperation || this.globalCompositeOperation || 'source-over';
       ctx.lineCap = opt.lineCap || this.lineCap ||'round';
       ctx.lineJoin = opt.lineJoin || this.lineJoin || 'round';
@@ -75,16 +73,14 @@ define(function() {
       ctx.lineWidth = opt.lineWidth || this.lineWidth || 1;
       //名字
       ctx.curStyle = this.id = opt.id;
+      }
     }
   };
 
 //////////////////////开始画线//////////////////////
-  Brush.prototype.beginFunc= function(cb) {
-    if (cb) this._beginFunc = cb;
-  };
 
-  Brush.prototype.begin= function(pt) {
-    var ctx = this.ctx;
+  Brush.prototype.begin= function(ctx, pt) {
+    this.check(ctx);//是否ctx的类型是正确的
     ctx.beginPath();
     ctx.moveTo(pt[0], pt[1]);
     this.record(pt);
@@ -92,25 +88,27 @@ define(function() {
 
 //////////////////////中间过程//////////////////////
 
+  Brush.prototype.dotFunc = emptyFunc;
+  Brush.prototype.drawFunc = emptyFunc;
+  Brush.prototype.buttonStyleFunc = emptyFunc;
+  Brush.prototype.endFunc= emptyFunc;
 
-  Brush.prototype.dotFunc = function(cb) {
-    if (cb) this._dotFunc = cb;
+
+  Brush.prototype.dot= function(ctx, pt, dt) {//中间过程
+    this.dotFunc(ctx, pt, dt);
   };
 
-  Brush.prototype.drawFunc= function(cb) {
-    if (cb) this._drawFunc = cb;
+  Brush.prototype.buttonStyle= function(node) {//中间过程
+    try{
+      node.removeStyle('box-shadow').removeStyle('text-shadow').removeStyle('border');
+    }catch(e){}
+    this.buttonStyleFunc(node);
   };
 
-  Brush.prototype.dot= function(pt, dt) {//中间过程
-    if (this._dotFunc) this._dotFunc(pt, dt);
-  };
-
-  Brush.prototype.draw= function(pt) {//中间过程
-    var ctx = this.ctx;
+  Brush.prototype.draw= function(ctx, pt) {//中间过程
     var record = this.record(pt) || {};
     if (record.drawBol) {
-      this.check();//是否ctx的类型是正确的
-      this._drawFunc({
+      this.drawFunc({
        'pt': pt,
        'record': record,
        'ctx': ctx,
@@ -120,19 +118,17 @@ define(function() {
     }
   };
 
-
 //////////////////////结束过程//////////////////////
-  Brush.prototype.endFunc= function(cb) {//结束
-    if (cb) this._endFunc = cb;
-  };
 
-  Brush.prototype.end= function() {//结束
-    this.ctx.closePath();
+
+  Brush.prototype.end= function(ctx) {//结束
+    this.endFunc();
+    ctx.closePath();
     this.pt = null;
   };
 
-  Brush.prototype.check = function(pt, record) {
-    if (this.ctx.curStyle !== this.id) this.styles();
+  Brush.prototype.check = function(ctx) {
+    if (ctx.curStyle !== this.id) this.styles(ctx);
   };
 
   return Brush;
