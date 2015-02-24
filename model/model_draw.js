@@ -32,12 +32,12 @@ define(['zepto'], function($) {
   };
 
   var body = $('body');
-    function getQueryString(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-        var r = window.location.search.substr(1).match(reg);
-        if (r != null) return unescape(r[2]);
-        return null;
-    }
+  function getQueryString(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]);
+    return null;
+  }
   function ModelDraw(obj) {
     obj = obj || {};
     this.frameH = obj.frameH || $(window).height();
@@ -72,12 +72,17 @@ define(['zepto'], function($) {
     var type;
     if (curData) {
       this.ptN = curData.ptN;
+      this.curveN = curData.curveN;
+      this.groupN = curData.groupN;
+      if(!(this.ptN&&this.curveN&&this.groupN))  this.getFrameN(curData);
       this.timePrev = curData.timeEnd || 0;//过去数据结束的时间 为现在起始时间
       type = curData.type;
       this['cur' + upper(type)] = curData;
     } else {//需要自己新建一份数据
       type = opt.type;
-      this.ptsN = 0;
+      this.ptN = 0;
+      this.curveN = 0;
+      this.groupN = 0;
       this.timePrev = 0;
       this.curData = this['add' + upper(type)]();
     }
@@ -85,6 +90,32 @@ define(['zepto'], function($) {
     this.timeStart = getTimeAbsolute();
     // this.cancelSubmit();
     // this.autoSubmit();
+  };
+
+  ModelDraw.prototype.getFrameN = function(d) { //计算文件各元素数量
+    var ptN = 0;
+    var curveN = 0;
+    var groups = d.c;
+    var group, curves, curve, pts;
+    this.groupN = groups.length;
+    if (groups) {
+      for (var i in groups) {
+        group = groups[i];
+        curves = group.c;
+        if (curves) {
+          curveN += curves.length;
+          for (var j in curves) {
+            curve = curves[j];
+            pts = curve.c;
+            if (pts) {
+              ptN += pts.length;
+            }
+          }
+        }
+      }
+    }
+    this.curveN = curveN;
+    this.ptN = ptN;
   };
 
   ModelDraw.prototype.newRecord = function(type) { //\
@@ -125,7 +156,10 @@ define(['zepto'], function($) {
       if (idBol) obj.id = getId(type || 'frame');
       if (addFunc) addFunc(obj);
       if (this[parent]) this[parent].c.push(obj);
+
+      var children = metas[type].children;
       this['index' + upper(type)] = i + 1;
+      this['index' + upper(children)] = 0;
       return obj;
     } else {
       console.log('meta类型错误 或 type未传入');
@@ -141,6 +175,7 @@ define(['zepto'], function($) {
   };
 
   ModelDraw.prototype.addGroup = function(brushType) {
+    if (this.curData) this.curData.groupN = 1 + this.groupN++;
     var self = this;
     return this.add('group', true, function(obj) {
       obj.brushType = brushType || self.curBrush;
@@ -148,6 +183,7 @@ define(['zepto'], function($) {
   };
 
   ModelDraw.prototype.addCurve = function() {
+    if (this.curData) this.curData.curveN = 1 + this.curveN++ ;
     return this.add('curve');
   };
 
@@ -155,16 +191,18 @@ define(['zepto'], function($) {
     var frameW = this.frameW;
     pt = [pt[0] / frameW, pt[1] / frameW, pt[2]];
     this.curCurve.c.push(pt);
-    this.ptN++;
-    this.curData.ptN = this.ptN;
+    this.curData.ptN = 1 + this.ptN++;
   };
 
-
-  ModelDraw.prototype.setBrushType = function(brushType) {
-    this.addGroup(brushType);
+  ModelDraw.prototype.setBrushType = function(brush) {
+    if(brush!==this.curBrush){
+      this.addGroup(brush);
+      this.curBrush = brush;
+    }
   };
 
-  ModelDraw.prototype.back = function(pt) {
+  ModelDraw.prototype.back = function() {
+    // var curFrame = this.curFrame;
     console.log('back');
   };
 
@@ -173,6 +211,7 @@ define(['zepto'], function($) {
   // };
 
   ModelDraw.prototype.getData = function() {
+    console.log(this.curData);
     return this.curData;
   };
 
@@ -190,10 +229,10 @@ define(['zepto'], function($) {
     }
     //生成id
   function getId(type) {
-    var num = Math.random().toFixed(4);
+    var num = Math.floor(Math.random()*10000000);
     var d = new Date();
-    var dateStr = [d.getFullYear(), (d.getMonth() + 1), d.getDate(), d.getHours(), d.getMinutes()].join(',');
-    return type + dateStr + num;
+    var dateStr = [d.getFullYear(), (d.getMonth() + 1), d.getDate(), d.getHours(), d.getMinutes()].join('');
+    return type + '_'+ dateStr + '_'+ num;
   }
 
   //和数据库交互
@@ -235,12 +274,14 @@ define(['zepto'], function($) {
       }
     });
   };
+
   ModelDraw.prototype.clear = function(){
-    var list = ['Data','Scene','Frame','Group','Curve'];
+    var list = ['data','scene','frame','group','curve'];
     for(var k in list){
       var name = list[k];
-      this['index'+name] = null;
-      this['cur'+name] = null;
+      this['index'+upper(name)] = null;
+      this['cur'+upper(name)] = null;
+      this[name+'N'] = 0;
     }
   };
 

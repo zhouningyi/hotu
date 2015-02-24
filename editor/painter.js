@@ -2,6 +2,8 @@
 //'./../ui/util' 目前暂时不用
 define(['zepto'], function($) {
 
+  var body = $('body');
+
   function Painter(container, opt) {
     opt = opt || {};
     container = container || $('.container');
@@ -11,7 +13,7 @@ define(['zepto'], function($) {
     this.top = offset.top;
 
     //数据
-    this.modelDraw = opt.modelDraw;//数据
+    this.modelDraw = opt.modelDraw; //数据
     this.containerW = container.width();
     this.containerH = container.height();
 
@@ -21,7 +23,7 @@ define(['zepto'], function($) {
 
     //画笔相关
     this.brushes = opt.brushes;
-    this.brushList = ['ink', 'light', 'lightBlue', 'fatdot', 'thin'];//'lines',
+    this.brushList = ['ink', 'light', 'lightBlue', 'fatdot', 'thin']; //'lines',
     this.brushIndex = 0;
     this.setBrush(this.brushIndex);
 
@@ -30,31 +32,20 @@ define(['zepto'], function($) {
     this.renderer = opt.renderer;
     this.saveN = 10;
     this.frontDrawIndex = 0;
+    this.clickDistance = 4; //判断是否是点击事件
+    this.clickTime = 0.15;
 
-    var isAutoSave = this.isAutoSave = false;
-    var isLoadLast = this.isLoadLast = true;
-    if (isLoadLast) {
-      this.loadLast();
-    }
-    if (isAutoSave) {
-    }
     this.editEvents();
   }
 
-  Painter.prototype.loadLast = function() {//载入上一幅画
-    // drawid \ userid
-    var self = this;
-    self.beginRecord();//开始记录
-  };
 
-  Painter.prototype.beginRecord = function() {//开始数据记录
-    this.timeStart = getTimeAbsolute();//开始计时
+  Painter.prototype.beginRecord = function() { //开始数据记录
+    this.timeStart = getTimeAbsolute(); //开始计时
     this.modelDraw.beginRecord({
-      type:'frame',
-      brush:this.curBrushName
+      type: 'frame',
+      brush: this.curBrushName
     });
   };
-
 
   Painter.prototype.dom = function() {
     var container = this.container;
@@ -62,26 +53,26 @@ define(['zepto'], function($) {
     this.layerGroup('main', container);
   };
 
-  Painter.prototype.layerGroup = function(name, container){//一个带有暂存canvas的图层组
-    var layerContainer = this['node'+upper(name)] = $('<div class="container transiton" id="'+name+'"></div>').appendTo(container);
-    this.appendCanvas(upper(name)+'Back', layerContainer);
-    this.appendCanvas(upper(name)+'Front', layerContainer);
+  Painter.prototype.layerGroup = function(name, container) { //一个多canvas的图层组
+    var layerContainer = this['node' + upper(name)] = $('<div class="container transiton" id="' + name + '"></div>').appendTo(container);
+    this.appendCanvas(upper(name) + 'Back', layerContainer);
+    this.appendCanvas(upper(name) + 'Front', layerContainer);
   };
 
-  Painter.prototype.appendCanvas = function(name, container, quality){//添加一个canvas层
+  Painter.prototype.appendCanvas = function(name, container, quality) { //添加一个canvas层
     var w = this.containerW;
     var h = this.containerH;
     quality = quality || this.quality;
-    var canvas = $('<canvas width="' +  w* quality + '" height="' + h * quality + '" id="'+name+'"></canvas>')
-    .css({
-      'position':'absolute',
-      'top':0,
-      'left':0,
-      'width': w,
-      'height': h
-    }).appendTo(container);
-    canvas = this['canvas'+upper(name)] = canvas[0];
-    var ctx = this['ctx'+upper(name)] = canvas.getContext('2d');
+    var canvas = $('<canvas width="' + w * quality + '" height="' + h * quality + '" id="' + name + '"></canvas>')
+      .css({
+        'position': 'absolute',
+        'top': 0,
+        'left': 0,
+        'width': w,
+        'height': h
+      }).appendTo(container);
+    canvas = this['canvas' + upper(name)] = canvas[0];
+    var ctx = this['ctx' + upper(name)] = canvas.getContext('2d');
     ctx.scale(quality, quality);
   };
 
@@ -108,54 +99,56 @@ define(['zepto'], function($) {
   ///////////////////////////////////////////////交互事件///////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   Painter.prototype.editEvents = function() {
-    this.status = 'none';
-    var self = this;
-    var container = this.container;
-    var startPt, mvPt, touchStartTime, isAfterDown = false;
-    var ctxMainBack = this.ctxMainBack;
-    container
-      .on('touchstart mousedown', function(e) {
-        prevant(e);
-        var pt = self.getPt(e);
-        self.modelDraw.addCurve();
-        self.curBrush.begin(ctxMainBack, pt);
-        startPt = pt;
-        touchStartTime = getTimeAbsolute();
-        mvPt = null;
-        isAfterDown = true; //主要解决pc、mac的问题。
-      })
-      .on('touchmove mousemove', function(e) {
-        prevant(e);
-        var pt = self.getPt(e);
-        if (isAfterDown) {
-          self.curBrush.draw(ctxMainBack, pt);
-          self.modelDraw.addPt(pt);
-          mvPt = pt;
-        }
-      })
-      .on('touchend mouseup touchleave mouseout', function(e) {
-        prevant(e);
-        isAfterDown = false;
-        self.curBrush.end(ctxMainBack);
-        var dt = getTimeAbsolute() - touchStartTime;
-
-        if (mvPt) { //具有touch事件
-          var distance = Math.sqrt(Math.pow(mvPt[0] - startPt[0], 2) + Math.pow(mvPt[1] - startPt[1], 2));
-          if (distance < 3) {
-            container.trigger('painter-click');
-          }
-        } else {
-          if (dt > 0.15) {
-            self.curBrush.dot(ctxMainBack,startPt, dt);
-          } else {
-            container.trigger('painter-click');
-          }
-        }
-    });
+    this.isAfterDown = false;
+    this.container
+      .on('touchstart mousedown', this.touchstart.bind(this))
+      .on('touchmove mousemove', this.touchmove.bind(this))
+      .on('touchend mouseup touchleave mouseout', this.touchleave.bind(this));
   };
 
-  Painter.prototype.displayEvents = function() {
+  Painter.prototype.touchstart = function(e) {
+    prevant(e);
+    var pt = this.getPt(e);
+    this.modelDraw.addCurve();
+    this.curBrush.begin(this.ctxMainFront, pt);
+    this.startPt = pt;
+    this.touchStartTime = getTimeAbsolute();
+    this.mvPt = null;
+    this.isAfterDown = true; //主要解决pc、mac的问题。
   };
+
+  Painter.prototype.touchmove = function(e) {
+    prevant(e);
+    var pt = this.getPt(e);
+    if (this.isAfterDown) {
+      this.curBrush.draw(this.ctxMainFront, pt);
+      // self.curBrush.draw(ctxMainBack, pt);
+      this.modelDraw.addPt(pt);
+      this.mvPt = pt;
+    }
+  };
+  Painter.prototype.touchleave = function(e) {
+    prevant(e);
+    this.isAfterDown = false;
+    this.curBrush.end(this.ctxMainFront);
+    var dt = getTimeAbsolute() - this.touchStartTime;
+
+    var mvPt = this.mvPt;
+    if (mvPt) { //具有touch事件
+      var distance = Math.sqrt(Math.pow(mvPt[0] - this.startPt[0], 2) + Math.pow(mvPt[1] - this.startPt[1], 2));
+      if (distance < this.clickDistance) {
+        this.container.trigger('painter-click');
+      }
+    } else {
+      if (dt > this.clickTime) {
+        this.curBrush.dot(this.ctxMainBack, this.startPt, dt);
+      } else {
+        this.container.trigger('painter-click');
+      }
+    }
+  }
+
+  Painter.prototype.displayEvents = function() {};
   Painter.prototype.getPt = function(e) { //获取点
     var left = this.left;
     var top = this.top;
@@ -163,11 +156,11 @@ define(['zepto'], function($) {
     if (e.type.indexOf('mouse') !== -1) {
       var x = e.x || e.pageX;
       var y = e.y || e.pageY;
-      return [x-left, y-top, t];
+      return [x - left, y - top, t];
     }
     var touch = window.event.touches[0];
     // console.log(touch);
-    return [touch.pageX-left, touch.pageY-top, t];
+    return [touch.pageX - left, touch.pageY - top, t];
   };
 
   function prevant(e) { //清除默认事件
@@ -177,14 +170,14 @@ define(['zepto'], function($) {
     /////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////下载上传///////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////
-  var _fixType = function(type) {
-    type = type.toLowerCase().replace(/jpg/i, 'jpeg');
-    var r = type.match(/png|jpeg|bmp|gif/)[0];
-    return 'image/' + r;
-  };
+    // var _fixType = function(type) {
+    //   type = type.toLowerCase().replace(/jpg/i, 'jpeg');
+    //   var r = type.match(/png|jpeg|bmp|gif/)[0];
+    //   return 'image/' + r;
+    // };
 
-  Painter.prototype.save = function(obj,cb) {
-    if (this.modelDraw) this.modelDraw.save(obj,cb);
+  Painter.prototype.save = function(obj, cb) {
+    if (this.modelDraw) this.modelDraw.save(obj, cb);
   };
 
   Painter.prototype.toImage = function() {
@@ -203,16 +196,21 @@ define(['zepto'], function($) {
     return new Date().getTime() * 0.001;
   }
 
-  Painter.prototype.clean = function() { //只是清除画面
-    var containerH = this.containerH;
-    var containerW = this.containerW;
-    var ctxMain = this.ctxMainBack;
-    ctxMain.closePath();
-    ctxMain.clearRect(0, 0, containerW, containerH);
+  Painter.prototype.clean = function(name) { //清除画面
+    if(name){
+     name = upper(name);
+    var ctx = this['ctx' + name];
+    ctx.closePath();
+    ctx.clearRect(0, 0, this.containerW, this.containerH);
+  }else{
+    this.clean('MainBack');
+    this.clean('MainFront');
+  }
   };
 
   Painter.prototype.restart = function() { //重启
     this.clear();
+    body.trigger('refresh-dataid');
     this.beginRecord();
   };
 
@@ -221,56 +219,61 @@ define(['zepto'], function($) {
     this.clean();
   };
 
-  Painter.prototype.redraw = function() {//重新画一次
-    this.clean();
+  Painter.prototype.broadcast = function() { //重新画一次
+    this.clean('MainBack');
+    this.clean('MainFront');
     var data = this.modelDraw.getData();
-    this.renderer.drawDatas(this.ctxMainBack,data);
+    this.renderer.drawDatas(this.ctxMainBack, data);
   };
 
-  Painter.prototype.back = function() {//后退一步
+  Painter.prototype.back = function() { //后退一步
     this.modelDraw.back();
   };
 
-  Painter.prototype.blur = function() {//弱化
-    this.nodeMain.css({opacity:0.1});
+  Painter.prototype.blur = function() { //弱化
+    this.nodeMain.css({
+      opacity: 0.1
+    });
   };
 
-  Painter.prototype.unblur = function() {//还原
-    this.nodeMain.css({opacity:1});
+  Painter.prototype.unblur = function() { //还原
+    this.nodeMain.css({
+      opacity: 1
+    });
   };
 
-  Painter.prototype.grid = function(){//米字格
+  Painter.prototype.grid = function() { //米字格
     var containerW = this.containerW;
     var containerH = this.containerH;
     var phi = 0.12;
-    var offset = containerW*phi;
-    var p1 = [offset,offset];
-    var p2 = [containerW - offset,offset];
-    var p3 = [containerW - offset,containerH - offset];
-    var p4 = [offset, containerH- offset];
+    var offset = containerW * phi;
+    var p1 = [offset, offset];
+    var p2 = [containerW - offset, offset];
+    var p3 = [containerW - offset, containerH - offset];
+    var p4 = [offset, containerH - offset];
 
-    var p12 = [(p1[0]+p2[0])/2,(p1[1]+p2[1])/2];
-    var p23 = [(p2[0]+p3[0])/2,(p2[1]+p3[1])/2];
-    var p34 = [(p3[0]+p4[0])/2,(p3[1]+p4[1])/2];
-    var p41 = [(p4[0]+p1[0])/2,(p4[1]+p1[1])/2];
+    var p12 = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+    var p23 = [(p2[0] + p3[0]) / 2, (p2[1] + p3[1]) / 2];
+    var p34 = [(p3[0] + p4[0]) / 2, (p3[1] + p4[1]) / 2];
+    var p41 = [(p4[0] + p1[0]) / 2, (p4[1] + p1[1]) / 2];
 
     var ctx = this.ctxMainBack;
     ctx.strokeStyle = '#f00';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(p1[0],p1[1]);
-    ctx.lineTo(p2[0],p2[1]);
-    ctx.lineTo(p3[0],p3[1]);
-    ctx.lineTo(p4[0],p4[1]);
-    ctx.lineTo(p1[0],p1[1]);
+    ctx.moveTo(p1[0], p1[1]);
+    ctx.lineTo(p2[0], p2[1]);
+    ctx.lineTo(p3[0], p3[1]);
+    ctx.lineTo(p4[0], p4[1]);
+    ctx.lineTo(p1[0], p1[1]);
     ctx.stroke();
     //+线
     ctx.strokeStyle = 'rgba(200,0,0,0.5)';
     ctx.lineWidth = 2;
-    ctx.moveTo(p12[0],p12[1]);
-    ctx.lineTo(p34[0],p34[1]);
-    ctx.moveTo(p23[0],p23[1]);
-    ctx.lineTo(p41[0],p41[1]);
+    ctx.moveTo(p12[0], p12[1]);
+    ctx.lineTo(p34[0], p34[1]);
+    ctx.moveTo(p23[0], p23[1]);
+    ctx.lineTo(p41[0], p41[1]);
     ctx.stroke();
     //斜线
     ctx.strokeStyle = 'rgba(200,0,0,0.3)';
@@ -292,8 +295,9 @@ define(['zepto'], function($) {
     }
     return result;
   }
-  function upper(str){
-    return str[0].toUpperCase()+str.slice(1);
+
+  function upper(str) {
+    return str[0].toUpperCase() + str.slice(1);
   }
 
 

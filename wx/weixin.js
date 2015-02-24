@@ -5,16 +5,11 @@
     var body = $('body');
 
     function Weixin(url) {
+      this.url = url;
       this.share();
       this.getOpenid();
       this.genShare();
-    }
-
-    function getQueryString(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-        var r = window.location.search.substr(1).match(reg);
-        if (r != null) return unescape(r[2]);
-        return null;
+      this.events();
     }
 
     Weixin.prototype.share = function() {
@@ -30,48 +25,53 @@
 
     Weixin.prototype.getOpenid = function() {
       var self = this;
-      var code = getQueryString('code');
-        $.ajax({
-          url: 'http://mankattan.mathartworld.com/hotu-api/api/weixin/getopenid',
-          dataType: 'json',
-          type: 'get',
-          data: {
-            'code': code
-          },
-          success: function(d) {
-            var openid = d.openid;
-            if(openid){
-              body.trigger('openid', openid);
-              self.userid = openid; //+
-            }
-          },
-          error: function(d) {
-            var openid = 'err'+ Math.floor(Math.random() * 10000000);
-            body.trigger('openid',openid);
+      var url = this.url;
+      $.ajax({
+        url: 'http://mankattan.mathartworld.com/hotu-api/api/weixin/getopenid',
+        dataType: 'json',
+        type: 'get',
+        data: {
+          'code': url.getCode()
+        },
+        success: function(d) {
+          var openid = d.openid;
+          if (openid) {
+            body.trigger('openid', openid);
+            self.userid = openid; //+
           }
-        });
+        },
+        error: function(d) {
+          var openid = 'err' + Math.floor(Math.random() * 10000000);
+          body.trigger('openid', openid);
+        }
+      });
     };
 
     Weixin.prototype.events = function() {
       var self = this;
       $('body')
-      .on('drawid',function(e,drawid){
-        self.drawid = drawid;
-        self.genShare();
-      })
-      .on('openid', function(e, openid){
-        self.userid = openid;
-        self.genShare();
-      });
+        .on('drawid', function(e, drawid) {
+          self.drawid = drawid;
+          self.genShare();
+        })
+        .on('openid', function(e, openid) {
+          self.userid = openid;
+          self.genShare();
+        });
     };
 
     Weixin.prototype.genShare = function() {
       var self = this;
+      var url = this.url;
       wx.ready(function() {
         var title = '糊涂';
         var picUrl = 'http://open-wedding.qiniudn.com/frontlogo.png';
         var desc = '笔墨创作的感觉';
-        var url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://mankattan.mathartworld.com/hotuOrigin/?from='+(self.userid||'openid_err')+'&drawid='+(self.drawid||'drawid_err')+'&response_type=code&scope=snsapi_base&state=123&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
+        var state = url.genState({
+          fromid: self.userid || 'open_id_err',
+          drawid: self.drawid || 'draw_id_err'
+        });
+        var url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://mankattan.mathartworld.com/hotuOrigin?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
         var shareObj = {
           title: title,
           link: url,
@@ -92,4 +92,4 @@
     };
 
     return Weixin;
-  })
+  });

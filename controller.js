@@ -16,12 +16,12 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
   var drawContainer = $('.draw-container');
   var bgContainer = $('.bg-container');
 
-
-  var loadLast = true;
-  // var url = new Url();//从url中抽取数值
+  var isAutoSave = false;
+  var isLoadLast = true;
+  var url = new Url();//从url中抽取信息
+  var weixin = new Weixin(url); //微信的分享机制
 
   function Controller() {
-    this.weixin = new Weixin(); //微信的分享机制
 
     body.on('brush-change', function(e, brush) {
       brush.buttonStyle($('#brush'));
@@ -29,7 +29,6 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
 
     this.dispatchBanner(this.init.bind(this), 'direct'); //判断走哪一种方式进入主程序
   }
-
 
   Controller.prototype.dispatchBanner = function(cb, type) { //是否要载入banner提示
     if (type === 'direct') {
@@ -78,8 +77,11 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
 
   Controller.prototype.dispatchLoadlast = function() { //是否要载入banner提示
     var self = this;
-    if (loadLast) {
-      this.modelDraw.getLast({}, function(d) {
+    if (isLoadLast) {
+      this.modelDraw.getLast({
+        userid:url.getFromid(),
+        drawid:url.getDrawid()
+      }, function(d) {
         if (d) {
           d = JSON.parse(d);
           self.modelDraw.oldData(d); //存储上次的数据
@@ -138,7 +140,7 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
       var cbs = {
         'brush': painter.setBrush.bind(painter),
         'background': bg.setBg.bind(bg),
-        'broadcast': painter.redraw.bind(painter),
+        'broadcast': painter.broadcast.bind(painter),
         'refresh': window.location.reload
       };
       if (cbs[id]) cbs[id]();
@@ -196,6 +198,12 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
     });
   };
 
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
 
   function prevant(e) { //清除默认事件
     e.preventDefault();

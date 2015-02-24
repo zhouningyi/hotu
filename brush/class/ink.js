@@ -20,8 +20,7 @@ define(function() {
       var speed = record.speed || 3; //速度
       var lineWidthMax = 15;
       var lineWidth = Math.min(lineWidthMax / (Math.pow(dist,1.5)  * 0.05 + 0.5), 3 * lineWidthMax);
-      lineWidth = lineWidth * 0.9;
-      lineWidth = lineWidth + lineWidthMax * 0.1 * Math.sin(lineWidth);
+      lineWidth = lineWidth + lineWidthMax * 0.0 * Math.sin(lineWidth);
 
       for (var i = 0; i < 2; i++) {
         var ki = 1 / (i + 1);
@@ -40,4 +39,4 @@ define(function() {
       });
     }
   };
-})
+});

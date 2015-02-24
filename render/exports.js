@@ -19,14 +19,14 @@ define(['zepto'],function($){
     this.ctx = this.canvas.getContext('2d');
   };
 
-  Exports.prototype.toImage = function(){
+  Exports.prototype.toImage = function(node){
     var imgBg = this.bg.toImage();
     var imgPainter = this.painter.toImage();
     var ctx = this.ctx;
     ctx.drawImage(imgBg, 0,0,this.canvasW,this.canvasH);
     ctx.drawImage(imgPainter, 0,0,this.canvasW,this.canvasH);
-    var data = this.canvas.toDataURL('image/png');
-    data = data.replace('image/png', 'image/octet-stream');
+    var data = ctx.canvas.toDataURL('image/png');
+    // data = data.replace('image/png', 'image/octet-stream');
     var img = $('<img src="'+data+'"></img>').css({
       'width':'100%',
       'height':'auto',

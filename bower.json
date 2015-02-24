@@ -17,6 +17,8 @@
   ],
   "dependencies": {
     "requirejs":"",
-    "ionicons": "~2.0.1"
+    "ionicons": "~2.0.1",
+    "zepto":"",
+    "async":""
   }
 }
