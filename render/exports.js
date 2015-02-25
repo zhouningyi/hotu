@@ -15,11 +15,18 @@ define(['zepto'],function($){
     var containerH = this.containerH = painter.containerH;
     this.canvasW = containerW*quality;
     this.canvasH = containerH*quality;
-    this.canvas = $('<canvas width="'+containerW*quality+'" height="'+containerH*quality+'"></canvas>')[0];
-    this.ctx = this.canvas.getContext('2d');
+    var canvas = this.canvas = $('<canvas width="'+containerW*quality+'" height="'+containerH*quality+'"></canvas>');
+    // .css({
+    //   width:'100%',
+    //   height:'100%',
+    //   // visible:'hidden'
+    // });
+    // .appendTo(this.container);
+    canvas = canvas[0];
+    this.ctx = canvas.getContext('2d');
   };
 
-  Exports.prototype.toImage = function(node){
+  Exports.prototype.toImage = function(){
     var imgBg = this.bg.toImage();
     var imgPainter = this.painter.toImage();
     var ctx = this.ctx;

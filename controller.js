@@ -78,19 +78,23 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
   Controller.prototype.dispatchLoadlast = function() { //是否要载入banner提示
     var self = this;
     if (isLoadLast) {
+      var drawid = url.getDrawid();
+      body.trigger('drawid', drawid);
+      var openid = url.getFromid();
+      body.trigger('openid', openid);
       this.modelDraw.getLast({
-        userid:url.getFromid(),
-        drawid:url.getDrawid()
+        userid:openid,
+        drawid:drawid
       }, function(d) {
         if (d) {
           d = JSON.parse(d);
           self.modelDraw.oldData(d); //存储上次的数据
           self.renderer.drawDatas(self.painter.ctxMainBack, d); //画出上一次的数据
+        }else{//载入数据失败 重新生成drawid
         }
         self.painter.beginRecord(); //开始记录
       });
     }else{
-      body.trigger('refresh-dataid');
       self.painter.beginRecord();
     }
   };
@@ -191,7 +195,10 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
       var node = $(this);
       var id = node.attr('id');
       var cbs = {
-        'restart': painter.restart.bind(painter),
+        'restart': function(){
+          painter.restart();
+          body.trigger('refresh-drawid');
+        },
         'back': painter.back
       };
       if (cbs[id]) cbs[id]();

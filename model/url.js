@@ -5,7 +5,7 @@ define(['zepto'], function($) {
 
   function Url() {
     var states = getQueryStringByName('state');
-    this._states = getInfoObj(states.split('|'));
+    this._states = getInfoObj(states.split('andandand'));
   }
 
   /////////////////////从url获取信息
@@ -23,13 +23,12 @@ define(['zepto'], function($) {
 
   /////////////////////生成url
   Url.prototype.genState = function(obj) {
-    var value, result;
+    var value, result=[];
     for(var key in obj){
       value = obj[key];
-      result.push(key + '*'+value);
+      result.push(key + 'equalsto' + value);
     }
-    result.join('|');
-    return result;
+    return result.join('andandand');
   };
 
 
@@ -46,7 +45,7 @@ define(['zepto'], function($) {
     var str, splits, key, value, result = {};
     for (var k in arr) {
       str = arr[k];
-      splits = str.split('*');
+      splits = str.split('equalsto');
       key = splits[0];
       value = splits[1];
       result[key] = value;

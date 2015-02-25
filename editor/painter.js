@@ -120,10 +120,14 @@ define(['zepto'], function($) {
   Painter.prototype.touchmove = function(e) {
     prevant(e);
     var pt = this.getPt(e);
+    var modelDraw = this.modelDraw;
     if (this.isAfterDown) {
       this.curBrush.draw(this.ctxMainFront, pt);
       // self.curBrush.draw(ctxMainBack, pt);
-      this.modelDraw.addPt(pt);
+      modelDraw.addPt(pt);
+      var curCurve = modelDraw.curCurve;
+      console.log(curCurve);
+      // this.renderer.
       this.mvPt = pt;
     }
   };
@@ -181,7 +185,7 @@ define(['zepto'], function($) {
   };
 
   Painter.prototype.toImage = function() {
-    var imgData = this.canvasMainBack.toDataURL('image/png');
+    var imgData = this.canvasMainFront.toDataURL('image/png');
     return $('<img src="' + imgData + '"></img>')[0];
   };
 

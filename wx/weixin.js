@@ -18,7 +18,6 @@
         function(data, status) {
           data = data || {};
           var config = data.config;
-          // config.debug = true;
           wx.config(config);
         });
     };
@@ -35,13 +34,14 @@
         },
         success: function(d) {
           var openid = d.openid;
+          // alert(JSON.stringify(d)+'openid');
           if (openid) {
             body.trigger('openid', openid);
             self.userid = openid; //+
           }
         },
-        error: function(d) {
-          var openid = 'err' + Math.floor(Math.random() * 10000000);
+        error: function(e) {
+          var openid = 'optid-err' + Math.floor(Math.random() * 10000000);
           body.trigger('openid', openid);
         }
       });
@@ -71,10 +71,11 @@
           fromid: self.userid || 'open_id_err',
           drawid: self.drawid || 'draw_id_err'
         });
-        var url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://mankattan.mathartworld.com/hotuOrigin?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
+
+        var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://mankattan.mathartworld.com/hotuOrigin?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
         var shareObj = {
           title: title,
-          link: url,
+          link: shareUrl,
           imgUrl: picUrl,
           desc: desc,
           success: function() {

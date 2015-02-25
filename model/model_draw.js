@@ -45,7 +45,6 @@ define(['zepto'], function($) {
     this.recordPtBol = true;
     this.olderData = null;
     this.events();
-    this.drawid = getQueryString('drawid') || getId('frame');
   }
 
   ModelDraw.prototype.events = function(){
@@ -54,7 +53,10 @@ define(['zepto'], function($) {
     .on('openid',function(e, openid){
       self.userid = openid;
     })
-    .on('refresh-dataid', function(){
+    .on('drawid', function(e, drawid){
+      self.drawid = drawid;
+    })
+    .on('refresh-drawid', function(){
       var drawid = self.drawid = getId('frame');
       body.trigger('drawid',drawid);
     });
