@@ -191,7 +191,11 @@ define(['zepto'], function($) {
 
   ModelDraw.prototype.addPt = function(pt) {
     var frameW = this.frameW;
-    pt = [pt[0] / frameW, pt[1] / frameW, pt[2]];
+    var x = (pt[0] / frameW).toFixed(5);
+    var y = (pt[1] / frameW).toFixed(5);
+    var t = pt[2].toFixed(2);
+    pt = [x, y, t];
+    // pt = [pt[0] / frameW, pt[1] / frameW, pt[2]];
     this.curCurve.c.push(pt);
     this.curData.ptN = 1 + this.ptN++;
   };
@@ -204,8 +208,22 @@ define(['zepto'], function($) {
   };
 
   ModelDraw.prototype.back = function() {
-    // var curFrame = this.curFrame;
-    console.log('back');
+    var curFrame = this.curFrame;
+    var groups = curFrame.c;
+    var groupLast =groups[groups.length-1];
+    var curves = groupLast.c;
+    curves.pop();
+    if(curves.length>0){
+      this.curCurve =  curves[curves.length-1];
+    }else{
+      this.curGroup  = groupLast = groups[groups.length-2];
+      if(groupLast){
+        curves = groupLast.c;
+        this.curCurve =  curves[curves.length-1];
+      }else{
+        this.curCurve = null;
+      }
+    }
   };
 
   // ModelDraw.prototype.register = function() {
@@ -213,7 +231,7 @@ define(['zepto'], function($) {
   // };
 
   ModelDraw.prototype.getData = function() {
-    console.log(this.curData);
+    console.log(this.curData)
     return this.curData;
   };
 

@@ -11,6 +11,7 @@ define(['./animator','async'],function(Animator,async){
     }
   }
 
+  function empty(){};
   Renderer.prototype.ptTransform = function(frameW, frameH, dataFrameW, dataFrameH){
     // var phi = frameW
     // if()
@@ -108,11 +109,20 @@ define(['./animator','async'],function(Animator,async){
     return funcs;
   };
 
-  Renderer.prototype.genDrawCurveFunc = function(curve, brush, ctx, opt){
+  Renderer.prototype.genDrawCurveFunc = function(curve, brush, ctx, opt) {
     var drawCurve = this.drawCurve.bind(this);
-    return function(next){
+    return function(next) {
       drawCurve(curve, brush, ctx, opt, next);
     };
+  };
+
+  //
+  Renderer.prototype.drawCurveDirect = function(curve, brush, ctx) {
+    this.drawCurve(curve, brush, ctx, {
+      curve: {
+        async: 0
+      }
+    }, empty);
   };
 
   Renderer.prototype.drawCurve = function(curve, brush, ctx, opt, done) {
@@ -121,6 +131,8 @@ define(['./animator','async'],function(Animator,async){
     var funcs = this.genDrawCurveFuncs(curve, brush, ctx);
     dispatch(funcs,done,curveOpt);
    };
+
+
 
   Renderer.prototype.genDrawCurveFuncs = function(curve, brush, ctx) { //生成绘制一根曲线的函数队列
     var funcs = [];
@@ -138,7 +150,7 @@ define(['./animator','async'],function(Animator,async){
   function genDrawPtFunc(pt, brush, ctx, index, ptN, _ptTransform){//生成一个画点的方法
       return function(next) {
         drawPt(pt, brush, ctx, index, ptN, _ptTransform);
-        next&&next();
+        next && next();
       };
   }
 

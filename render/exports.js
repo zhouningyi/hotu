@@ -28,13 +28,14 @@ define(['zepto'],function($){
 
   Exports.prototype.toImage = function(){
     var imgBg = this.bg.toImage();
-    var imgPainter = this.painter.toImage();
+    var imgPainters = this.painter.toImage();
     var ctx = this.ctx;
     ctx.drawImage(imgBg, 0,0,this.canvasW,this.canvasH);
-    ctx.drawImage(imgPainter, 0,0,this.canvasW,this.canvasH);
+    ctx.drawImage(imgPainters[0], 0,0,this.canvasW,this.canvasH);
+    ctx.drawImage(imgPainters[1], 0,0,this.canvasW,this.canvasH);
     var data = ctx.canvas.toDataURL('image/png');
     // data = data.replace('image/png', 'image/octet-stream');
-    var img = $('<img src="'+data+'"></img>').css({
+    var img = $('<img width="'+this.canvasW+'" height="'+this.canvasH+'" src="'+data+'"></img>').css({
       'width':'100%',
       'height':'auto',
     });

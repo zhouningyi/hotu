@@ -8,15 +8,15 @@ define(['zepto'], function($) {
     this.containerH = container.height();
 
     this.bgIndex = 0;
-    this.setBg(this.bgIndex);
-
     this.dom();
+
+    this.setBg(this.bgIndex);
     // this.events();
   }
 
   Bg.prototype.dom = function(obj) {
     obj = obj || {};
-    var quality = obj.quality || 2;
+    var quality = obj.quality || 1;
     var canvas = $('<canvas width="' + this.containerW * quality + '" height="' + this.containerH * quality + '"></canvas>').css({
       width: this.containerW,
       height: this.containerH,
@@ -33,13 +33,14 @@ define(['zepto'], function($) {
 ///////////////////////////////////////////////背景替换///////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
   Bg.prototype.setBg = function(index) {
-    var list = ['Red','Dark','Light'];
+    var list = ['Light', 'Dark','Red'];
     if(index ===null || index ===undefined){
       index = this.bgIndex = (this.bgIndex +1)%list.length;
     }
     var bgName = list[index];
     this['bg' + bgName]();
     this.container.trigger('bg-color-change',this.bgColor);
+    this.updateCanvas();
   };
 
   Bg.prototype.bgDark = function() {
@@ -64,12 +65,14 @@ define(['zepto'], function($) {
   };
 
   Bg.prototype.toImage = function() {
-    var bgColor = this.bgColor;
+    return this.canvas;
+  };
+
+  Bg.prototype.updateCanvas = function() {
     var ctx = this.ctx;
-    ctx.fillStyle = bgColor;
+    ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+    ctx.fillStyle = this.bgColor;
     ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height);
-    var data = this.canvas.toDataURL('image/png');
-    return $('<img src="'+data+'"></img>')[0];
   };
 
   return Bg;

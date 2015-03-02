@@ -66,7 +66,7 @@
       wx.ready(function() {
         var title = '糊涂';
         var picUrl = 'http://open-wedding.qiniudn.com/frontlogo.png';
-        var desc = '笔墨创作的感觉';
+        var desc = '笔墨创作的感觉|行书效果新上线';
         var state = url.genState({
           fromid: self.userid || 'open_id_err',
           drawid: self.drawid || 'draw_id_err'

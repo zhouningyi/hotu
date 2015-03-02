@@ -1,6 +1,6 @@
 'use strict';
 
-define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin','model/model_draw',  'render/renderer'], function($, Loading, Gui, Bg, Painter, FloatTag, Exports, Brushes, Url, Weixin, ModelDraw, Renderer) {
+define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer'], function($, Gui, Bg, Painter, FloatTag, Exports, Brushes, Url, Weixin, ModelDraw, Renderer) {
 
   var clickEvent = 'touchstart mousedown';
   var body = $('body');
@@ -18,7 +18,7 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
 
   var isAutoSave = false;
   var isLoadLast = true;
-  var url = new Url();//从url中抽取信息
+  var url = new Url(); //从url中抽取信息
   var weixin = new Weixin(url); //微信的分享机制
 
   function Controller() {
@@ -34,11 +34,11 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
     if (type === 'direct') {
       return cb();
     }
-    new Loading($('.main-container'), cb);
+    // new Loading($('.main-container'), cb);
   };
 
-  Controller.prototype.animIn = function() {//动画进入
-    importantToolsNode.keyAnim('fadeInLeft',{
+  Controller.prototype.animIn = function() { //动画进入
+    importantToolsNode.keyAnim('fadeInLeft', {
       time: 0.4
     });
     drawToolsNode.keyAnim('fadeInLeft', {
@@ -60,11 +60,12 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
       frameH: drawContainer.height()
     };
     var modelDraw = this.modelDraw = new ModelDraw(frameOpt); //数据
-    var renderer = this.renderer = new Renderer(brushes, frameOpt);//动画播放等
+    var renderer = this.renderer = new Renderer(brushes, frameOpt); //动画播放等
     painter = this.painter = new Painter(drawContainer, {
       'brushes': brushes,
-      'modelDraw':modelDraw,
-      'renderer':renderer
+      'modelDraw': modelDraw,
+      'renderer': renderer,
+      'quality':2
     });
     bg = new Bg(bgContainer);
     exports = new Exports(floatTagNode, bg, painter);
@@ -83,23 +84,23 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
       var openid = url.getFromid();
       body.trigger('openid', openid);
       this.modelDraw.getLast({
-        userid:openid,
-        drawid:drawid
+        userid: openid,
+        drawid: drawid
       }, function(d) {
         if (d) {
           d = JSON.parse(d);
           self.modelDraw.oldData(d); //存储上次的数据
           self.renderer.drawDatas(self.painter.ctxMainBack, d); //画出上一次的数据
-        }else{//载入数据失败 重新生成drawid
+        } else { //载入数据失败 重新生成drawid
         }
         self.painter.beginRecord(); //开始记录
       });
-    }else{
+    } else {
       self.painter.beginRecord();
     }
   };
 
-//事件
+  //事件
   Controller.prototype.events = function() {
     this.painterEvents();
     this.iconEvents();
@@ -166,12 +167,12 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
           }, function() {});
         },
         'submit-message': function() {
-          painter.save({},function(bol){
-          floatTag.in({
-            node: node,
-            type: 'bottom',
-            helpText: bol?'上传成功':'请您重试' //,
-          });
+          painter.save({}, function(bol) {
+            floatTag.in({
+              node: node,
+              type: 'bottom',
+              helpText: bol ? '上传成功' : '请您重试' //,
+            });
           });
         }
       };
@@ -195,22 +196,22 @@ define(['zepto', 'ui/loading', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floa
       var node = $(this);
       var id = node.attr('id');
       var cbs = {
-        'restart': function(){
+        'restart': function() {
           painter.restart();
           body.trigger('refresh-drawid');
         },
-        'back': painter.back
+        'back': painter.back.bind(painter)
       };
       if (cbs[id]) cbs[id]();
     });
   };
 
-    function getQueryString(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-        var r = window.location.search.substr(1).match(reg);
-        if (r != null) return unescape(r[2]);
-        return null;
-    }
+  function getQueryString(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]);
+    return null;
+  }
 
   function prevant(e) { //清除默认事件
     e.preventDefault();
