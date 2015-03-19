@@ -9,33 +9,50 @@ define(['./animator','async'],function(Animator,async){
       this.frameH = opt.frameH;
       this.frameW = opt.frameW;
     }
+    this.px = 0;
+    this.py =0;
+    this.pw = this.frameW;
+    this.ph = this.frameW;
   }
 
   function empty(){};
-  Renderer.prototype.ptTransform = function(frameW, frameH, dataFrameW, dataFrameH){
+
+  Renderer.prototype.ptTransform = function(opt, data){
+    var ptTransformStr = opt.ptTransform || 'normal';//
+    var bbox = {};
+    if(ptTransformStr=='center_x'){
+      if(data.info){
+        bbox = data.info.bbox;
+        var xMin = bbox.xMin;
+        var yMin = bbox.yMin;
+        var xMax = bbox.xMax;
+        var yMax = bbox.yMax;
+        var dx = xMax - xMin;
+        var dy = yMax - yMin;
+        this.py = (0.5 - dy/2)*this.frameH;
+      }
+      return;
+    }else if(ptTransformStr=='normal'){
+      this.ph = this.frameW;
+    }
     // var phi = frameW
     // if()
   };
 
   Renderer.prototype._ptTransform = function(pt){//绘制的面板可能和看到的不一致
-    var frameW = this.frameW;
-    pt = [pt[0]*frameW, pt[1]*frameW,pt[2]];
+    pt = [pt[0]*this.pw +this.px, pt[1]*this.ph+this.py, pt[2]];
     return pt;
   };
 
   Renderer.prototype.drawDatas = function(ctx, data, opt) {
     opt = opt || {
         curve:{async:1},
-        group:{async:1},
         frame:{async:1}
       };
-    var dataFrameH = this.dataFrameH = data.frameH;
-    var dataFrameW = this.dataFrameW = data.frameW;
-    var frameW = this.frameW;
-    var frameH = this.frameH;
-    if(frameW!==dataFrameW&&frameH!==dataFrameH){
-      this.ptTransform(frameW, frameH, dataFrameW, dataFrameH);
-    }
+
+    this.dataFrameH = data.frameH;
+    this.dataFrameW = data.frameW;
+    this.ptTransform(opt, data);
 
     var dType = data.type;
     if (dType === 'frame') {
@@ -62,6 +79,10 @@ define(['./animator','async'],function(Animator,async){
   }
 
   Renderer.prototype.drawFrame = function(frame, ctx, opt, done) {
+    opt = opt ||{
+      frame:{async:1},
+      curve:{async:1},
+    };
     if (frame) {
       var frameOpt = opt.frame;
       var funcs = this.genDrawFrameFuncs(frame,ctx,opt);
@@ -71,70 +92,41 @@ define(['./animator','async'],function(Animator,async){
 
   Renderer.prototype.genDrawFrameFuncs = function(frame, ctx, opt){
     var funcs = [];
-    var group, groups = frame.c;
-    for(var index in groups){
-      group = groups[index];
-      funcs.push(this.genDrawGroupFunc(group, ctx, opt));
-    }
-    return funcs;
-  };
-
-  Renderer.prototype.genDrawGroupFunc = function(group, ctx, opt){
-    var drawGroup = this.drawGroup.bind(this);
-    return function(next){
-      drawGroup(group, ctx, opt, next);
-    };
-  };
-
-  Renderer.prototype.drawGroup = function(group, ctx, opt, done) {
-    var groupOpt = opt.group;
-    var brushes = this.brushes;
-
-    if (group) {
-      // var groupId = group.id;
-      var brushType = group.brushType;
-      var brush = brushes[brushType];
-      var funcs = this.genDrawGroupFuncs(group, brush, ctx, opt);
-      dispatch(funcs,done,groupOpt);
-    }
-  };
-
-  Renderer.prototype.genDrawGroupFuncs = function(group, brush, ctx, opt){
-    var funcs = [];
-    var curve, curves = group.c;
+    var curve, curves = frame.c;
     for(var index in curves){
       curve = curves[index];
-      funcs.push(this.genDrawCurveFunc(curve, brush, ctx, opt));
+      funcs.push(this.genDrawCurveFunc(curve, ctx, opt));
     }
     return funcs;
   };
 
-  Renderer.prototype.genDrawCurveFunc = function(curve, brush, ctx, opt) {
+
+  Renderer.prototype.genDrawCurveFunc = function(curve, ctx, opt) {
     var drawCurve = this.drawCurve.bind(this);
     return function(next) {
-      drawCurve(curve, brush, ctx, opt, next);
+      drawCurve(curve, ctx, opt, next);
     };
   };
 
   //
-  Renderer.prototype.drawCurveDirect = function(curve, brush, ctx) {
-    this.drawCurve(curve, brush, ctx, {
+  Renderer.prototype.drawCurveDirect = function(curve, ctx) {
+    this.drawCurve(curve, ctx, {
       curve: {
         async: 0
       }
     }, empty);
   };
 
-  Renderer.prototype.drawCurve = function(curve, brush, ctx, opt, done) {
+  Renderer.prototype.drawCurve = function(curve, ctx, opt, done) {
     var curveOpt = opt.curve;
     done = done || function(){};
-    var funcs = this.genDrawCurveFuncs(curve, brush, ctx);
+    var funcs = this.genDrawCurveFuncs(curve, ctx);
     dispatch(funcs,done,curveOpt);
    };
 
-
-
-  Renderer.prototype.genDrawCurveFuncs = function(curve, brush, ctx) { //生成绘制一根曲线的函数队列
+  Renderer.prototype.genDrawCurveFuncs = function(curve, ctx) { //生成绘制一根曲线的函数队列
+    var brushType = curve.brushType;
+    var brush = this.brushes[brushType];
     var funcs = [];
     var pt, pts = curve.c,
       ptN = pts.length,
@@ -154,15 +146,16 @@ define(['./animator','async'],function(Animator,async){
       };
   }
 
-
   function drawPt (pt, brush, ctx, index, ptN, _ptTransform) { //绘制一个点的过程
     pt = _ptTransform(pt);
     if (index === '0' || index === 0) {
       brush.begin(ctx, pt);
-    } else if (index == ptN - 1) {
-      brush.end(ctx);
-    } else {
+    }
+    else {
       brush.draw(ctx, pt);
+    }
+    if (index == ptN - 1) {//目前暂时没想到要做什么
+      brush.end(ctx);
     }
   }
 

@@ -7,14 +7,15 @@ define(['./easing'], function(Easing) {
 
   function Brush(opt) {
     opt = opt || {};
-
     this.opt = opt;
-    this.styles();
     this.Easing = Easing;
+
+    this.smoothNames = [];
+    this.styles();
+
     this.maxDist = 80;
     this.smoothList = [];
   }
-
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////记录分析///////////////////////////////////////////
@@ -61,63 +62,101 @@ define(['./easing'], function(Easing) {
     }
   };
 
-  Brush.prototype.smoothFunc = function(i, N){
-    var easing = this.Easing.Back.In;
-    return easing((i+1)/N) - easing(i/N);
-  };
-
-  Brush.prototype.getSmooth = function(num) {
-    var smoothN = this.smoothN;
-    var sList = this.smoothList;
-    var sFunc = this.smoothFunc.bind(this);
-
-    sList.push(num);
-    if (sList.length > smoothN) {
-      sList.splice(0, 1);
-    }
-    var ki, result = 0; // ki为权重
-    var sListN = sList.length;
-    for (var k = 0; k < sListN; k++) {
-      var value = sList[k];
-      ki = sFunc(k, sListN);
-      result += ki * value;
-    }
-    return result;
-  };
-
-  Brush.prototype.styles = function(ctx) { //静态的设置
-    var opt = this.opt;
-    if (opt) {
-      for (var name in opt) {
-        this[name] = opt[name];
+  Brush.prototype.styles = function(opt, ctx) { //静态的设置
+    ctx = this.ctx = ctx|| this.ctx;
+    opt = this.opt = opt|| this.opt;
+    this.setOptions(opt, ctx);
+    //平滑的设置
+    if(opt.smooth){
+      var smoothList = opt.smooth;
+      var smooth;
+      for(var key in smoothList){
+        smooth = smoothList[key];
+        this.initSmooth(key, smooth.N, smooth.f);
       }
+    }
+  };
 
-      //绘图本身的设置
-      this.hue = opt.hue || this.hue || 170;
-      this.maxSize = opt.maxSize;
-      this.distLimit = opt.distLimit || this.distLimit || 10;
-      this.smoothN = opt.smoothN || this.smoothN || 6;
-      //画布相关的设置
+  Brush.prototype.setOptions = function(opt, ctx) {
+    var ctxOpts = {
+      'lineCap': 1,
+      'globalCompositeOperation': 1,
+      'lineJoin': 1,
+      'strokeStyle': 1,
+      'fillStyle': 1,
+      'lineWidth': 1,
+      'curStyle': 1
+    };
+    var value;
+
+    for (var key in opt) {
+      value = this[key] = opt[key] || this[key];
       if (ctx) {
-        ctx.globalCompositeOperation = opt.globalCompositeOperation || this.globalCompositeOperation || 'source-over';
-        ctx.lineCap = opt.lineCap || this.lineCap || 'round';
-        ctx.lineJoin = opt.lineJoin || this.lineJoin || 'round';
-        ctx.strokeStyle = opt.strokeStyle || this.strokeStyle || '#000';
-        ctx.fillStyle = opt.fillStyle || this.fillStyle || '#fff';
-        ctx.lineWidth = opt.lineWidth || this.lineWidth || 1;
-        //名字
-        ctx.curStyle = this.id = opt.id;
+        if (key in ctxOpts) {
+          ctx[key] = value;
+        }
       }
     }
   };
+
+/**
+ * [initSmooth description]
+ * @param  {String} variableName [进行smooth的变量]
+ * @param  {Int} N               [进行smooth的数量]
+ * @param  {String} type         [easing的方式]
+ */
+  Brush.prototype.initSmooth = function(variableName, N, type){//type:back.inout
+    type = type || 'Sinusoidal.In';
+    this['smoothN'+variableName] = N;
+    this['smoothList'+variableName] = [];
+    this.smoothNames.push(variableName);
+    var typeNames = type.split('.');
+    var easing = this.Easing[typeNames[0]][typeNames[1]];
+    var smoothMap = this['smoothMap'+variableName] = [];
+    for(var k =0;k<N;k++){
+      smoothMap[k] = easing((k+1)/N) - easing(k/N);
+    }
+    this['smoothFunc'+variableName] = function(k, N){
+      return easing((k+1)/N) - easing(k/N);
+    };
+  };
+
+  Brush.prototype.getSmooth = function(variableName, num) {//如果sList的点不足 采用函数处理 点到了阈值 用储存好的list
+    var smoothN = this['smoothN' + variableName];
+    var sList = this['smoothList' + variableName];
+    var smoothMap = this['smoothMap' + variableName];
+    var sFunc = this['smoothFunc'+variableName];
+    if (smoothMap) {
+      sList.push(num);
+      if (sList.length > smoothN){
+        sList.splice(0, 1);
+        sFunc = function(k){
+          return smoothMap[k];
+        };
+      }
+        var ki, result = 0; // ki为权重
+        var sListN = sList.length;
+        for (var k = 0; k < sListN; k++) {
+          var value = sList[k];
+          ki = sFunc(k, sListN);
+          result += ki * value;
+        }
+        return result;
+    } else {
+      console.log('该变量没加入smooth列表');
+      return null;
+    }
+  };
+
 
   //////////////////////开始画线//////////////////////
-
   Brush.prototype.begin = function(ctx, pt) {
+    this.ctx = ctx;
     this.check(ctx); //是否ctx的类型是正确的
-    ctx.moveTo(pt[0], pt[1]);
     this.record(pt);
     this.smoothList = [];
+    this.smoothListX = [];
+    this.smoothListY = [];
   };
 
   //////////////////////中间过程//////////////////////
@@ -129,6 +168,7 @@ define(['./easing'], function(Easing) {
 
 
   Brush.prototype.dot = function(ctx, pt, dt) { //中间过程
+    this.ctx = ctx;
     this.dotFunc(ctx, pt, dt);
   };
 
@@ -140,6 +180,7 @@ define(['./easing'], function(Easing) {
   };
 
   Brush.prototype.draw = function(ctx, pt) { //中间过程
+    ctx.save();
     var record = this.record(pt) || {};
     if (record.drawBol) {
       this.drawFunc({
@@ -150,18 +191,26 @@ define(['./easing'], function(Easing) {
         'self': this
       });
     }
+    ctx.restore();
   };
 
   //////////////////////结束过程//////////////////////
-
   Brush.prototype.end = function(ctx) { //结束
     this.endFunc();
-    ctx.closePath();
+    this.widthPrev = null;
     this.pt = null;
+    ctx.closePath();
+    ctx.fillStyle = null;
+    ctx.strokeStyle = null;
+    var smoothNames = this.smoothNames;
+    for(var i in smoothNames){
+      var name = smoothNames[i];
+      this['smoothList' +name] = [];
+    }
   };
 
   Brush.prototype.check = function(ctx) {
-    if (ctx.curStyle !== this.id) this.styles(ctx);
+    if (ctx.curStyle !== this.id) this.styles();
   };
 
   return Brush;

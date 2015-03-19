@@ -2,11 +2,11 @@
 
 define(function() {
   return {
-    'desc': '可爱 画点笔触',
-    'name':'点点',
     'initOpt': {
+      'desc': '可爱 画点笔触',
+      'name':'点点',
       'id': 'fatdot',
-      // 'fillStyle': 'rgba(55,155,155,0.1)',
+      'fillStyle': 'rgba(255,255,255,1)',
       'lineWidth': 1,
       'strokeStyle': '#000',
       'globalCompositeOperation': 'source-over',

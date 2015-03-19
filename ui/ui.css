@@ -166,15 +166,16 @@ body {
     margin-left: 10px;
   }*/
 
-.small-helper-node{
+.ui-grid{
   position:relative;
   display: block;
-  margin: 5px 0px;
+  width: 50px;
+  height: 65px;
 }
-.small-helper{
+.icon-text{
   width: 100%;
   display: block;
-  margin-bottom: 15px;
+  height: 25px;
 }
 .transparent {
   background-color: transparent;
@@ -202,14 +203,12 @@ body {
   display: inline-block;
 }
 .iconfont-mobile{
-  width: 40px;
+  width: 50px;
   height: 40px;
-  top: 10px;
   line-height: 40px;
   text-align: center;
   vertical-align: bottom;
   font-size: 30px;
-  margin: 10px 5px 0px 10px;
   pointer-events:auto;
 }
 
@@ -273,14 +272,56 @@ body {
   }
 }
 
+.sub-tools{
+  position: absolute;
+  opacity: 0;
+  pointer-events:auto;
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+  pointer-events:none;
+  background-color: rgba(250,250,250,0.9);
+}
+.brush-list-icon{
+  background-color: rgba(0,0,0,0.2);
+  color: #fff;
+  width: 50px;
+  height: 30px;
+  line-height: 30px;
+  margin: 10px 5px;
+  border-radius: 5px;
+  text-align: center;
+  display: inline-block;
+  position: relative;
+}
+.brush-list-icon-active{
+  background-color: #099;
+}
+.sub-tools-list{
+  background: rgba(0,0,0,0.1);
+  position: relative;
+  text-align: left;
+  width: 100%;
+  height: auto;
+}
+.sub-tools-preview{
+  position: relative;
+  width: 100%;
+  height: 80px;
+  /*box-shadow: 0px 0px 10px rgba(0,0,0,0.2);*/
+}
+
+.sub-tools-control{
+  width: 100%;
+  position: relative;
+}
+
 .float-tag{
   position: absolute;
   width: 200px;
   opacity: 0;
   pointer-events:auto;
-  pointer-events:none;
 }
 .float-tag-help{
+  background: rgba(0,0,0,0.4);
   position: relative;
   line-height: 40px;
   height: 40px;
@@ -291,11 +332,13 @@ body {
 }
 
 .float-tag-add{
-  background: rgba(0,0,0,0.4);
   position: relative;
   width: 100%;
   height: auto;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
   /*box-shadow: 1px 1px 1px rgba(0,0,0,0.6);*/
+}
+.float-tag-img{
 }
 
 .float-tag-triangle{
@@ -307,4 +350,121 @@ body {
   border-left: 8px solid transparent;
   margin: 0 auto;
   height: 8px;
+}
+.color-grid{
+  position: relative;
+  display:inline-block;
+  margin: 1px 1px;
+  padding: 2px 2px;
+}
+.color-grid-unselected{
+  border: none;
+}
+.color-grid-selected{
+  border: 1px solid #000;
+}
+
+/*动画*/
+@-webkit-keyframes toolsInLeft {
+  0% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 0;
+    -webkit-transform: scale3d(0, 0.5, 1);
+    transform: scale3d(0, 0.5, 1);
+  }
+
+  50% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 0.2;
+    -webkit-transform: scale3d(0, 0.5, 1);
+    transform: scale3d(0, 0.5, 1);
+  }
+
+  100% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+
+@keyframes toolsInLeft {
+  0% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 0;
+    -webkit-transform: scale3d(0, 0.5, 1);
+    transform: scale3d(0, 0.5, 1);
+  }
+
+  50% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 0.2;
+    -webkit-transform: scale3d(0, 0.5, 1);
+    transform: scale3d(0, 0.5, 1);
+  }
+
+  100% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+
+@-webkit-keyframes toolsOutLeft {
+  100% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 0;
+    -webkit-transform: scale3d(0, 0.5, 1);
+    transform: scale3d(0, 0.5, 1);
+  }
+
+  50% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 0.2;
+    -webkit-transform: scale3d(0, 0.5, 1);
+    transform: scale3d(0, 0.5, 1);
+  }
+
+  0% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+
+@keyframes toolsOutLeft {
+  0% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 0;
+    -webkit-transform: scale3d(0, 0.5, 1);
+    transform: scale3d(0, 0.5, 1);
+  }
+
+  50% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 0.2;
+    -webkit-transform: scale3d(0, 0.5, 1);
+    transform: scale3d(0, 0.5, 1);
+  }
+
+  100% {
+    transform-origin: 0% 0% 0;
+    -webkit-transform-origin: 0% 0% 0;
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
 }

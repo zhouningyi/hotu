@@ -22,17 +22,20 @@ define(['zepto'],function($){
     //   // visible:'hidden'
     // });
     // .appendTo(this.container);
-    canvas = canvas[0];
-    this.ctx = canvas.getContext('2d');
+    this.ctx = canvas[0].getContext('2d');
   };
 
   Exports.prototype.toImage = function(){
     var imgBg = this.bg.toImage();
-    var imgPainters = this.painter.toImage();
+    var imgPainterLayers = this.painter.toImage();
     var ctx = this.ctx;
-    ctx.drawImage(imgBg, 0,0,this.canvasW,this.canvasH);
-    ctx.drawImage(imgPainters[0], 0,0,this.canvasW,this.canvasH);
-    ctx.drawImage(imgPainters[1], 0,0,this.canvasW,this.canvasH);
+    var canvasW = this.canvasW,canvasH=this.canvasH;
+    ctx.drawImage(imgBg, 0,0,canvasW,canvasH);
+    for(var i in imgPainterLayers){
+      var imgPainterLayer = imgPainterLayers[i];
+      ctx.drawImage(imgPainterLayer, 0, 0, canvasW, canvasH);
+    }
+
     var data = ctx.canvas.toDataURL('image/png');
     // data = data.replace('image/png', 'image/octet-stream');
     var img = $('<img width="'+this.canvasW+'" height="'+this.canvasH+'" src="'+data+'"></img>').css({
@@ -41,11 +44,6 @@ define(['zepto'],function($){
     });
 
     return img;
-
-    // $(imgPainter).css({
-    //   'width':'100%',
-    //   'height':'auto',
-    // });
   };
 
   return Exports;

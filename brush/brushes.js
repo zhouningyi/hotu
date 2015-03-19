@@ -1,8 +1,8 @@
 'use strict';
 //这个模块和业务关系比较大 负责选择调用哪些模块
-define(['./brush', './class/fatdot', './class/thin', './class/ink', './class/light', './class/lightBlue','./class/lines'], function(Brush, fatdot, thin, ink, light, lightBlue,lines) { //加载brush基类
+define(['./brush', './class/fatdot', './class/ink', './class/light'], function(Brush, fatdot, ink, light) { //加载brush基类
 
-  var brushes = [fatdot,thin,ink,light,lightBlue,lines];
+  var brushes = [ink,light,fatdot];
   function Brushes() {
     return this.creates(brushes);
   }
@@ -14,6 +14,7 @@ define(['./brush', './class/fatdot', './class/thin', './class/ink', './class/lig
     if(bru.draw) brush.drawFunc = bru.draw;
     if(bru.dot) brush.dotFunc = bru.dot;
     if(bru.buttonStyle) brush.buttonStyleFunc = bru.buttonStyle;
+    if(bru.end) brush.endFunc = bru.end;
     result[id] = brush;
   };
 

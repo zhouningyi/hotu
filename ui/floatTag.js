@@ -44,9 +44,21 @@ define(['zepto', 'anim'], function($) {
         'left': l + w / 2 - width / 2,
         'bottom': h+offset,
         'width': width,
+        'height': 'auto',
+        'top':'auto'
+      };
+    },
+    left:function(w, l, h, t) {
+      var width = $(window).width()*0.8;
+      var offset = 5;
+      return {
+        'left': l + w+offset,
+        'top': t-offset-3,
+        'bottom':'auto',
+        'width': width,
         'height': 'auto'
       };
-    }
+    },
   };
 
   FloatTag.prototype.in = function(obj ,cb) { //隐藏
@@ -68,7 +80,8 @@ define(['zepto', 'anim'], function($) {
       floatTagNode.css(css).keyAnim('fadeIn', {
         time: 0.5,
         cb: function() {
-          floatTagNode.css({
+          floatTagNode
+          .css({
             'pointerEvents': 'auto'
           });
           self.isOut = false;
@@ -76,7 +89,7 @@ define(['zepto', 'anim'], function($) {
         }
       });
       //背景色
-      if(obj.bgImg) obj.bgImg.appendTo(floatTagAddNode);
+      if(obj.bgImg) obj.bgImg.addClass('float-tag-img').appendTo(floatTagAddNode);
 
       //提示
       if(obj.helpText) this.floatTagHelp(obj.helpText);

@@ -1,11 +1,11 @@
 'use strict';
 
-define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer'], function($, Gui, Bg, Painter, FloatTag, Exports, Brushes, Url, Weixin, ModelDraw, Renderer) {
+define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/subTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer'], function($, Gui, Bg, Painter, FloatTag, SubTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer) {
 
   var clickEvent = 'touchstart mousedown';
   var body = $('body');
 
-  var painter, bg, exports, gui, floatTag, brushes;
+  var painter, bg, exports, gui, floatTag, subTools, brushes;
 
   var drawToolsNode = $('#draw-tools');
   var endToolsNode = $('.end-tools');
@@ -22,10 +22,10 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'render
   var weixin = new Weixin(url); //微信的分享机制
 
   function Controller() {
-
-    body.on('brush-change', function(e, brush) {
-      brush.buttonStyle($('#brush'));
-    }); //笔触更换导致ui变化
+    var self = this;
+    // body.on('brush-change', function(e, brushType) {
+    //   // self.brush.buttonStyle($('#brush'));
+    // }); //笔触更换导致ui变化
 
     this.dispatchBanner(this.init.bind(this), 'direct'); //判断走哪一种方式进入主程序
   }
@@ -52,15 +52,21 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'render
   Controller.prototype.init = function() {
     this.animIn();
 
-    brushes = new Brushes();
-    floatTag = new FloatTag(uiContainer);
-    // 初始化
+    brushes = this.brushes = new Brushes();
     var frameOpt = {
       frameW: drawContainer.width(),
       frameH: drawContainer.height()
     };
     var modelDraw = this.modelDraw = new ModelDraw(frameOpt); //数据
     var renderer = this.renderer = new Renderer(brushes, frameOpt); //动画播放等
+
+    floatTag = new FloatTag(uiContainer);//底部子菜单
+    subTools = new SubTools({//工具子菜单
+      container:uiContainer,
+      bind:drawToolsNode,
+      brushes:brushes,
+      renderer:this.renderer
+    });
     painter = this.painter = new Painter(drawContainer, {
       'brushes': brushes,
       'modelDraw': modelDraw,
@@ -93,11 +99,10 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'render
           self.renderer.drawDatas(self.painter.ctxMainBack, d); //画出上一次的数据
         } else { //载入数据失败 重新生成drawid
         }
-        self.painter.beginRecord(); //开始记录
       });
     } else {
-      self.painter.beginRecord();
     }
+    self.painter.beginRecord(); //开始记录
   };
 
   //事件
@@ -109,18 +114,20 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'render
 
   Controller.prototype.painterEvents = function() {
     var self = this;
-    body.on('painter-click', function(e) {
-      prevant(e);
-      if (!self.isGuiLock) {
-        gui.switchUI();
-      } else { //被底部点击锁定
-        gui.inLeft();
-        gui.inEnd();
-        floatTag.out();
-        painter.unblur();
-        self.isGuiLock = false;
-      }
-    }).on('bg-color-change', function(e, color) {
+    body
+    // .on('painter-click', function(e) {
+    //   prevant(e);
+    //   if (!self.isGuiLock) {
+    //     gui.switchUI();
+    //   } else { //被底部点击锁定
+    //     gui.inLeft();
+    //     gui.inEnd();
+    //     floatTag.out();
+    //     painter.unblur();
+    //     self.isGuiLock = false;
+    //   }
+    // })
+    .on('bg-color-change', function(e, color) {
       gui.bgColor(color);
     });
   };
@@ -143,12 +150,28 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'render
       var node = $(this);
       var id = node.attr('id');
       var cbs = {
-        'brush': painter.setBrush.bind(painter),
+        'brush': function(){
+          self.painter.setBrush();
+          subTools.switch();
+          subTools.in({
+            node: node,
+            parent:drawToolNode,
+            helpText:'选择画笔'
+          });
+        },
         'background': bg.setBg.bind(bg),
         'broadcast': painter.broadcast.bind(painter),
         'refresh': window.location.reload
       };
-      if (cbs[id]) cbs[id]();
+      if (cbs[id]) {
+        cbs[id]();
+        // if (self.isGuiLock) { //已经点开了
+        //   self.isGuiLock = false;
+        // } else {
+
+        //   self.isGuiLock = true;
+        // }
+      }
     });
 
     //底部的工具

@@ -23,6 +23,7 @@ define(function() {
       var hue = this.hue;
       var ctx = opt.ctx;
       var N = 5;
+      ctx.beginPath();
       if (ptPrev) {
         var dist = record.dist;
         var color = Color({
@@ -39,19 +40,13 @@ define(function() {
           var r = Math.floor(color.getRed() * 255);
           var g = Math.floor(color.getGreen() * 255);
           var b = Math.floor(color.getBlue() * 255);
-          // if(i == N-1){
-          //   ctx.lineWidth = 2;
-          //   ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-          // }else{
           ctx.lineWidth = Math.floor(maxSize * (1 - kw)) * dist / 15;
           ctx.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')';
-          // }
           ctx.lineTo(pt[0], pt[1]);
           ctx.stroke();
         }
       }
-      // ctx.closePath();
-      ctx.beginPath();
+      ctx.closePath();
       ctx.moveTo(pt[0], pt[1]);
     },
     buttonStyle: function(node){

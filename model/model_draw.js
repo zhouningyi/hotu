@@ -8,7 +8,16 @@
 // @i 在元素中的时间序号
 // @id 可选
 
-define(['zepto'], function($) {
+//统计数据
+//ptN curveN groupN(换了几笔)
+//brushes:{ink:{ptN:xx,curveN...}};//对brush的统计
+//color://对color的统计
+//length://对长度的统计
+
+define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDataInfo) {
+  var upper = Utils.upper;
+  var computeDrawInfo = DrawDataInfo.computeDrawInfo;//计算一副绘画中的统计信息
+
   var metas = { //五个层级的元素
     'scene': {
       'parent': 'curData',
@@ -16,14 +25,10 @@ define(['zepto'], function($) {
     },
     'frame': {
       'parent': 'curScene',
-      'children': 'group',
-    },
-    'group': {
-      'parent': 'curFrame',
       'children': 'curve',
     },
     'curve': {
-      'parent': 'curGroup',
+      'parent': 'curFrame',
       'children': 'pt',
     },
     'pt': {
@@ -32,18 +37,11 @@ define(['zepto'], function($) {
   };
 
   var body = $('body');
-  function getQueryString(name) {
-    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-    var r = window.location.search.substr(1).match(reg);
-    if (r != null) return unescape(r[2]);
-    return null;
-  }
   function ModelDraw(obj) {
     obj = obj || {};
     this.frameH = obj.frameH || $(window).height();
     this.frameW = obj.frameW || $(window).width();
     this.recordPtBol = true;
-    this.olderData = null;
     this.events();
   }
 
@@ -68,56 +66,23 @@ define(['zepto'], function($) {
 
   ModelDraw.prototype.beginRecord = function(opt) { //开始一组新的绘制 分有数据和没数据2种情况
     opt = opt || {};
-    this.curBrush = opt.brush;
+    this.curBrushType = opt.brush;
 
     var curData = this.curData;//开始编辑过去的数据
     var type;
     if (curData) {
-      this.ptN = curData.ptN;
-      this.curveN = curData.curveN;
-      this.groupN = curData.groupN;
-      if(!(this.ptN&&this.curveN&&this.groupN))  this.getFrameN(curData);
       this.timePrev = curData.timeEnd || 0;//过去数据结束的时间 为现在起始时间
       type = curData.type;
       this['cur' + upper(type)] = curData;
     } else {//需要自己新建一份数据
       type = opt.type;
-      this.ptN = 0;
-      this.curveN = 0;
-      this.groupN = 0;
       this.timePrev = 0;
-      this.curData = this['add' + upper(type)]();
+      curData = this.curData = this.addFrame();
     }
     this.newRecord(type);
     this.timeStart = getTimeAbsolute();
     // this.cancelSubmit();
     // this.autoSubmit();
-  };
-
-  ModelDraw.prototype.getFrameN = function(d) { //计算文件各元素数量
-    var ptN = 0;
-    var curveN = 0;
-    var groups = d.c;
-    var group, curves, curve, pts;
-    this.groupN = groups.length;
-    if (groups) {
-      for (var i in groups) {
-        group = groups[i];
-        curves = group.c;
-        if (curves) {
-          curveN += curves.length;
-          for (var j in curves) {
-            curve = curves[j];
-            pts = curve.c;
-            if (pts) {
-              ptN += pts.length;
-            }
-          }
-        }
-      }
-    }
-    this.curveN = curveN;
-    this.ptN = ptN;
   };
 
   ModelDraw.prototype.newRecord = function(type) { //\
@@ -132,10 +97,6 @@ define(['zepto'], function($) {
     }
   };
 
-  function upper(str){
-    return str[0].toUpperCase()+str.slice(1);
-  }
-
   /**
    * 增加数据
    * @param {String} type    类型
@@ -143,26 +104,31 @@ define(['zepto'], function($) {
    * @param {Object} idBol   是否生成id
    */
   ModelDraw.prototype.add = function(type, idBol, addFunc) {
-    var meta = metas[type];
+    var meta = metas[type];//寻找这个层级的信息
     if (meta) {
-      var parent = meta.parent;
-      var c = []; //下一级的children数组
-      var i = this['index' + upper(type)] || 0; //在这一级的编号
+      var curThis = this['cur' + upper(type)];
+      if (curThis && curThis.c && curThis.c.length === 0) return;//如已经创建了一个空的curve 就不要重复创建了。
 
-      var obj = this['cur' + upper(type)] = {
+      var i = this['index' + upper(type)] || 0; //在这一级的编号
+      var c = []; //下一级的children数组
+      curThis = this['cur' + upper(type)] = {
         'type': type,
         'c': c,
         'i': i
       };
 
-      if (idBol) obj.id = getId(type || 'frame');
-      if (addFunc) addFunc(obj);
-      if (this[parent]) this[parent].c.push(obj);
+      if (idBol) curThis.id = getId(type || 'frame');
+      if (addFunc) addFunc(curThis);
+
+      var parent = meta.parent;
+      var curParent = this[parent] || this.curData;
+
+      if (curParent) curParent.c.push(curThis);//给parent的c里放进此级元素
 
       var children = metas[type].children;
       this['index' + upper(type)] = i + 1;
       this['index' + upper(children)] = 0;
-      return obj;
+      return curThis;
     } else {
       console.log('meta类型错误 或 type未传入');
     }
@@ -176,67 +142,37 @@ define(['zepto'], function($) {
     return this.add('frame');
   };
 
-  ModelDraw.prototype.addGroup = function(brushType) {
-    if (this.curData) this.curData.groupN = 1 + this.groupN++;
-    var self = this;
-    return this.add('group', true, function(obj) {
-      obj.brushType = brushType || self.curBrush;
-    });
-  };
-
   ModelDraw.prototype.addCurve = function() {
-    if (this.curData) this.curData.curveN = 1 + this.curveN++ ;
-    return this.add('curve');
+    var curCurve = this.add('curve');
+    if(curCurve){//如果有重复添加，也就是上一条曲线为空，this.add() 没有返回。
+      curCurve.brushType = this.curBrushType;
+    }
   };
 
-  ModelDraw.prototype.addPt = function(pt) {
+  ModelDraw.prototype.addPt = function(pt) {//点：储存相对于屏幕的比例
     var frameW = this.frameW;
     var x = (pt[0] / frameW).toFixed(5);
     var y = (pt[1] / frameW).toFixed(5);
-    var t = pt[2].toFixed(2);
+    var t = pt[2].toFixed(3);
     pt = [x, y, t];
     // pt = [pt[0] / frameW, pt[1] / frameW, pt[2]];
     this.curCurve.c.push(pt);
-    this.curData.ptN = 1 + this.ptN++;
+    this.curPt = pt;
   };
 
-  ModelDraw.prototype.setBrushType = function(brush) {
-    if(brush!==this.curBrush){
-      this.addGroup(brush);
-      this.curBrush = brush;
-    }
+  ModelDraw.prototype.setBrushType = function(brushType) {
+    if(brushType!==this.curBrushType) this.curBrushType = brushType;
   };
 
   ModelDraw.prototype.back = function() {
     var curFrame = this.curFrame;
-    var groups = curFrame.c;
-    var groupLast =groups[groups.length-1];
-    var curves = groupLast.c;
+    var curves = curFrame.c;
     curves.pop();
     if(curves.length>0){
       this.curCurve =  curves[curves.length-1];
     }else{
-      this.curGroup  = groupLast = groups[groups.length-2];
-      if(groupLast){
-        curves = groupLast.c;
-        this.curCurve =  curves[curves.length-1];
-      }else{
-        this.curCurve = null;
-      }
+      this.curCurve = null;
     }
-  };
-
-  // ModelDraw.prototype.register = function() {
-
-  // };
-
-  ModelDraw.prototype.getData = function() {
-    console.log(this.curData)
-    return this.curData;
-  };
-
-  ModelDraw.prototype.getCurve = function() {
-    return this.curCurve;
   };
 
   //时间控制相关
@@ -249,6 +185,7 @@ define(['zepto'], function($) {
     }
     //生成id
   function getId(type) {
+    console.log(type);
     var num = Math.floor(Math.random()*10000000);
     var d = new Date();
     var dateStr = [d.getFullYear(), (d.getMonth() + 1), d.getDate(), d.getHours(), d.getMinutes()].join('');
@@ -265,7 +202,6 @@ define(['zepto'], function($) {
   ModelDraw.prototype.cancelSubmit = function() { //取消自动保存
     window.clearTimeout(this.submitID);
   };
-
 
   ModelDraw.prototype.save = function(obj, cb) { //取回数据库已经存的内容
     var curData = this.curData;
@@ -296,7 +232,7 @@ define(['zepto'], function($) {
   };
 
   ModelDraw.prototype.clear = function(){
-    var list = ['data','scene','frame','group','curve'];
+    var list = ['data','scene','frame','curve'];
     for(var k in list){
       var name = list[k];
       this['index'+upper(name)] = null;
@@ -307,7 +243,7 @@ define(['zepto'], function($) {
 
   ModelDraw.prototype.getLast = function(query, cb) { //取回数据库已经存的内容
     query = {
-      'userid': query.userid || 'first',
+      'userid': query.userid || 'first1',
       'drawid': query.drawid || 'draw',
     };
     $.ajax({
@@ -316,7 +252,8 @@ define(['zepto'], function($) {
       'data': query,
       'success': function(d) {
         if(d&&d.data){
-          cb(d.data);
+          // cb(d.data);
+          cb(null);
         }else{
           cb(null);
         }
@@ -328,5 +265,20 @@ define(['zepto'], function($) {
     });
   };
 
+  ModelDraw.prototype.getData = function() {//获取当前的数据
+    var curData = this.curData;
+    curData.info = computeDrawInfo(curData);
+    console.log(JSON.stringify(curData));
+    return curData;
+  };
+  ModelDraw.prototype.getFrame = function() {
+    return this.curFrame;
+  };
+  ModelDraw.prototype.getCurve = function() {
+    return this.curCurve;
+  };
+  ModelDraw.prototype.getPt = function() {
+    return this.curPt;
+  };
   return ModelDraw;
 });
