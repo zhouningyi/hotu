@@ -48,6 +48,12 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
   ModelDraw.prototype.events = function(){
     var self = this;
     body
+    .on('hue-change', function(e, hueInfo){
+      self.style = bind(self.style||{}, hueInfo);
+    })
+    .on('color-change', function(e, colorInfo){
+      self.style = bind(self.style||{}, colorInfo);
+    })
     .on('openid',function(e, openid){
       self.userid = openid;
     })
@@ -59,6 +65,15 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
       body.trigger('drawid',drawid);
     });
   };
+
+  function bind(a,b){
+    if(a&&b){
+      for(var k in b){
+        a[k] = b[k];
+      }
+      return a;
+    }
+  }
 
   ModelDraw.prototype.oldData = function(d) {
     this.curData = d;
@@ -145,6 +160,10 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
   ModelDraw.prototype.addCurve = function() {
     var curCurve = this.add('curve');
     if(curCurve){//如果有重复添加，也就是上一条曲线为空，this.add() 没有返回。
+      if(this.style){
+        curCurve.style = JSON.parse(JSON.stringify(this.style));
+        // this.styleChanging=null;
+      }
       curCurve.brushType = this.curBrushType;
     }
   };
@@ -185,7 +204,6 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
     }
     //生成id
   function getId(type) {
-    console.log(type);
     var num = Math.floor(Math.random()*10000000);
     var d = new Date();
     var dateStr = [d.getFullYear(), (d.getMonth() + 1), d.getDate(), d.getHours(), d.getMinutes()].join('');

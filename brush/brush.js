@@ -77,7 +77,7 @@ define(['./easing'], function(Easing) {
     }
   };
 
-  Brush.prototype.setOptions = function(opt, ctx) {
+  Brush.prototype.setOptions = function(op, ctx) {
     var ctxOpts = {
       'lineCap': 1,
       'globalCompositeOperation': 1,
@@ -89,8 +89,10 @@ define(['./easing'], function(Easing) {
     };
     var value;
 
+    var opt = this.opt;
+
     for (var key in opt) {
-      value = this[key] = opt[key] || this[key];
+      value = opt[key] = this[key] = (op[key]===undefined||op[key]===null)?this[key]:op[key];
       if (ctx) {
         if (key in ctxOpts) {
           ctx[key] = value;
@@ -157,6 +159,7 @@ define(['./easing'], function(Easing) {
     this.smoothList = [];
     this.smoothListX = [];
     this.smoothListY = [];
+    this.beginFunc();
   };
 
   //////////////////////中间过程//////////////////////
@@ -165,6 +168,7 @@ define(['./easing'], function(Easing) {
   Brush.prototype.drawFunc = emptyFunc;
   Brush.prototype.buttonStyleFunc = emptyFunc;
   Brush.prototype.endFunc = emptyFunc;
+  Brush.prototype.beginFunc = emptyFunc;
 
 
   Brush.prototype.dot = function(ctx, pt, dt) { //中间过程
@@ -210,7 +214,10 @@ define(['./easing'], function(Easing) {
   };
 
   Brush.prototype.check = function(ctx) {
-    if (ctx.curStyle !== this.id) this.styles();
+    if(ctx.curStyle===undefined||ctx.curStyle===null||ctx.curStyle !== this.id){
+      this.styles();
+      ctx.curStyle = this.id;
+    }
   };
 
   return Brush;

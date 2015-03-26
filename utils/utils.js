@@ -19,7 +19,7 @@ define(['zepto'], function($) {
       e.stopPropagation();
     }
   function isNone(d) { //清除默认事件
-    return (d===undefined||d===null);
+    return (d===undefined||d===null||isNaN(d));
     }
 
   function values(obj){

@@ -11,7 +11,8 @@ define(['./../utils/utils','zepto', './../render/renderer','anim','./colorSelect
     this.bindNode = opt.bind;
 
     this.init(opt.brushes);
-    this.uiStatus = 'out';
+    this.uiStatus = 'null';
+    this.subToolsNode.css({'display': 'none'});
 
     this.events();
     body.trigger('brush-change',this.curBrush);
@@ -25,10 +26,10 @@ define(['./../utils/utils','zepto', './../render/renderer','anim','./colorSelect
     var container = this.container;
     var subToolsW = this.container.width()-this.bindNode.width()-10;
     var subToolsNode = this.subToolsNode = $(
-      '<div class="sub-tools">\
-      <div class="sub-tools-list"></div>\
+      '<div class="sub-tools transition">\
+      <div class="brush-list"></div>\
       <div class="sub-tools-preview"></div>\
-      <div class="sub-tools-control"></div>\
+      <div class="color-control"></div>\
       </div>')
     .css({
       'width':subToolsW,
@@ -37,7 +38,7 @@ define(['./../utils/utils','zepto', './../render/renderer','anim','./colorSelect
     .appendTo(container);
     this.initBrushList(brushes);
     this.initPreview(brushes);
-    new ColorSelector(subToolsNode.find('.sub-tools-control'));
+    new ColorSelector(subToolsNode.find('.color-control'));
   };
 
   SubTools.prototype.initBrushList = function(brushes) {
@@ -46,7 +47,7 @@ define(['./../utils/utils','zepto', './../render/renderer','anim','./colorSelect
     var curBrush = this.curBrush = brushArr[0];
     var subToolsNode = this.subToolsNode, brushes = this.brushes;
     var brush, name;
-    var toolsListNode = this.toolsListNode = subToolsNode.find('.sub-tools-list');
+    var toolsListNode = this.toolsListNode = subToolsNode.find('.brush-list');
     for(var k =0; k<brushArr.length; k++){
       brush = brushArr[k];
       var node = $('<div class="brush-list-icon" id="'+brush.id+'">'+brush.name+'</div>');
@@ -59,7 +60,6 @@ define(['./../utils/utils','zepto', './../render/renderer','anim','./colorSelect
       toolsListNode.append(node);
     }
   };
-
 
   SubTools.prototype.initPreview = function(brushes) {
     var previewNode = this.previewNode = this.subToolsNode.find('.sub-tools-preview');
@@ -74,23 +74,24 @@ define(['./../utils/utils','zepto', './../render/renderer','anim','./colorSelect
   };
 
   SubTools.prototype.preview = function(brush) {
+    brush = brush || this.curBrush;
     var brushType = brush.id;
-    if (previewData.c[0].brushType !== brushType) {
+    if(previewData.c[0].brushType !== brushType) {
       previewData.c[0].brushType = brushType;
-      var ctx = this.ctxPreview;
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      this.rendererPreview.drawDatas( ctx, previewData, {
-        curve: {
-          async: 0
-        },
-        ptTransform:'center_x'
-      });
-      ctx.name = name;
     }
+    var ctx = this.ctxPreview;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    this.rendererPreview.drawDatas(ctx, previewData, {
+      curve: {
+        async: 0
+      },
+      ptTransform: 'center_x'
+    });
+    ctx.name = name;
   };
 
   SubTools.prototype.out = function(cb) { //隐藏
-    if (this.uiStatus=='in') {
+    if (this.uiStatus!=='out'&&this.uiStatus!=='lock') {
       var self = this;
       cb = cb || function() {};
       var subToolsNode = this.subToolsNode;
@@ -108,7 +109,11 @@ define(['./../utils/utils','zepto', './../render/renderer','anim','./colorSelect
   };
 
   SubTools.prototype.in = function(obj ,cb) { //隐藏
-    if (this.uiStatus=='out'&&obj) {
+    if (this.uiStatus!=='in'&&this.uiStatus!=='lock'&&obj) {
+      if(this.uiStatus==='null'){
+        this.subToolsNode.css({'display': 'block'});
+      }
+      this.subToolsNode.css({'visible': 'visible'});
       var self = this;
       var node = obj.node;
       var curBrush = this.curBrush;
@@ -165,11 +170,13 @@ define(['./../utils/utils','zepto', './../render/renderer','anim','./colorSelect
     if(this.uiStatus=='in') this.out();
   };
 
-
   SubTools.prototype.events = function() {
     var self = this;
     var brushes = this.brushes;
     var workLimit = 3000;
+    this.subToolsNode.on('touchstart mousedown', function(e){//点击后 不要影响
+      e.preventDefault();
+    });
     body
     .on('brush-change', function(e, brush){
       var brushType = brush.id;
@@ -178,12 +185,44 @@ define(['./../utils/utils','zepto', './../render/renderer','anim','./colorSelect
       self.curBrushNode = self.toolsListNode.find('#'+brushType);
       self.curBrushNode.addClass('brush-list-icon-active');
     })
+    .on('hue-change',function(e, hue){
+      if(self.curBrush) self.curBrush.setOptions({'hue':hue});
+      self.preview(self.curBrush);
+    })
+    .on('color-change',function(e, colorInfo){
+      this.colorInfo = colorInfo;
+      if(self.curBrush) self.curBrush.setOptions(colorInfo);
+      self.preview(self.curBrush);
+    })
     .on('painter-click', function(){
       self.out();
       // setTimeout(function(){
       //   body.trigger('painter-');
       // }, workLimit);
+    })
+    .on('bg-color-change', function(e, bgColor) {
+      self.setBackground(bgColor);
     });
+  };
+
+  SubTools.prototype.stylize = function(obj){//根据大环境的不同 设置ui的风格
+    if(!obj) return;
+    var bgColor;
+    if(obj.background){
+      var bgColor = obj.background;
+    }
+  };
+
+
+  SubTools.prototype.setBackground = function(bgColor) {
+    if (bgColor) {
+      var colors = bgColor.split(',');
+      colors[3] = '0.95)';
+      bgColor = colors.join(',');
+      this.subToolsNode.css({
+        background: bgColor
+      });
+    }
   };
 
   return SubTools;

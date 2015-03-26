@@ -68,12 +68,12 @@ define(['zepto', 'anim'], function($) {
   };
 
   Gui.prototype.switchUI = function() { //改变显隐关系
-    (this.isOut)?this.in():this.out();
+    (this.isOut)? this.in():this.out();
   };
 
-  Gui.prototype.bgColor = function(color) {
+  Gui.prototype.setBackground = function(color) {
     var colors = color.split(',');
-    colors[3] = '0.6)';
+    colors[3] = '0.9)';
     colors = colors.join(',');
     this.toolLeft.css({background:colors});
     this.toolEnd.css({background:colors});

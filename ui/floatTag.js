@@ -1,9 +1,11 @@
 'use strict';
 //对UI的总体控制
 define(['zepto', 'anim'], function($) {
+  var body = $('body');
   function FloatTag(container) {
     this.container = container;
     this.init();
+    this.events();
     this.isOut = true;
   }
 
@@ -30,6 +32,7 @@ define(['zepto', 'anim'], function($) {
           self.isOut = true;
         }
       });
+      body.trigger('unblur');
     }
   };
 
@@ -93,11 +96,18 @@ define(['zepto', 'anim'], function($) {
 
       //提示
       if(obj.helpText) this.floatTagHelp(obj.helpText);
+
+      body.trigger('blur');
     }
   };
 
 
-  FloatTag.prototype.events = function() {};
+  FloatTag.prototype.events = function() {
+    var self = this;
+    body.on('painter-click',function(){
+      self.out();
+    });
+  };
 
   return FloatTag;
 });

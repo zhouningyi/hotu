@@ -115,29 +115,27 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/sub
   Controller.prototype.painterEvents = function() {
     var self = this;
     body
-    // .on('painter-click', function(e) {
-    //   prevant(e);
-    //   if (!self.isGuiLock) {
-    //     gui.switchUI();
-    //   } else { //被底部点击锁定
-    //     gui.inLeft();
-    //     gui.inEnd();
-    //     floatTag.out();
-    //     painter.unblur();
-    //     self.isGuiLock = false;
-    //   }
-    // })
-    .on('bg-color-change', function(e, color) {
-      gui.bgColor(color);
+    .on('painter-work',function(){
+      gui.out();
+    })
+    .on('painter-unwork',function(){
+      gui.in();
+    })
+    .on('bg-color-change', function(e, bgColor) {
+      gui.setBackground(bgColor);
     });
   };
 
   Controller.prototype.iconEvents = function() {
     //所有iconfont在点击后都会闪动
-    $('.iconfont-mobile').one(clickEvent, function() {
-      $(this).keyAnim('fadeOutIn', {
-        'time': 1,
+    $('.iconfont-mobile').on(clickEvent, function() {
+      var node = $(this);
+      node.keyAnim('fadeOutIn', {
+        'time': 0.5,
         'icount': 5,
+        'cb':function(){
+          node.clearKeyAnim();
+        }
       });
     });
   };
@@ -180,6 +178,10 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/sub
       var node = $(this);
       var id = node.attr('id');
       var cbs = {
+        'restart': function() {
+          painter.restart();
+          body.trigger('refresh-drawid');
+        },
         'download': function() {
           var img = exports.toImage();
           floatTag.in({
@@ -200,32 +202,35 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/sub
         }
       };
       if (cbs[id]) {
-        if (self.isGuiLock) { //已经点开了
-          painter.unblur();
-          gui.in();
-          floatTag.out();
-          self.isGuiLock = false;
-        } else {
+        if (floatTag.isOut) { //已经点开了
           gui.outLeft();
           cbs[id]();
-          painter.blur();
-          self.isGuiLock = true;
+        } else {
+          floatTag.out();
         }
       }
     });
+
     //上方的工具
     importantToolsNode.delegate('i', clickEvent, function(e) {
       prevant(e);
       var node = $(this);
       var id = node.attr('id');
       var cbs = {
-        'restart': function() {
-          painter.restart();
-          body.trigger('refresh-drawid');
-        },
         'back': painter.back.bind(painter)
       };
       if (cbs[id]) cbs[id]();
+    });
+
+    //挂在body上的一些事件
+    body.on('blur',function(){
+      console.log('blur');
+      painter.blur();
+    });
+    body.on('unblur',function(){
+      console.log('unblur');
+      gui.in();
+      painter.unblur();
     });
   };
 

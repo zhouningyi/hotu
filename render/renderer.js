@@ -126,6 +126,7 @@ define(['./animator','async'],function(Animator,async){
 
   Renderer.prototype.genDrawCurveFuncs = function(curve, ctx) { //生成绘制一根曲线的函数队列
     var brushType = curve.brushType;
+    var style = curve.style;
     var brush = this.brushes[brushType];
     var funcs = [];
     var pt, pts = curve.c,
@@ -134,19 +135,20 @@ define(['./animator','async'],function(Animator,async){
     for (var index in pts) {
       index = parseInt(index);
       pt = pts[index];
-      funcs.push(genDrawPtFunc(pt, brush, ctx, index, ptN, _ptTransform));
+      funcs.push(genDrawPtFunc(pt, brush, ctx, index, ptN, _ptTransform, style));
     }
     return funcs;
   };
 
-  function genDrawPtFunc(pt, brush, ctx, index, ptN, _ptTransform){//生成一个画点的方法
+  function genDrawPtFunc(pt, brush, ctx, index, ptN, _ptTransform, style){//生成一个画点的方法
       return function(next) {
-        drawPt(pt, brush, ctx, index, ptN, _ptTransform);
+        drawPt(pt, brush, ctx, index, ptN, _ptTransform, style);
         next && next();
       };
   }
 
-  function drawPt (pt, brush, ctx, index, ptN, _ptTransform) { //绘制一个点的过程
+  function drawPt (pt, brush, ctx, index, ptN, _ptTransform, style) { //绘制一个点的过程
+    if(style) brush.setOptions(style);
     pt = _ptTransform(pt);
     if (index === '0' || index === 0) {
       brush.begin(ctx, pt);

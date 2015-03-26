@@ -1,7 +1,7 @@
 'use strict';
 
 //ink 毛笔的效果
-define(function() {
+define(['zepto'],function($) {
   function generateSprite(){//根据ai+drawscript得到笔触
     var width = 50;
     var height = 100;
@@ -39,6 +39,7 @@ define(function() {
   }
   return {
     initOpt: {
+      'color':'#000',
       'desc': '墨水画笔',
       'name': '书法',
       'id': 'ink',
@@ -60,15 +61,14 @@ define(function() {
         }
       }
     },
-
     draw: function(opt) {
+      var color = this.color;
       var Easing = this.Easing;
       var record = opt.record || {};
       var pt = opt.pt || {};
       var ctx = opt.ctx;
       var dist = record.dist || 3;
       var distPhi = record.distPhi||0.1;
-      var ptPrev = record.ptPrev;
       var speed = record.speed || 3; //速度
 
       // var speedPhi = Math.log(speed)/ Math.log(5000);
@@ -82,7 +82,6 @@ define(function() {
       var widthMax = 5;
       var width = widthMax * kFinal;
       var widthPrev = this.widthPrev || width;
-      var directPhiPrev = this.directPhiPrev || directPhi;
 
       var x = pt[0];
       x = this.getSmooth('x',x);
@@ -98,7 +97,7 @@ define(function() {
       var cos = Math.cos(phi);
       var sin = Math.sin(phi);
 
-      var directPhi = Math.atan(dy/dx);
+      // var directPhi = Math.atan(dy/dx);
 
       var p1x = xp + widthPrev*cos;
       var p1y = yp + widthPrev*sin;
@@ -108,7 +107,7 @@ define(function() {
       var p3y = y - width*sin;
       var p4x = x + width*cos;
       var p4y = y + width*sin;
-      ctx.fillStyle = 'rgba(0,0,0,1)';
+      ctx.fillStyle = color;
       ctx.beginPath();
       ctx.moveTo(p1x,p1y);
       ctx.lineTo(p2x,p2y);
@@ -119,7 +118,7 @@ define(function() {
       ctx.closePath();
       //var  ctx = $('canvas')[0].getContext('2d')
       var sprite = this.sprite;
-      drawSprite(ctx, sprite, xp, yp, widthPrev, phi);
+      // drawSprite(ctx, sprite, xp, yp, widthPrev, phi);
       // ctx.drawImage(this.sprite,xp-widthPrev,yp-widthPrev,2*widthPrev,2*widthPrev);
 
       var n = Math.floor(l/5)+1;
@@ -141,13 +140,11 @@ define(function() {
       }
 
       this.widthPrev  =  width;
-      this.directPhiPrev = directPhi;
       this.yp = y;
       this.xp = x;
     },
     end:function(){
       this.widthPrev = null;
-      this.directPhiPrev = null;
       this.yp = null;
       this.xp = null;
     },
