@@ -26,10 +26,11 @@ define(['zepto','./../utils/utils'], function($, Utils) {
     this.dom();
 
     //画笔相关
-    this.brushes = opt.brushes;
-    this.brushList = ['light', 'ink', 'fatdot']; //'lines',
+    var brushes = this.brushes = opt.brushes;
+    this.brushObj = brushes.brushObj;
+    var brushTypeList = this.brushTypeList = brushes.brushTypeList; //'lines',
     this.brushIndex = 0;
-    this.setBrush(this.brushList[0]);
+    this.setBrush(brushTypeList[0]);
 
     //步骤相关
     this.tmpCurves = [];//临时存储的
@@ -92,10 +93,11 @@ define(['zepto','./../utils/utils'], function($, Utils) {
   ///////////////////////////////////////////////绘图设置///////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   Painter.prototype.setBrush = function(brushName) {
-    var brush = this.brushes[brushName];
+    var brush = this.brushObj[brushName];
+    console.log(brush,brushName)
     if(brush){
       var curBrushName = this.curBrushName = brushName;
-      this.modelDraw.setBrushType(curBrushName);
+      this.modelDraw.setBrushType(brush);
       this.curBrush = brush;
       // curBrush.styles();
     }
@@ -115,7 +117,7 @@ define(['zepto','./../utils/utils'], function($, Utils) {
     var self = this;
     self.painterWorkStatus = false;
     var timeEmit = 900;
-    this.container.on('painter-moving', function(){
+    this.container.on('painter-moving touchstart mousedown', function(){
       if(!self.painterWorkStatus){
         self.painterWorkStatus = true;
       }
@@ -136,7 +138,7 @@ define(['zepto','./../utils/utils'], function($, Utils) {
       var brushType = brush.id;
       self.curBrush = brush;
       self.curBrushName = brushType;
-      self.modelDraw.setBrushType(brushType);
+      self.modelDraw.setBrushType(brush);
     });
   };
 
@@ -178,28 +180,30 @@ define(['zepto','./../utils/utils'], function($, Utils) {
     }
   };
 
-//////////////////////////leave的阶段//////////////////////////
+  //////////////////////////leave的阶段//////////////////////////
   Painter.prototype.touchleave = function(e) {
     prevant(e);
-    this.isAfterDown = false;
-    this.curBrush.end(this.ctxMainFront);
-    var dt = getTimeAbsolute() - this.touchStartTime;
+    if (this.isAfterDown) {
+      this.curBrush.end(this.ctxMainFront);
+      var dt = getTimeAbsolute() - this.touchStartTime;
 
-    var mvPt = this.mvPt;
-    if (mvPt) { //具有touch事件
-      var distance = Math.sqrt(Math.pow(mvPt[0] - this.startPt[0], 2) + Math.pow(mvPt[1] - this.startPt[1], 2));
-      if (distance < this.clickDistance) {
-        this.container.trigger('painter-click');
-      }
-    } else {
-      if (dt > this.clickTime) {
-        this.curBrush.dot(this.ctxMainFront, this.startPt, dt);
+      var mvPt = this.mvPt;
+      if (mvPt) { //具有touch事件
+        var distance = Math.sqrt(Math.pow(mvPt[0] - this.startPt[0], 2) + Math.pow(mvPt[1] - this.startPt[1], 2));
+        if (distance < this.clickDistance) {
+          this.container.trigger('painter-click');
+        }
       } else {
-        this.container.trigger('painter-click');
+        if (dt > this.clickTime) {
+          this.curBrush.dot(this.ctxMainFront, this.startPt, dt);
+        } else {
+          this.container.trigger('painter-click');
+        }
       }
+      this.doneCurve();
     }
-    this.doneCurve();
     this.mvPt = null;
+    this.isAfterDown = false;
   };
 
   Painter.prototype.doneCurve = function() {//画完一笔 保存tmpCurves 并决策是否放到栅格化层中

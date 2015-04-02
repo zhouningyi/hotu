@@ -40,7 +40,7 @@ define(['zepto'], function($) {
   function genCanvas(opt) { //添加一个和node等大的canvas
     var id = opt.id;
     var container = opt.container;
-    var quality = opt.quality || 1;
+    var quality = opt.quality || 2;
     var appendBol = opt.appendBol;
     var returns = opt.returns || 'ctx';
     var w = container.width();

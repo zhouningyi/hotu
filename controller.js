@@ -2,8 +2,8 @@
 
 define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/subTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer'], function($, Gui, Bg, Painter, FloatTag, SubTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer) {
 
-  var clickEvent = 'touchstart mousedown';
-  var body = $('body');
+  var clickEvent = 'touchstart mousedown',
+  body = $('body');
 
   var painter, bg, exports, gui, floatTag, subTools, brushes;
 
@@ -52,19 +52,20 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/sub
   Controller.prototype.init = function() {
     this.animIn();
 
-    brushes = this.brushes = new Brushes();
+    var brushes = this.brushes = new Brushes();
+    var brushObj = brushes.brushObj;
     var frameOpt = {
       frameW: drawContainer.width(),
       frameH: drawContainer.height()
     };
     var modelDraw = this.modelDraw = new ModelDraw(frameOpt); //数据
-    var renderer = this.renderer = new Renderer(brushes, frameOpt); //动画播放等
+    var renderer = this.renderer = new Renderer(brushObj, frameOpt); //动画播放等
 
     floatTag = new FloatTag(uiContainer);//底部子菜单
     subTools = new SubTools({//工具子菜单
       container:uiContainer,
       bind:drawToolsNode,
-      brushes:brushes,
+      brushes:brushObj,
       renderer:this.renderer
     });
     painter = this.painter = new Painter(drawContainer, {
@@ -159,16 +160,10 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/sub
         },
         'background': bg.setBg.bind(bg),
         'broadcast': painter.broadcast.bind(painter),
-        'refresh': window.location.reload
+        'refresh': window.location.reload.bind(window.location)
       };
       if (cbs[id]) {
         cbs[id]();
-        // if (self.isGuiLock) { //已经点开了
-        //   self.isGuiLock = false;
-        // } else {
-
-        //   self.isGuiLock = true;
-        // }
       }
     });
 
@@ -223,25 +218,23 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/sub
     });
 
     //挂在body上的一些事件
-    body.on('blur',function(){
-      console.log('blur');
+    body.on('blur',function (){
       painter.blur();
     });
-    body.on('unblur',function(){
-      console.log('unblur');
+    body.on('unblur',function (){
       gui.in();
       painter.unblur();
     });
   };
 
-  function getQueryString(name) {
+  function getQueryString (name) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
     var r = window.location.search.substr(1).match(reg);
     if (r != null) return unescape(r[2]);
     return null;
   }
 
-  function prevant(e) { //清除默认事件
+  function prevant (e) { //清除默认事件
     e.preventDefault();
     e.stopPropagation();
   }

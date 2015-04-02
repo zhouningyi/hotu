@@ -9,10 +9,8 @@ define(function() {
       'name': '光绘',
       'desc': '发光笔触',
       'globalCompositeOperation': 'lighter',
-      'hue': 320, // ;
       'lineJoin': 'miter',
       'lineCap': 'butt',
-      'widthMax': 8,
       'drawN': 6,
       'smooth': {
         'x': {
@@ -28,6 +26,25 @@ define(function() {
           'N': 8
         }
       },
+      'hue': 320,
+      'widthMax': 3,
+      'controls': {
+      'widthMax':{
+        'get': function( ki ) {
+          return 3+ki*12;
+        },
+        'constructorUI': 'Slider',
+        'uiDesc':'粗细',
+        'containerName':'shape'
+      },
+      'hue': {
+        'get': function( ki ) {
+          return 360 * ki;
+        },
+        'constructorUI': 'HueSlider',
+        'containerName':'color'
+      },
+    }
     },
 
     begin: function() {
@@ -56,9 +73,18 @@ define(function() {
       var xp = this.xp;
       var yp = this.yp;
       var dx = this.dx;
-      var reverseBol = (dx>0)?0:1;
-      var cosp = this.cosp;
-      var phiHori = Math.acos(cosp);
+      var dy = this.dy;
+      var reverseBol = 0;
+      var e = 0.00000001;
+      if(dx>=e){
+        reverseBol = 1;
+      }else if(Math.abs(dx)<e&&dy<0){
+        reverseBol = 1;
+      }
+      var phiHori = Math.atan2(this.sinp, this.cosp);
+      if(phiHori>=0){
+        phiHori = phiHori-Math.PI;
+      }
       for (var k in scaleList) {
         var obj = scaleList[k];
         ctx.beginPath();
@@ -152,9 +178,19 @@ define(function() {
       var x = this.xp;
       var y = this.yp;
       var dx = this.dx;
-      var reverseBol = (dx<0)?0:1;
-      var cos = this.cos;
-      var phiHori = Math.acos(cos);
+      var dy = this.dy;
+      var reverseBol = 1;
+      var e = 0.00000001;
+      if(dx>=e){
+        reverseBol = 0;
+      }else if(Math.abs(dx)<e&&dy<0){
+        reverseBol = 0;
+      }
+      var phiHori = Math.atan2(this.sin, this.cos);
+      if(phiHori>=0){
+        phiHori = phiHori-Math.PI;
+      }
+
       ctx.beginPath();
       for (var k in scaleList) {
         var obj = scaleList[k];

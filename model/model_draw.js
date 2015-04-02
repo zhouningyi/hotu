@@ -45,15 +45,27 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
     this.events();
   }
 
-  ModelDraw.prototype.events = function(){
-    var self = this;
-    body
-    .on('hue-change', function(e, hueInfo){
-      self.style = bind(self.style||{}, hueInfo);
-    })
-    .on('color-change', function(e, colorInfo){
-      self.style = bind(self.style||{}, colorInfo);
-    })
+  ModelDraw.prototype.events = function() {
+      var self = this;
+      body
+        .on('controlrable', function(e, obj) {
+          var controls = self.controls;
+          var name = obj.name;
+          if (controls) {
+            if (name in controls) {
+              var conObj = controls[name];
+              var get = conObj.get;
+              var value = obj.value;
+              if (get) {
+                var style = self.style = self.style || {};
+                style[name] = get(value);
+              }
+            }
+          }
+        })
+    // .on('light-sat-change', function(e, colorInfo){
+    //   self.style = bind(self.style||{}, colorInfo);
+    // })
     .on('openid',function(e, openid){
       self.userid = openid;
     })
@@ -179,9 +191,20 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
     this.curPt = pt;
   };
 
-  ModelDraw.prototype.setBrushType = function(brushType) {
-    if(brushType!==this.curBrushType) this.curBrushType = brushType;
+  ModelDraw.prototype.setBrushType = function(brush) {
+    var brushType = brush.id;
+    if(brushType!==this.curBrushType){
+      var controls = this.controls = brush.controls;
+      var style = this.style = {};
+      if(controls){
+        for(var name in controls){
+          style[name] = brush[name];
+        }
+      }
+      this.curBrushType = brushType;
+    }
   };
+
 
   ModelDraw.prototype.back = function() {
     var curFrame = this.curFrame;

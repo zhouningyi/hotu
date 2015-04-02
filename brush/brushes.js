@@ -2,12 +2,14 @@
 //这个模块和业务关系比较大 负责选择调用哪些模块
 define(['./brush', './class/fatdot', './class/ink', './class/light'], function(Brush, fatdot, ink, light) { //加载brush基类
 
-  var brushes = [light,ink,fatdot];
+
   function Brushes() {
-    return this.creates(brushes);
+    var brushTypeList = this.brushTypeList = ['ink','light','fatdot'];
+    var brushList = this.brushList = [ink,light,fatdot];
+    this.creates(brushList);
   }
 
-  Brushes.prototype.create = function(bru, result) {
+  Brushes.prototype.create = function(bru, brushObj) {
     var initOpt = bru.initOpt || {};
     var id = initOpt.id;
     var brush = new Brush(initOpt);
@@ -17,16 +19,16 @@ define(['./brush', './class/fatdot', './class/ink', './class/light'], function(B
     if(bru.buttonStyle) brush.buttonStyleFunc = bru.buttonStyle;
     if(bru.end) brush.endFunc = bru.end;
     if(bru.second) brush.second = bru.second;
-    result[id] = brush;
+    if(bru.onStyleChange) brush.onStyleChange = bru.onStyleChange;
+    brushObj[id] = brush;
   };
 
-  Brushes.prototype.creates = function(brushes) {
-    var result = this.result = {};
-    for (var i in brushes) {
-      var brush = brushes[i];
-      this.create(brush, result);
+  Brushes.prototype.creates = function(brushList) {
+    var brushObj = this.brushObj = {};
+    for (var i in brushList) {
+      var brush = brushList[i];
+      this.create(brush, brushObj);
     }
-    return result;
   };
   return Brushes;
 });
