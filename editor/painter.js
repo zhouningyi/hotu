@@ -22,7 +22,7 @@ define(['zepto','./../utils/utils'], function($, Utils) {
     this.containerH = container.height();
 
     //画板
-    this.quality = opt.quality || 1;
+    this.quality = opt.quality || 3;
     this.dom();
 
     //画笔相关
@@ -34,7 +34,7 @@ define(['zepto','./../utils/utils'], function($, Utils) {
 
     //步骤相关
     this.tmpCurves = [];//临时存储的
-    this.backN = 10;//可回退的次数
+    this.backN = 12;//可回退的次数
 
     //其他
     this.renderer = opt.renderer;
@@ -94,12 +94,10 @@ define(['zepto','./../utils/utils'], function($, Utils) {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   Painter.prototype.setBrush = function(brushName) {
     var brush = this.brushObj[brushName];
-    console.log(brush,brushName)
     if(brush){
       var curBrushName = this.curBrushName = brushName;
       this.modelDraw.setBrushType(brush);
       this.curBrush = brush;
-      // curBrush.styles();
     }
   };
   /////////////////////////////////////////////////////////////////////////////////////////////////

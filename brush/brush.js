@@ -10,7 +10,7 @@ define( [ './easing' ], function( Easing ) {
     this.Easing = Easing;
 
     this.smoothNames = [];
-    this.styles(opt);
+    this.setBrushStyles();
 
     this.maxDist = 80;
     this.smoothList = [];
@@ -61,26 +61,9 @@ define( [ './easing' ], function( Easing ) {
     }
   };
 
-  Brush.prototype.styles = function( opt, ctx ) { //静态的设置
-    ctx = this.ctx = ctx || this.ctx;
-    opt = this.opt = opt || this.opt;
-    this.setOptions( opt, ctx );
-    //平滑的设置
-    if ( opt.smooth ) {
-      var smoothList = opt.smooth;
-      var smooth;
-      for ( var key in smoothList ) {
-        smooth = smoothList[ key ];
-        this.initSmooth( key, smooth.N, smooth.f );
-      }
-    }
-    //如果样式发生变化 导致一些变化 如改sprite的颜色
-    if(this.onStyleChange) this.onStyleChange(opt);
-  };
 
-
-  Brush.prototype.setOptions = function( op, ctx ) {
-    var ctxOpts = {
+  var ctxOpts = {
+      'id':1,
       'lineCap': 1,
       'globalCompositeOperation': 1,
       'lineJoin': 1,
@@ -89,18 +72,49 @@ define( [ './easing' ], function( Easing ) {
       'lineWidth': 1,
       'curStyle': 1
     };
-    var value;
 
+  Brush.prototype.setBrushStyles = function() {//设置笔刷相关的基本参数
+    var ctx = this.ctx;
     var opt = this.opt;
-
+    if(!opt) return;
+    var value;
     for ( var key in opt ) {
-      value = opt[ key ] = this[ key ] = ( op[ key ] === undefined || op[ key ] === null ) ? this[ key ] : op[ key ];
-      if ( ctx ) {
-        if ( key in ctxOpts ) {
-          ctx[ key ] = value;
-        }
+      value = this[key] = opt[key];
+      if(key in ctxOpts&&ctx){
+        ctx[key] = value;
       }
     }
+    //平滑的设置
+    if ( opt.smooth ) {
+      var smoothList = opt.smooth;
+      var smooth;
+      for ( var l in smoothList ) {
+        smooth = smoothList[ l ];
+        this.initSmooth( l, smooth.N, smooth.f );
+      }
+    }
+  };
+
+  Brush.prototype.setCurveStyles = function(opt, ctx ) {//设置风格相关的基本参数
+    var curStyle;
+    if(!this.curStyle) {
+      curStyle = this.curStyle = opt;
+    }
+    curStyle = this.curStyle;
+    for(var key in opt){
+      this[key] = curStyle[key] = opt[key];
+    }
+    if(!curStyle) return;
+    ctx = this.ctx = ctx || this.ctx;
+    var value;
+    for ( var key in curStyle ) {
+      value = curStyle[key];
+      this[key] = value;
+      if ( ctx && key in ctxOpts) {
+          ctx[ key ] = value;
+      }
+    }
+    if(this.onStyleChange) this.onStyleChange(curStyle);
   };
 
   /**
@@ -156,7 +170,8 @@ define( [ './easing' ], function( Easing ) {
   //////////////////////开始画线//////////////////////
   Brush.prototype.begin = function(ctx, pt ) {
     this.ctx = ctx;
-    this.check( ctx ); //是否ctx的类型是正确的
+    this.checkBrushStyle(); //是否ctx的绘图参数是否正确 属于本brush
+    this.setCurveStyles();
     this.record( pt );
     this.smoothList = [];
     this.smoothListX = [];
@@ -216,10 +231,12 @@ define( [ './easing' ], function( Easing ) {
     }
   };
 
-  Brush.prototype.check = function( ctx ) {
-    if ( ctx.curStyle === undefined || ctx.curStyle === null || ctx.curStyle !== this.id ) {
-      this.styles();
-      ctx.curStyle = this.id;
+  Brush.prototype.checkBrushStyle = function() {//查看是否符合画笔标准
+    var ctx = this.ctx;
+    var brushid = ctx.brushid;
+    if(brushid!==this.id){
+      this.setBrushStyles();
+      ctx.brushid = this.id;
     }
   };
 

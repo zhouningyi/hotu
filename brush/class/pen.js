@@ -5,13 +5,12 @@
 define(function() {
   return {
     initOpt: {
-      'id': 'light',
-      'name': '光绘',
-      'desc': '发光笔触',
-      'globalCompositeOperation': 'lighter',
+      'id': 'normal',
+      'name': '硬笔',
+      'desc': '硬笔',
+      'globalCompositeOperation': 'source-over',
       'lineJoin': 'miter',
       'lineCap': 'butt',
-      'drawNMax': 8,
       'smooth': {
         'x': {
           'f': 'Sinusoidal.In',
@@ -27,62 +26,40 @@ define(function() {
         }
       },
       'hue': 320,
-      'widthMax': 10,
-      'curStyle':{
+      'opacity': 0.8,
+      'color': {
+        'light': 20,
+        'sat': 0,
+        'color': 'hsla(320,0%,20%,1)',
         'hue': 320,
-        'widthMax': 10,
+        'opacity':0.3
       },
+      'widthMax': 2,
       'controls': {
         'widthMax': {
           'set': function(value) {
-            return (value - 8) / 15;
+            return (value - 1) / 10;
           },
           'get': function(ki) {
-            return 8 + ki * 15;
+            return 1 + ki * 10;
           },
           'constructorUI': 'Slider',
           'descUI': '粗细',
           'containerName': 'shape'
         },
-        'hue': {
-          'set': function(value) {
-            return value / 360;
-          },
-          'get': function(ki) {
-            return 360 * ki;
-          },
-          'constructorUI': 'HueSlider',
-          'containerName': 'color'
-        },
       }
     },
-
-    begin: function() {
-      var curStyle = this.curStyle;
-      var widthMax = curStyle.widthMax || this.widthMax;
+    begin:function(){
       this.secondBol = true;
-      var scaleList = this.scaleList = [];
-      var drawN = this.drawN = Math.min(Math.floor(this.widthMax / 1.5) + 1, this.drawNMax);
-      var hue = curStyle.hue || this.hue;
-      for (var i = 0; i < drawN; i++) {
-        var ii = i / (drawN - 1);
-        var dii = Math.pow(1 - ii, 0.5);
-        ii = Math.pow(ii, 3);
-        var saturation = parseInt(70 + ii * 30);
-        var lightness = parseInt(70 - ii * 50);
-        var opacity = dii * 0.9;
-        scaleList.push({
-          'fillStyle': 'hsla(' + hue + ',' + saturation + '%,' + lightness + '%,' + opacity + ')',
-          'widthPhi': ii
-        });
-      }
     },
-
     second: function(opt) { //补上一个点
-      var ctx = this.ctx = opt.ctx;
+      var color = this.color;
+      if (!color) return console.log('normal brush 没有颜色');
+      color = color.color;
+      var ctx = this.ctx;
+      var widthMax = this.widthMax;
       this.secondBol = false;
       var widthPrev = this.widthPrev;
-      var scaleList = this.scaleList;
       var xp = this.xp;
       var yp = this.yp;
       var dx = this.dx;
@@ -98,22 +75,21 @@ define(function() {
       if (phiHori >= 0) {
         phiHori = phiHori - Math.PI;
       }
-      for (var k in scaleList) {
-        var obj = scaleList[k];
-        ctx.beginPath();
-        ctx.fillStyle = obj.fillStyle;
-        ctx.arc(xp, yp, widthPrev * obj.widthPhi, phiHori, phiHori + Math.PI, reverseBol);
-        ctx.fill();
-        ctx.closePath();
-      }
+      ctx.beginPath();
+      ctx.fillStyle = color;
+      ctx.arc(xp, yp, widthPrev, phiHori, phiHori + Math.PI, reverseBol);
+      ctx.fill();
+      ctx.closePath();
     },
     draw: function(opt) {
-      var drawN = this.drawN; //要描边几次
+      var ctx = this.ctx = opt.ctx || this.ctx;
       var color = this.color;
+      if (!color) return console.log('normal brush 没有颜色');
+      color = color.color;
       var Easing = this.Easing;
       var record = opt.record || {};
       var pt = opt.pt || {};
-      var ctx = opt.ctx;
+
       var speed = record.speed || 3; //速度
 
       var speedPhi = speed / 6000;
@@ -152,28 +128,23 @@ define(function() {
           if (this.secondBol) {
             this.second(opt);
           }
-          var scaleList = this.scaleList;
+          var p1x = xp + widthPrev * cosp;
+          var p1y = yp + widthPrev * sinp;
+          var p2x = xp - widthPrev * cosp;
+          var p2y = yp - widthPrev * sinp;
+          var p3x = x - width * cos;
+          var p3y = y - width * sin;
+          var p4x = x + width * cos;
+          var p4y = y + width * sin;
           ctx.beginPath();
-          for (var i = 1; i < drawN; i++) {
-            var obj = scaleList[i];
-            var widthPhi = obj.widthPhi;
-            var p1x = xp + widthPrev * cosp * widthPhi;
-            var p1y = yp + widthPrev * sinp * widthPhi;
-            var p2x = xp - widthPrev * cosp * widthPhi;
-            var p2y = yp - widthPrev * sinp * widthPhi;
-            var p3x = x - width * cos * widthPhi;
-            var p3y = y - width * sin * widthPhi;
-            var p4x = x + width * cos * widthPhi;
-            var p4y = y + width * sin * widthPhi;
-            ctx.fillStyle = obj.fillStyle;
-            ctx.moveTo(xp, yp);
-            ctx.lineTo(p1x, p1y);
-            ctx.lineTo(p4x, p4y);
-            ctx.lineTo(p3x, p3y);
-            ctx.lineTo(p2x, p2y);
-            ctx.lineTo(xp, yp);
-            ctx.fill();
-          }
+          ctx.fillStyle = color;
+          ctx.moveTo(xp, yp);
+          ctx.lineTo(p1x, p1y);
+          ctx.lineTo(p4x, p4y);
+          ctx.lineTo(p3x, p3y);
+          ctx.lineTo(p2x, p2y);
+          ctx.lineTo(xp, yp);
+          ctx.fill();
           ctx.closePath();
         }
         this.cosp = cos;
@@ -185,6 +156,9 @@ define(function() {
       this.xp = x;
     },
     end: function() {
+      var color = this.color;
+      if (!color) return console.log('normal brush 没有颜色');
+      color = color.color;
       var ctx = this.ctx;
       this.secondBol = false;
       var widthPrev = this.widthPrev;
@@ -206,12 +180,9 @@ define(function() {
       }
 
       ctx.beginPath();
-      for (var k in scaleList) {
-        var obj = scaleList[k];
-        ctx.fillStyle = obj.fillStyle;
-        ctx.arc(x, y, widthPrev * obj.widthPhi, phiHori, phiHori + Math.PI, reverseBol);
-        ctx.fill();
-      }
+      ctx.fillStyle = color;
+      ctx.arc(x, y, widthPrev, phiHori, phiHori + Math.PI, reverseBol);
+      ctx.fill();
       ctx.closePath();
 
       this.widthPrev = null;

@@ -4,9 +4,13 @@ define(['zepto', 'anim', './../utils/utils'], function($, a, Utils) {
   var isNone = Utils.isNone;
   var upper = Utils.upper;
 
-  function Slider(container, uiDesc) {
+  function Slider(container, obj) {
+    this.target = obj.target || 'brush';
+    this.key = obj.key || 'light';
+    obj = obj || {};
     this.container = container;
-    this.uiDesc = uiDesc;
+    this.descUI = obj.descUI;
+    this.value = obj.value;
     this.containerW = container.width();
     this.containerH = container.height();
     this.init();
@@ -17,48 +21,41 @@ define(['zepto', 'anim', './../utils/utils'], function($, a, Utils) {
     };
     var self = this;
     setTimeout(function() {
-      self.setDefaults(defaults);
+      self.setValue(self.value);
     }, 100);
   }
 
-  Slider.prototype.setDefaults = function(obj) {
-    var value;
-    for (var key in obj) {
-      value = obj[key];
-      if (!isNone(value)) {
-        this[key] = value;
-        if (this['set' + upper(key)]) this['set' + upper(key)](value); //比如背景的background变了 触发了菜单栏的background也改变
-      }
-    }
-  };
 
-  Slider.prototype.setValue = function(value) {
+  Slider.prototype.setValue = function(value01) {
     var container = this.container;
     var pNode = this.node.find('.slider-pointer');
-    if (isNone(value)) value = this.defaults.hue;
+    if (isNone(value01)) value01 = 0;
 
-    this.value = value;
-    var x = value * this.lineW;
+    this.value01 = value01;
+    var x = value01 * this.lineW;
     pNode.css({
       'left': x - this.pNodeW / 2,
     });
     container.trigger('controlrable', {
-      'name': 'widthMax',
-      'value': value,
+      'name': this.key,
+      'value': value01,
+      'target':this.target
     });
   };
 
   Slider.prototype.init = function() {
-    var uiDesc = this.uiDesc;
+    var descUI = this.descUI;
     var node = this.node = $(
-        '<div class="slider-container-desc">' + uiDesc + '</div>\
+        '<div class="slider-container-desc">' + descUI + '</div>\
       <div class="slider-container">\
         <div class="slider-line"></div>\
         <div class="slider-pointer"></div>\
       </div>')
       .appendTo(this.container);
     this.lineW = node.find('.slider-line').width();
-    this.pNodeW = node.find('.slider-pointer').width();
+    var pNodeW = this.pNodeW = node.find('.slider-pointer').width();
+    var left = Math.floor(this.value*this.lineW);
+    node.find('.slider-pointer').css({'left':left-pNodeW/2});
   };
 
 

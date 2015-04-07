@@ -3,37 +3,23 @@
 define(['zepto', 'anim', './../utils/utils'], function($,a,Utils) {
   var isNone = Utils.isNone;
   var upper = Utils.upper;
-  function HueSelector(container) {
+  function HueSelector(container, obj) {
     this.container = container;
+    this.hue = this.hue01 = obj.value;
+    this.key = 'hue';
+    this.target = obj.target || 'brush';
     this.containerW = container.width();
     this.containerH = container.height();
     this.init();
     this.events();
 
-    var defaults = this.defaults = {
-      hue:0.5,
-    };
     var self = this;
-    setTimeout(function(){
-      self.setDefaults(defaults);
-    },100);
   }
-
-  HueSelector.prototype.setDefaults = function(obj){
-    var value;
-    for(var key in obj){
-      value = obj[key];
-      if(!isNone(value)){
-        this[key] = value;
-        if(this['set'+upper(key)]) this['set'+upper(key)](value); //比如背景的background变了 触发了菜单栏的background也改变
-      }
-    }
-  };
 
   HueSelector.prototype.setHue = function(hue01) {
     var container = this.container;
     var pNode = this.node.find('.slider-pointer');
-    if (isNone(hue01)) hue01 = this.defaults.hue;
+    if (isNone(hue01)) hue01 = this.hue01 || 0;
 
     var hue = this.hue = parseInt(360 * hue01, 10);
     var hsl = 'hsl(' + hue + ',90%,50%)';
@@ -43,10 +29,10 @@ define(['zepto', 'anim', './../utils/utils'], function($,a,Utils) {
       'background': hsl
     });
     container.trigger('controlrable', {
-      'name':'hue',
+      'target':this.target,
+      'name':this.key,
       'value':hue01,
     });
-    container.trigger('light-sat-update');
   };
 
   HueSelector.prototype.init = function () {
@@ -58,7 +44,9 @@ define(['zepto', 'anim', './../utils/utils'], function($,a,Utils) {
       </div>')
     .appendTo(this.container);
     this.lineW = node.find('.slider-line-gradient').width();
-    this.pNodeW = node.find('.slider-pointer').width();
+    var pNodeW = this.pNodeW = node.find('.slider-pointer').width();
+    var left = Math.floor(this.hue01*this.lineW);
+    node.find('.slider-pointer').css({'left':left-pNodeW/2});
   };
 
 

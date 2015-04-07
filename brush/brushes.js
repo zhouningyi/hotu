@@ -1,17 +1,16 @@
 'use strict';
 //这个模块和业务关系比较大 负责选择调用哪些模块
-define(['./brush', './class/fatdot', './class/ink', './class/light'], function(Brush, fatdot, ink, light) { //加载brush基类
-
+define(['./brush', './class/fatdot', './class/ink', './class/light', './class/mark', './class/pen'], function(Brush, fatdot, ink, light, mark, pen) { //加载brush基类
 
   function Brushes() {
-    var brushTypeList = this.brushTypeList = ['ink','light','fatdot'];
-    var brushList = this.brushList = [ink,light,fatdot];
+    var brushList = this.brushList = [pen, mark, light,ink,fatdot];
     this.creates(brushList);
   }
 
   Brushes.prototype.create = function(bru, brushObj) {
     var initOpt = bru.initOpt || {};
     var id = initOpt.id;
+    this.brushTypeList.push(id);
     var brush = new Brush(initOpt);
     if(bru.begin) brush.beginFunc = bru.begin;
     if(bru.draw) brush.drawFunc = bru.draw;
@@ -24,6 +23,7 @@ define(['./brush', './class/fatdot', './class/ink', './class/light'], function(B
   };
 
   Brushes.prototype.creates = function(brushList) {
+    var brushTypeList = this.brushTypeList = [];
     var brushObj = this.brushObj = {};
     for (var i in brushList) {
       var brush = brushList[i];

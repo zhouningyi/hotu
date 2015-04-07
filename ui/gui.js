@@ -13,7 +13,7 @@ define(['zepto', 'anim'], function($) {
     if (!this.isOutLeft) {
       cb = cb || function() {};
       var toolLeft = this.toolLeft;
-      toolLeft.keyAnim('fadeOutLeft', {
+      toolLeft.keyAnim('fadeLight', {
         time: 0.5
       });
       this.isOutLeft = true;
@@ -24,7 +24,7 @@ define(['zepto', 'anim'], function($) {
     if (this.isOutLeft) {
       cb = cb || function() {};
       var toolLeft = this.toolLeft;
-      toolLeft.keyAnim('fadeInLeft', {
+      toolLeft.keyAnim('fadeNormal', {
         time: 0.5
       });
       this.isOutLeft = false;
@@ -47,7 +47,7 @@ define(['zepto', 'anim'], function($) {
     if (!this.isOutEnd) {
       cb = cb || function() {};
       var toolEnd = this.toolEnd;
-      toolEnd.keyAnim('fadeOutDown', {
+      toolEnd.keyAnim('fadeLight', {
         time: 0.6,
         cb: cb
       });
@@ -59,7 +59,7 @@ define(['zepto', 'anim'], function($) {
     if (this.isOutEnd) {
       cb = cb || function() {};
       var toolEnd = this.toolEnd;
-      toolEnd.keyAnim('fadeInUp', {
+      toolEnd.keyAnim('fadeNormal', {
         time: 0.6,
         cb: cb
       });

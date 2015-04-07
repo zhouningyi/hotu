@@ -14,9 +14,9 @@
 //color://对color的统计
 //length://对长度的统计
 
-define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDataInfo) {
+define(['zepto', './../utils/utils', './drawDataInfo'], function($, Utils, DrawDataInfo) {
   var upper = Utils.upper;
-  var computeDrawInfo = DrawDataInfo.computeDrawInfo;//计算一副绘画中的统计信息
+  var computeDrawInfo = DrawDataInfo.computeDrawInfo; //计算一副绘画中的统计信息
 
   var metas = { //五个层级的元素
     'scene': {
@@ -37,6 +37,7 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
   };
 
   var body = $('body');
+
   function ModelDraw(obj) {
     obj = obj || {};
     this.frameH = obj.frameH || $(window).height();
@@ -46,9 +47,10 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
   }
 
   ModelDraw.prototype.events = function() {
-      var self = this;
-      body
-        .on('controlrable', function(e, obj) {
+    var self = this;
+    body
+      .on('controlrable', function(e, obj) {
+        if (obj && obj.target === 'brush') {
           var controls = self.controls;
           var name = obj.name;
           if (controls) {
@@ -57,30 +59,28 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
               var get = conObj.get;
               var value = obj.value;
               if (get) {
-                var style = self.style = self.style || {};
+                var style = self.style || {};
                 style[name] = get(value);
               }
             }
           }
-        })
-    // .on('light-sat-change', function(e, colorInfo){
-    //   self.style = bind(self.style||{}, colorInfo);
-    // })
-    .on('openid',function(e, openid){
-      self.userid = openid;
-    })
-    .on('drawid', function(e, drawid){
-      self.drawid = drawid;
-    })
-    .on('refresh-drawid', function(){
-      var drawid = self.drawid = getId('frame');
-      body.trigger('drawid',drawid);
-    });
+        }
+      })
+      .on('openid', function(e, openid) {
+        self.userid = openid;
+      })
+      .on('drawid', function(e, drawid) {
+        self.drawid = drawid;
+      })
+      .on('refresh-drawid', function() {
+        var drawid = self.drawid = getId('frame');
+        body.trigger('drawid', drawid);
+      });
   };
 
-  function bind(a,b){
-    if(a&&b){
-      for(var k in b){
+  function bind(a, b) {
+    if (a && b) {
+      for (var k in b) {
         a[k] = b[k];
       }
       return a;
@@ -95,13 +95,13 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
     opt = opt || {};
     this.curBrushType = opt.brush;
 
-    var curData = this.curData;//开始编辑过去的数据
+    var curData = this.curData; //开始编辑过去的数据
     var type;
     if (curData) {
-      this.timePrev = curData.timeEnd || 0;//过去数据结束的时间 为现在起始时间
+      this.timePrev = curData.timeEnd || 0; //过去数据结束的时间 为现在起始时间
       type = curData.type;
       this['cur' + upper(type)] = curData;
-    } else {//需要自己新建一份数据
+    } else { //需要自己新建一份数据
       type = opt.type;
       this.timePrev = 0;
       curData = this.curData = this.addFrame();
@@ -131,10 +131,10 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
    * @param {Object} idBol   是否生成id
    */
   ModelDraw.prototype.add = function(type, idBol, addFunc) {
-    var meta = metas[type];//寻找这个层级的信息
+    var meta = metas[type]; //寻找这个层级的信息
     if (meta) {
       var curThis = this['cur' + upper(type)];
-      if (curThis && curThis.c && curThis.c.length === 0) return;//如已经创建了一个空的curve 就不要重复创建了。
+      if (curThis && curThis.c && curThis.c.length === 0) return; //如已经创建了一个空的curve 就不要重复创建了。
 
       var i = this['index' + upper(type)] || 0; //在这一级的编号
       var c = []; //下一级的children数组
@@ -150,7 +150,7 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
       var parent = meta.parent;
       var curParent = this[parent] || this.curData;
 
-      if (curParent) curParent.c.push(curThis);//给parent的c里放进此级元素
+      if (curParent) curParent.c.push(curThis); //给parent的c里放进此级元素
 
       var children = metas[type].children;
       this['index' + upper(type)] = i + 1;
@@ -171,8 +171,8 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
 
   ModelDraw.prototype.addCurve = function() {
     var curCurve = this.add('curve');
-    if(curCurve){//如果有重复添加，也就是上一条曲线为空，this.add() 没有返回。
-      if(this.style){
+    if (curCurve) { //如果有重复添加，也就是上一条曲线为空，this.add() 没有返回。
+      if (this.style) {
         curCurve.style = JSON.parse(JSON.stringify(this.style));
         // this.styleChanging=null;
       }
@@ -180,11 +180,11 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
     }
   };
 
-  ModelDraw.prototype.addPt = function(pt) {//点：储存相对于屏幕的比例
+  ModelDraw.prototype.addPt = function(pt) { //点：储存相对于屏幕的比例
     var frameW = this.frameW;
-    var x = (pt[0] / frameW).toFixed(5);
-    var y = (pt[1] / frameW).toFixed(5);
-    var t = pt[2].toFixed(3);
+    var x = (pt[0] / frameW); //.toFixed(6);
+    var y = (pt[1] / frameW); //.toFixed(6);
+    var t = pt[2]; //.toFixed(3);
     pt = [x, y, t];
     // pt = [pt[0] / frameW, pt[1] / frameW, pt[2]];
     this.curCurve.c.push(pt);
@@ -193,15 +193,19 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
 
   ModelDraw.prototype.setBrushType = function(brush) {
     var brushType = brush.id;
-    if(brushType!==this.curBrushType){
+    if (brushType !== this.curBrushType) {
       var controls = this.controls = brush.controls;
       var style = this.style = {};
-      if(controls){
-        for(var name in controls){
+      if (controls) {
+        for (var name in controls) {
           style[name] = brush[name];
         }
       }
       this.curBrushType = brushType;
+      var curCurve = this.curCurve;
+      if(curCurve&&(!curCurve.c||curCurve.c.length===0)){
+        curCurve.brushType = brushType;
+      }
     }
   };
 
@@ -210,9 +214,9 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
     var curFrame = this.curFrame;
     var curves = curFrame.c;
     curves.pop();
-    if(curves.length>0){
-      this.curCurve =  curves[curves.length-1];
-    }else{
+    if (curves.length > 0) {
+      this.curCurve = curves[curves.length - 1];
+    } else {
       this.curCurve = null;
     }
   };
@@ -227,10 +231,10 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
     }
     //生成id
   function getId(type) {
-    var num = Math.floor(Math.random()*10000000);
+    var num = Math.floor(Math.random() * 10000000);
     var d = new Date();
     var dateStr = [d.getFullYear(), (d.getMonth() + 1), d.getDate(), d.getHours(), d.getMinutes()].join('');
-    return type + '_'+ dateStr + '_'+ num;
+    return type + '_' + dateStr + '_' + num;
   }
 
   //和数据库交互
@@ -249,36 +253,36 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
     curData.timeEnd = this.getTimeRelative();
     curData.frameH = this.frameH;
     curData.frameW = this.frameW;
-    cb = cb || function(){};
+    cb = cb || function() {};
     var saveData = {
       'userid': this.userid || 'first',
       'drawid': this.drawid || 'draw',
-      'data':JSON.stringify(this.curData)
+      'data': JSON.stringify(this.curData)
     };
 
     $.ajax({
       'url': 'http://mankattan.mathartworld.com/hotu-api/api/hotu/drawing',
       'type': 'POST',
-      'dataType':'json',
+      'dataType': 'json',
       'data': saveData,
       'success': function(d) {
-        console.log(d,'save-data');
+        console.log(d, 'save-data');
         cb(1);
       },
       'error': function(e) {
-        console.log(e,'save-err');
+        console.log(e, 'save-err');
         cb(0);
       }
     });
   };
 
-  ModelDraw.prototype.clear = function(){
-    var list = ['data','scene','frame','curve'];
-    for(var k in list){
+  ModelDraw.prototype.clear = function() {
+    var list = ['data', 'scene', 'frame', 'curve'];
+    for (var k in list) {
       var name = list[k];
-      this['index'+upper(name)] = null;
-      this['cur'+upper(name)] = null;
-      this[name+'N'] = 0;
+      this['index' + upper(name)] = null;
+      this['cur' + upper(name)] = null;
+      this[name + 'N'] = 0;
     }
   };
 
@@ -292,21 +296,21 @@ define(['zepto','./../utils/utils', './drawDataInfo'], function($, Utils, DrawDa
       'type': 'GET',
       'data': query,
       'success': function(d) {
-        if(d&&d.data){
+        if (d && d.data) {
           // cb(d.data);
           cb(null);
-        }else{
+        } else {
           cb(null);
         }
       },
       'error': function(e) {
         cb(null);
-        console.log(e,'getlast-err');
+        console.log(e, 'getlast-err');
       }
     });
   };
 
-  ModelDraw.prototype.getData = function() {//获取当前的数据
+  ModelDraw.prototype.getData = function() { //获取当前的数据
     var curData = this.curData;
     curData.info = computeDrawInfo(curData);
     console.log(JSON.stringify(curData));

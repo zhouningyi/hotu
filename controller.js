@@ -1,11 +1,11 @@
 'use strict';
 
-define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/subTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer'], function($, Gui, Bg, Painter, FloatTag, SubTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer) {
+define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools','ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer'], function($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer) {
 
   var clickEvent = 'touchstart mousedown',
   body = $('body');
 
-  var painter, bg, exports, gui, floatTag, subTools, brushes;
+  var painter, bg, exports, gui, floatTag, brushTools, bgTools, brushes;
 
   var drawToolsNode = $('#draw-tools');
   var endToolsNode = $('.end-tools');
@@ -62,25 +62,34 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/sub
     var renderer = this.renderer = new Renderer(brushObj, frameOpt); //动画播放等
 
     floatTag = new FloatTag(uiContainer);//底部子菜单
-    subTools = new SubTools({//工具子菜单
+    brushTools = new BrushTools({//工具子菜单
       container:uiContainer,
       bind:drawToolsNode,
       brushes:brushObj,
       renderer:this.renderer
     });
+
     painter = this.painter = new Painter(drawContainer, {
       'brushes': brushes,
       'modelDraw': modelDraw,
       'renderer': renderer,
-      'quality':2
+      'quality':3
     });
+
+    //背景层
     bg = new Bg(bgContainer);
+    bgTools = new BgTools({
+      'container':uiContainer,
+      'bind':drawToolsNode,
+      'brushes':brushObj,
+      'bg':bg
+    });
+
     exports = new Exports(floatTagNode, bg, painter);
     gui = new Gui();
 
     this.events();
     this.dispatchLoadlast();
-    bg.setBg(0);
   };
 
   Controller.prototype.dispatchLoadlast = function() { //是否要载入banner提示
@@ -151,14 +160,21 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/sub
       var cbs = {
         'brush': function(){
           self.painter.setBrush();
-          subTools.switch();
-          subTools.in({
+          bgTools.out();
+          brushTools.switch({
             node: node,
             parent:drawToolNode,
             helpText:'选择画笔'
           });
         },
-        'background': bg.setBg.bind(bg),
+        'background': function(){
+          brushTools.out();
+          bgTools.switch({
+            node: node,
+            parent:drawToolNode,
+            helpText:'选择图片'
+          });
+        },
         'broadcast': painter.broadcast.bind(painter),
         'refresh': window.location.reload.bind(window.location)
       };
@@ -197,8 +213,10 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/sub
         }
       };
       if (cbs[id]) {
-        if (floatTag.isOut) { //已经点开了
+        if(id==='download'||id==='submit-message'){
           gui.outLeft();
+        }
+        if (floatTag.isOut) { //已经点开了
           cbs[id]();
         } else {
           floatTag.out();

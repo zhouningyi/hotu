@@ -108,7 +108,6 @@ define(['./animator','async'],function(Animator,async){
     };
   };
 
-  //
   Renderer.prototype.drawCurveDirect = function(curve, ctx) {
     this.drawCurve(curve, ctx, {
       curve: {
@@ -148,9 +147,10 @@ define(['./animator','async'],function(Animator,async){
   }
 
   function drawPt (pt, brush, ctx, index, ptN, _ptTransform, style) { //绘制一个点的过程
-    if(style) brush.setOptions(style);
+    if(!brush) return;
     pt = _ptTransform(pt);
     if (index === '0' || index === 0) {
+      brush.setCurveStyles(style);
       brush.begin(ctx, pt);
     }
     else {
