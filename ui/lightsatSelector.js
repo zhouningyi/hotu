@@ -25,7 +25,6 @@ define(['zepto', 'anim', './../utils/utils'], function($, a, Utils) {
     this.gridPaddingSel = '2';
     this.init();
 
-
     this.events();
 
     this.lightSatGradient(color.hue);

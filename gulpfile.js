@@ -19,21 +19,28 @@ concat = require('gulp-concat'),
 compass = require('gulp-compass')
 ;
 
-gulp.task('scripts', function() {
-  //concat them together
-  gulp.src('./bower_components/requirejs/require.js')
-    .pipe(uglify({
-      mangle: false,
-      outSourceMap: false
-    }))
-    .pipe(concat('./bower_components/requirejs/require.min.js'))
-    .pipe(gulp.dest('./bower_components/requirejs/'))
-  ;
-});
+function handleError(err) {
+  console.log(err.toString(),'handleError');
+  this.emit('end');
+}
+
+
+// gulp.task('scripts', function() {
+//   //concat them together
+//   gulp.src('./bower_components/requirejs/require.js')
+//     .pipe(uglify({
+//       mangle: false,
+//       outSourceMap: false
+//     }))
+//     .pipe(concat('./bower_components/requirejs/require.min.js'))
+//     .pipe(gulp.dest('./bower_components/requirejs/'));
+
+// });
 
 
 
 gulp.task('requirejsBuild', function() {
+  try{
   rjs({
       name: 'app',
       baseUrl: './',
@@ -46,8 +53,12 @@ gulp.task('requirejsBuild', function() {
       },
       // ... more require.js options
     })
-    // .pipe(uglify())
+    .pipe(uglify())
+    .on('error', handleError)
     .pipe(gulp.dest('./dest')); // pipe it to the output DIR
+  }catch(e){
+    console.log(e);
+  }
 });
 
 // 压缩css的任务
@@ -55,7 +66,8 @@ gulp.task('cssBuild', function() {
   return gulp.src(['./bower_components/ionicons/css/ionicons.css','./ui/*.css'])
     .pipe(minifyCSS({
       aggressiveMerging:false,
-      keepSpecialComments:0
+      keepSpecialComments:0,
+      advanced:false
     }))
     .pipe(concat('./app.min.css'))
     .pipe(gulp.dest('./dest/'));
@@ -63,7 +75,7 @@ gulp.task('cssBuild', function() {
 
 // // 默认任务
 gulp.task('default', function() {
-  gulp.run('scripts');
+  // gulp.run('scripts');
   gulp.run('requirejsBuild');
   gulp.run('cssBuild');
 

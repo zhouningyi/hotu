@@ -85,14 +85,17 @@ define(['zepto', 'anim'], function($) {
         cb: function() {
           floatTagNode
           .css({
-            'pointerEvents': 'auto'
+            'pointerEvents': 'auto',
           });
           self.isOut = false;
           cb();
         }
       });
       //背景色
-      if(obj.bgImg) obj.bgImg.addClass('float-tag-img').appendTo(floatTagAddNode);
+      if(obj.bgImg){
+        obj.bgImg.addClass('float-tag-img').appendTo(floatTagAddNode);
+        // alert(obj.bgImg.width()+'|'+obj.bgImg.height()+'==');
+      }
 
       //提示
       if(obj.helpText) this.floatTagHelp(obj.helpText);

@@ -22,7 +22,7 @@ define(['zepto','./../utils/utils'], function($, Utils) {
     this.containerH = container.height();
 
     //画板
-    this.quality = opt.quality || 3;
+    this.quality = opt.quality || 2;
     this.dom();
 
     //画笔相关

@@ -64,7 +64,7 @@ define(['zepto'], function($) {
         },
         'kWidth': {
           'f': 'Sinusoidal.In',
-          'N': 16
+          'N': 20
         }
       },
       'phi': Math.PI / 6,
@@ -94,6 +94,7 @@ define(['zepto'], function($) {
           'get': function(ki) {
             return 360 * ki;
           },
+          'descUI': '颜色',
           'constructorUI': 'HueSlider',
           'containerName': 'color'
         },
@@ -111,8 +112,15 @@ define(['zepto'], function($) {
       }
     },
     begin: function() {
+      this.secondBol = true;
       this.ptIndex = 0;
     },
+    second: function(opt) { //补上一个点
+      drawSprite(this.ctx, this.sprite, this.xp, this.yp, this.widthPrev, this.phi);
+      console.log('9999')
+      this.secondBol = false;
+    },
+
     draw: function(opt) {
       var color = this.color;
       color = color.color;
@@ -140,15 +148,17 @@ define(['zepto'], function($) {
       var yp = this.yp || y;
       var dx = x - xp;
       var dy = y - yp;
-      var phi = this.phi;
       var l = Math.sqrt(dy * dy + dx * dx);
-      var cos = Math.cos(phi);
-      var sin = Math.sin(phi);
+      var cos = Math.cos(this.phi);
+      var sin = Math.sin(this.phi);
       var sinPrev = this.sinPrev || sin;
       var cosPrev = this.cosPrev || cos;
 
       // var directPhi = Math.atan(dy/dx);
       if (this.ptIndex > 0) {
+        if (this.secondBol) {
+            this.second(opt);
+        }
         var p1x = xp + widthPrev * cosPrev;
         var p1y = yp + widthPrev * sinPrev;
         var p2x = xp - widthPrev * cosPrev;
@@ -170,7 +180,7 @@ define(['zepto'], function($) {
         ctx.stroke();
         ctx.closePath();
 
-        if (kWidth > 0.5) drawSprite(ctx, this.sprite, xp, yp, widthPrev, phi);
+        if (kWidth > 0.5) drawSprite(ctx, this.sprite, xp, yp, widthPrev, this.phi);
       }
 
       // ctx.beginPath();
@@ -221,6 +231,7 @@ define(['zepto'], function($) {
       this.yp = null;
       this.xp = null;
       this.ptIndex = 0;
+      this.secondBol = false;
     },
     buttonStyle: function(node) {
       node.css({

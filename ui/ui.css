@@ -1,28 +1,21 @@
 /**
  * 全局层
  */
-
 div, body {
   position: absolute;
   padding: 0;
   margin: 0;
-  -webkit-user-select: none;
-  user-select: none;
 }
-body{
-  background: #222;
+html, body {
+  /*-webkit-user-select: none;*/
+  /*user-select: none;*/
+   /*-webkit-touch-callout: none;*/
 }
 .transition {
   -webkit-transition: all 0.15s ease-in-out;
   -moz-transition: all 0.15s ease-in-out;
   -o-transition: all 0.15s ease-in-out;
   transition: all 0.15s ease-in-out;
-}
-.transition-fast {
- /* -webkit-transition: all 0.1s ease-in-out;
-  -moz-transition: all 0.1s ease-in-out;
-  -o-transition: all 0.1s ease-in-out;
-  transition: all 0.1s ease-in-out;*/
 }
 body {
   width: 100%;
@@ -41,6 +34,9 @@ body {
   margin: 0;
   text-align: center;
   vertical-align: middle;
+}
+.bg-image-container{
+  opacity: 0.1;
 }
 .draw-container {
   display: block;
@@ -344,6 +340,8 @@ body {
   /*box-shadow: 1px 1px 1px rgba(0,0,0,0.6);*/
 }
 .float-tag-img{
+  width: 100%;
+  height: auto;
 }
 
 .float-tag-triangle{
@@ -396,7 +394,7 @@ body {
   width: 100%;
   position: relative;
   font-size: 12px;
-  color: rgba(150,150,150,0.4);
+  color: rgba(120,120,120,0.6);
   text-align: left;
   /*padding-left: 30px;*/
 }
@@ -404,7 +402,7 @@ body {
   position: absolute;
   top: 50%;
   width: 100%;
-  height: 1px;
+  height: 3px;
   background:-webkit-linear-gradient(left, #f11 0%, #1f1 33.33%, #11f 66.67%, #f11 100%);
 }
 .slider-line{
@@ -426,8 +424,8 @@ body {
 }
 
 .photo {
+  /*position: relative;*/
   display: block;
-  width: 300px;
   border: 2px solid #ea8010;
   border-radius: 21px;
   color: #ea8010;
@@ -435,6 +433,26 @@ body {
   padding: 18px 0;
   text-align: center;
   cursor: pointer;
+  pointer-events:auto;
+}
+.photo:after {
+  clear: both;
+}
+
+.photo img {
+  display: block;
+  margin: auto;
+}
+.photo-uploader{
+  position: relative;
+  width: 100%;
+  pointer-events:auto;
+}
+input[type=file] {
+  /*pointer-events:auto;*/
+  font-size: 0;
+  display: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /*

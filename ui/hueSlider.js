@@ -37,7 +37,7 @@ define(['zepto', 'anim', './../utils/utils'], function($,a,Utils) {
 
   HueSelector.prototype.init = function () {
     var node = this.node = $(
-      '<div class="slider-container-desc">色相</div>\
+      '<div class="slider-container-desc">颜色</div>\
       <div class="slider-container">\
         <div class="slider-line-gradient"></div>\
         <div class="slider-pointer"></div>\

@@ -52,6 +52,7 @@ define(function() {
             return 360 * ki;
           },
           'constructorUI': 'HueSlider',
+          'descUI': '颜色',
           'containerName': 'color'
         },
       }

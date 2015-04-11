@@ -65,6 +65,7 @@ define(function() {
           'get': function(ki) {
             return 360 * ki;
           },
+          'descUI': '颜色',
           'constructorUI': 'HueSlider',
           'containerName': 'color'
         },

@@ -75,12 +75,48 @@ define(['zepto'], function($) {
     ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height);
   };
 
+
+  Bg.prototype.applyStyle = function(node) {
+    var width = node[0].width;
+    var height = node[0].height;
+    var containerW = this.container.width();
+    var containerH = this.container.height();
+
+    if (width / containerW > height / containerH) return node.css({
+      'position':'absolute',
+      'top':(containerH - containerW*height/width)/2,
+      'display':'block',
+      'width': '100%',
+      'height': 'auto',
+      'backgroundPosition': 'center'
+    });
+
+    return node.css({
+      'position':'absolute',
+      'display':'block',
+      'height': '100%',
+      'width': 'auto',
+      'verticalAlign': 'middle',
+      'backgroundPosition': 'center'
+    });
+  };
     Bg.prototype.events = function(obj){
+      var imageContainer = this.container.find('.bg-image-container');
       var self = this;
       $('body') .on('controlrable', function(e, obj) {
-        if(obj&&obj.target==='bg'&&obj.name==='color'){
-          var color = obj.value;
-          if(color) self.color = color;
+        if(!obj) return;
+        var target = obj.target;
+        var value = obj.value;
+        var name = obj.name;
+        if(target==='bg'&&name==='color'){
+          if(value) self.color = value;
+        }else if(target==='bg'&&name==='image'){
+          if(value) {
+            var url = value.url;
+            var bgImg =
+            $('<img src="'+url+'"></img>').appendTo(imageContainer.empty());
+            setTimeout(function(){self.applyStyle(bgImg);},10);
+          }
         }
       });
     };
