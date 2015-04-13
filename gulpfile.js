@@ -63,7 +63,7 @@ gulp.task('requirejsBuild', function() {
 
 // 压缩css的任务
 gulp.task('cssBuild', function() {
-  return gulp.src(['./bower_components/ionicons/css/ionicons.css','./ui/*.css'])
+  return gulp.src(['./ui/*.css'])
     .pipe(minifyCSS({
       aggressiveMerging:false,
       keepSpecialComments:0,
@@ -80,7 +80,8 @@ gulp.task('default', function() {
   gulp.run('cssBuild');
 
   gulp.watch([
-      './ui/*.css'
+      './ui/*.css',
+      // './bower_components/ionicons/css/ionicons.css'
       ], function(event) {
       gulp.run('cssBuild');
   });

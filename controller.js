@@ -1,7 +1,6 @@
 'use strict';
 
 define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools','ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer'], function($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer) {
-
   var clickEvent = 'touchstart mousedown',
   body = $('body');
 

@@ -261,7 +261,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function($, Utils, DrawD
     };
 
     $.ajax({
-      'url': 'http://mankattan.mathartworld.com/hotu-api/api/hotu/drawing',
+      'url': 'http://hotu.co/hotu-api/api/hotu/drawing',
       'type': 'POST',
       'dataType': 'json',
       'data': saveData,
@@ -292,7 +292,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function($, Utils, DrawD
       'drawid': query.drawid || 'draw',
     };
     $.ajax({
-      'url': 'http://mankattan.mathartworld.com/hotu-api/api/hotu/drawing',
+      'url': 'http://hotu.co/hotu-api/api/hotu/drawing',
       'type': 'GET',
       'data': query,
       'success': function(d) {

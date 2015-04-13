@@ -32,7 +32,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
           <div class="ui-grid">\
             <label class="label-uploader">\
             <input type="file" name="images" id="images" accept="image/*">\
-            <i class="style-normal iconfont-mobile block ion-android-camera" id="background-image"></i>\
+            <i class="style-normal iconfont iconfont-mobile block icon-android-camera" id="background-image">&#xe601;</i>\
             <span class="icon-text gray-middle">背景图<span>\
             </label>\
         </div>\

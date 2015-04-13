@@ -3,3 +3,4 @@ bower_components/
 bin/
 dest/
 others/
+*.DS_Store

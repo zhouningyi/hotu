@@ -14,10 +14,11 @@
 
     Weixin.prototype.share = function() {
       var js_ticket_url = encodeURIComponent(window.location.origin + window.location.pathname + window.location.search);
-      $.getJSON('http://mankattan.mathartworld.com/hotu-api/api/weixin/sign?url=' + js_ticket_url,
+      $.getJSON('http://hotu.co/hotu-api/api/weixin/sign?url=' + js_ticket_url,
         function(data, status) {
           data = data || {};
           var config = data.config;
+          // config.debug = true;
           wx.config(config);
         });
     };
@@ -26,7 +27,7 @@
       var self = this;
       var url = this.url;
       $.ajax({
-        url: 'http://mankattan.mathartworld.com/hotu-api/api/weixin/getopenid',
+        url: 'http://hotu.co/hotu-api/api/weixin/getopenid',
         dataType: 'json',
         type: 'get',
         data: {
@@ -65,14 +66,15 @@
       var url = this.url;
       wx.ready(function() {
         var title = '糊涂';
-        var picUrl = 'http://open-wedding.qiniudn.com/frontlogo.png';
-        var desc = '笔墨创作的感觉|行书效果新上线';
+        var picUrl = 'http://open-wedding.qiniudn.com/tu.shu.png';
+        var desc = '涂鸦神器|记录创造的瞬间';
         var state = url.genState({
           fromid: self.userid || 'open_id_err',
           drawid: self.drawid || 'draw_id_err'
         });
+// 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://mankattan.mathartworld.com/hotu/apps/xinnianboskey?from=' + (self.dataid || self.fromid) + '&response_type=code&scope=snsapi_base&state=123&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect'
 
-        var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://mankattan.mathartworld.com/hotuOrigin?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
+        var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://hotu.co/hua?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
         var shareObj = {
           title: title,
           link: shareUrl,
