@@ -170,6 +170,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function($, Utils, DrawD
   };
 
   ModelDraw.prototype.addCurve = function() {
+    this.autoSaveStorage();//画一笔的时候 就自动保存
     var curCurve = this.add('curve');
     if (curCurve) { //如果有重复添加，也就是上一条曲线为空，this.add() 没有返回。
       if (this.style) {
@@ -211,6 +212,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function($, Utils, DrawD
 
 
   ModelDraw.prototype.back = function() {
+    this.autoSaveStorage();//后退一笔的时候 就自动保存
     var curFrame = this.curFrame;
     var curves = curFrame.c;
     curves.pop();
@@ -274,6 +276,20 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function($, Utils, DrawD
         cb(0);
       }
     });
+  };
+
+  ModelDraw.prototype.getLastStorage = function(obj) { //从localStorage寻找数据
+    if (typeof(Storage) == "undefined") return alert('无localstorage,sorry,看到这个bug, 请您告知公众号或zhouningyi1');
+      var data = window.localStorage.getItem('cur_drawing_data_hotu');
+      if(data) obj.success(data);return;
+      if(obj.fail) obj.fail();
+  };
+
+  ModelDraw.prototype.autoSaveStorage = function() { //从localStorage寻找数据
+    if (typeof(Storage) == "undefined") return;
+    var data = this.curData;
+    if(!data) return;
+    if(data.c&&data.c.length>1) window.localStorage.setItem('cur_drawing_data_hotu', JSON.stringify(data));
   };
 
   ModelDraw.prototype.clear = function() {

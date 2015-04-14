@@ -92,26 +92,41 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
   };
 
   Controller.prototype.dispatchLoadlast = function() { //是否要载入banner提示
+    var modelDraw = this.modelDraw;
     var self = this;
+    var drawid = url.getDrawid();
+    body.trigger('drawid', drawid);
+    var openid = url.getFromid();
+    body.trigger('openid', openid);
     if (isLoadLast) {
-      var drawid = url.getDrawid();
-      body.trigger('drawid', drawid);
-      var openid = url.getFromid();
-      body.trigger('openid', openid);
-      this.modelDraw.getLast({
-        userid: openid,
-        drawid: drawid
-      }, function(d) {
-        if (d) {
-          d = JSON.parse(d);
-          self.modelDraw.oldData(d); //存储上次的数据
-          self.renderer.drawDatas(self.painter.ctxMainBack, d); //画出上一次的数据
-        } else { //载入数据失败 重新生成drawid
+      modelDraw.getLastStorage({
+        success: function(d){
+          if(!d)return;
+          setTimeout(self.processingDrawData.bind(self)(d), 10);
+          },
+        fail: function() {
+          modelDraw.getLast({
+            userid: openid,
+            drawid: drawid
+          }, self.processingDrawData.bind(self));
         }
-      });
-    } else {
-    }
+      })
+    } else {}
     self.painter.beginRecord(); //开始记录
+  };
+
+  Controller.prototype.processingDrawData = function(d) {
+    if(!d) return;
+    // alert(d.length)
+    if (d) {
+      d = JSON.parse(d);
+      this.modelDraw.oldData(d);//存储上次的数据
+      this.renderer.drawDatas(this.painter.ctxMainFront, d,{
+        curve:{async:0},
+        frame:{async:1}
+      }); //画出上一次的数据
+    } else { //载入数据失败 重新生成drawid
+    }
   };
 
   //事件

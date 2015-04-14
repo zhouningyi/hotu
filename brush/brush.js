@@ -201,6 +201,8 @@ define( [ './easing' ], function( Easing ) {
   };
 
   Brush.prototype.draw = function( ctx, pt ) { //中间过程
+    if(!ctx) console.log('drawFrame',ctx);
+    ctx = ctx || this.ctx;
     ctx.save();
     var record = this.record( pt ) || {};
     if ( record.drawBol ) {
