@@ -1,8 +1,8 @@
 'use strict';
 
-define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools','ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer'], function($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer) {
+define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer) {
   var clickEvent = 'touchstart mousedown',
-  body = $('body');
+    body = $('body');
 
   var painter, bg, exports, gui, floatTag, brushTools, bgTools, brushes;
 
@@ -22,21 +22,21 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
 
   function Controller() {
     var self = this;
-    // body.on('brush-change', function(e, brushType) {
+    // body.on('brush-change', function (e, brushType) {
     //   // self.brush.buttonStyle($('#brush'));
     // }); //笔触更换导致ui变化
 
     this.dispatchBanner(this.init.bind(this), 'direct'); //判断走哪一种方式进入主程序
   }
 
-  Controller.prototype.dispatchBanner = function(cb, type) { //是否要载入banner提示
+  Controller.prototype.dispatchBanner = function (cb, type) { //是否要载入banner提示
     if (type === 'direct') {
       return cb();
     }
     // new Loading($('.main-container'), cb);
   };
 
-  Controller.prototype.animIn = function() { //动画进入
+  Controller.prototype.animIn = function () { //动画进入
     importantToolsNode.keyAnim('fadeInLeft', {
       time: 0.4
     });
@@ -48,7 +48,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     });
   };
 
-  Controller.prototype.init = function() {
+  Controller.prototype.init = function () {
     this.animIn();
 
     var brushes = this.brushes = new Brushes();
@@ -60,28 +60,28 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     var modelDraw = this.modelDraw = new ModelDraw(frameOpt); //数据
     var renderer = this.renderer = new Renderer(brushObj, frameOpt); //动画播放等
 
-    floatTag = new FloatTag(uiContainer);//底部子菜单
-    brushTools = new BrushTools({//工具子菜单
-      container:uiContainer,
-      bind:drawToolsNode,
-      brushes:brushObj,
-      renderer:this.renderer
+    floatTag = new FloatTag(uiContainer); //底部子菜单
+    brushTools = new BrushTools({ //工具子菜单
+      container: uiContainer,
+      bind: drawToolsNode,
+      brushes: brushObj,
+      renderer: this.renderer
     });
 
     painter = this.painter = new Painter(drawContainer, {
       'brushes': brushes,
       'modelDraw': modelDraw,
       'renderer': renderer,
-      'quality':3
+      'quality': 3
     });
 
     //背景层
     bg = new Bg(bgContainer);
     bgTools = new BgTools({
-      'container':uiContainer,
-      'bind':drawToolsNode,
-      'brushes':brushObj,
-      'bg':bg
+      'container': uiContainer,
+      'bind': drawToolsNode,
+      'brushes': brushObj,
+      'bg': bg
     });
 
     exports = new Exports(floatTagNode, bg, painter);
@@ -91,7 +91,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     this.dispatchLoadlast();
   };
 
-  Controller.prototype.dispatchLoadlast = function() { //是否要载入banner提示
+  Controller.prototype.dispatchLoadlast = function () { //是否要载入banner提示
     var modelDraw = this.modelDraw;
     var self = this;
     var drawid = url.getDrawid();
@@ -100,11 +100,11 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     body.trigger('openid', openid);
     if (isLoadLast) {
       modelDraw.getLastStorage({
-        success: function(d){
-          if(!d)return;
+        success: function (d) {
+          if (!d) return;
           setTimeout(self.processingDrawData.bind(self)(d), 10);
-          },
-        fail: function() {
+        },
+        fail: function () {
           modelDraw.getLast({
             userid: openid,
             drawid: drawid
@@ -115,78 +115,70 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     self.painter.beginRecord(); //开始记录
   };
 
-  Controller.prototype.processingDrawData = function(d) {
-    if(!d) return;
-    // alert(d.length)
-    if (d) {
-      d = JSON.parse(d);
-      this.modelDraw.oldData(d);//存储上次的数据
-      this.renderer.drawDatas(this.painter.ctxMainFront, d,{
-        curve:{async:0},
-        frame:{async:1}
-      }); //画出上一次的数据
-    } else { //载入数据失败 重新生成drawid
-    }
+  Controller.prototype.processingDrawData = function (d) {
+    if (!d) return;
+    d = JSON.parse(d);
+    this.modelDraw.oldData(d); //存储上次的数据
+    this.painter.reload(d);
   };
-
   //事件
-  Controller.prototype.events = function() {
+  Controller.prototype.events = function () {
     this.painterEvents();
     this.iconEvents();
     this.uiEvents();
   };
 
-  Controller.prototype.painterEvents = function() {
+  Controller.prototype.painterEvents = function () {
     var self = this;
     body
-    .on('painter-work',function(){
-      gui.out();
-    })
-    .on('painter-unwork',function(){
-      gui.in();
-    })
-    .on('bg-color-change', function(e, bgColor) {
-      gui.setBackground(bgColor);
-    });
+      .on('painter-work', function () {
+        gui.out();
+      })
+      .on('painter-unwork', function () {
+        gui.in();
+      })
+      .on('bg-color-change', function (e, bgColor) {
+        gui.setBackground(bgColor);
+      });
   };
 
-  Controller.prototype.iconEvents = function() {
+  Controller.prototype.iconEvents = function () {
     //所有iconfont在点击后都会闪动
-    $('.iconfont-mobile').on(clickEvent, function() {
+    $('.iconfont-mobile').on(clickEvent, function () {
       var node = $(this);
       node.keyAnim('fadeOutIn', {
         'time': 0.5,
         'icount': 5,
-        'cb':function(){
+        'cb': function () {
           node.clearKeyAnim();
         }
       });
     });
   };
 
-  Controller.prototype.uiEvents = function() {
+  Controller.prototype.uiEvents = function () {
     var self = this;
     var drawToolNode = $('#draw-tools');
-    drawToolNode.delegate('i', clickEvent, function(e) {
+    drawToolNode.delegate('i', clickEvent, function (e) {
       prevant(e);
       var node = $(this);
       var id = node.attr('id');
       var cbs = {
-        'brush': function(){
+        'brush': function () {
           self.painter.setBrush();
           bgTools.out();
           brushTools.switch({
             node: node,
-            parent:drawToolNode,
-            helpText:'选择画笔'
+            parent: drawToolNode,
+            helpText: '选择画笔'
           });
         },
-        'background': function(){
+        'background': function () {
           brushTools.out();
           bgTools.switch({
             node: node,
-            parent:drawToolNode,
-            helpText:'选择图片'
+            parent: drawToolNode,
+            helpText: '选择图片'
           });
         },
         'broadcast': painter.broadcast.bind(painter),
@@ -198,26 +190,26 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     });
 
     //底部的工具
-    endToolsNode.delegate('i', clickEvent, function(e) {
+    endToolsNode.delegate('i', clickEvent, function (e) {
       prevant(e);
       var node = $(this);
       var id = node.attr('id');
       var cbs = {
-        'restart': function() {
+        'restart': function () {
           painter.restart();
           body.trigger('refresh-drawid');
         },
-        'download': function() {
+        'download': function () {
           var img = exports.toImage();
           floatTag.in({
             node: node,
             type: 'bottom',
             helpText: '长按上图下载',
             bgImg: img
-          }, function() {});
+          }, function () {});
         },
-        'submit-message': function() {
-          painter.save({}, function(bol) {
+        'submit-message': function () {
+          painter.save({}, function (bol) {
             floatTag.in({
               node: node,
               type: 'bottom',
@@ -227,7 +219,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
         }
       };
       if (cbs[id]) {
-        if(id==='download'||id==='submit-message'){
+        if (id === 'download' || id === 'submit-message') {
           gui.outLeft();
         }
         if (floatTag.isOut) { //已经点开了
@@ -239,7 +231,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     });
 
     //上方的工具
-    importantToolsNode.delegate('i', clickEvent, function(e) {
+    importantToolsNode.delegate('i', clickEvent, function (e) {
       prevant(e);
       var node = $(this);
       var id = node.attr('id');
@@ -250,23 +242,23 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     });
 
     //挂在body上的一些事件
-    body.on('blur',function (){
+    body.on('blur', function () {
       painter.blur();
     });
-    body.on('unblur',function (){
+    body.on('unblur', function () {
       gui.in();
       painter.unblur();
     });
   };
 
-  function getQueryString (name) {
+  function getQueryString(name) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
     var r = window.location.search.substr(1).match(reg);
     if (r != null) return unescape(r[2]);
     return null;
   }
 
-  function prevant (e) { //清除默认事件
+  function prevant(e) { //清除默认事件
     e.preventDefault();
     e.stopPropagation();
   }

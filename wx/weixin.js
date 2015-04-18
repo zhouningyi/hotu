@@ -35,7 +35,6 @@
         },
         success: function(d) {
           var openid = d.openid;
-          // alert(JSON.stringify(d)+'openid');
           if (openid) {
             body.trigger('openid', openid);
             self.userid = openid; //+
@@ -72,7 +71,6 @@
           fromid: self.userid || 'open_id_err',
           drawid: self.drawid || 'draw_id_err'
         });
-// 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://mankattan.mathartworld.com/hotu/apps/xinnianboskey?from=' + (self.dataid || self.fromid) + '&response_type=code&scope=snsapi_base&state=123&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect'
 
         var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://hotu.co/hua?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
         var shareObj = {
@@ -96,3 +94,5 @@
 
     return Weixin;
   });
+
+  

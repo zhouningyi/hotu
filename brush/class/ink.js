@@ -117,10 +117,8 @@ define(['zepto'], function($) {
     },
     second: function(opt) { //补上一个点
       drawSprite(this.ctx, this.sprite, this.xp, this.yp, this.widthPrev, this.phi);
-      console.log('9999')
       this.secondBol = false;
     },
-
     draw: function(opt) {
       var color = this.color;
       color = color.color;

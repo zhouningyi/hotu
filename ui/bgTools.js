@@ -1,6 +1,6 @@
 'use strict';
 //对UI的总体控制
-define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSatSelector', './hueSlider', './slider'], function(Utils, $, Renderer, keyAnim, LightSatSelector, HueSlider, Slider) {
+define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSatSelector', './hueSlider', './slider'], function (Utils, $, Renderer, keyAnim, LightSatSelector, HueSlider, Slider) {
   var values = Utils.values,
     genCanvas = Utils.genCanvas,
     body = $('body');
@@ -19,7 +19,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     this.bgToolsNode.addClass('tools-out-left');
   }
 
-  BgTools.prototype.init = function(bg) {
+  BgTools.prototype.init = function (bg) {
     this.bg = bg;
     var toolsListN = this.toolsListN = 4,
       container = this.container,
@@ -48,7 +48,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     this.renderControl();
   };
 
-  BgTools.prototype.renderControl = function() {
+  BgTools.prototype.renderControl = function () {
     var colorNode = this.colorNode;
     var bg = this.bg;
     var color = bg.color;
@@ -64,16 +64,16 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
 
   };
 
-  BgTools.prototype.out = function(cb) { //隐藏
+  BgTools.prototype.out = function (cb) { //隐藏
     if (this.uiStatus === 'null') return;
     if (this.uiStatus !== 'out' && this.uiStatus !== 'lock') {
       var self = this;
-      cb = cb || function() {};
+      cb = cb || function () {};
       var bgToolsNode = this.bgToolsNode;
       this.uiStatus = 'lock';
       bgToolsNode.keyAnim('toolsOutLeft', {
         'time': 0.4,
-        'cb': function() {
+        'cb': function () {
           bgToolsNode.css({
             'pointerEvents': 'none'
           });
@@ -83,7 +83,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     }
   };
 
-  BgTools.prototype.in = function(obj, cb) { //隐藏
+  BgTools.prototype.in = function (obj, cb) { //出现
     if (this.uiStatus !== 'in' && this.uiStatus !== 'lock' && obj) {
       if (this.uiStatus === 'null') {
         this.bgToolsNode.css({
@@ -103,7 +103,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       });
       var iWidth = node.width();
 
-      cb = cb || function() {};
+      cb = cb || function () {};
       var width = $(window).width() * 0.8;
 
       this.uiStatus = 'lock';
@@ -121,9 +121,10 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
         'minWidth': ph,
         'height': 'auto'
       });
+      console.log(bgToolsNode)
       bgToolsNode.keyAnim('toolsInLeft', {
         'time': 0.4,
-        'cb': function() {
+        'cb': function () {
           bgToolsNode
             .css({
               'pointerEvents': 'auto'
@@ -140,49 +141,49 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     }
   };
 
-  BgTools.prototype.switch = function(obj) {
+  BgTools.prototype.switch = function (obj) {
     if (this.uiStatus !== 'in') this.in(obj);
     if (this.uiStatus == 'in') this.out(obj);
   };
 
-  BgTools.prototype.events = function() {
+  BgTools.prototype.events = function () {
     var self = this;
     var workLimit = 3000;
-    this.bgToolsNode.on('touchstart mousedown', function(e) { //点击后 不要影响
+    this.bgToolsNode.on('touchstart mousedown', function (e) { //点击后 不要影响
       // e.preventDefault();
     });
     body
-      .on('controlrable', function(e, obj) {
+      .on('controlrable', function (e, obj) {
         var bg = self.bg;
         if (obj && obj.target && obj.target === 'bg') {
           bg.setOptions(obj);
         }
       })
-      .on('painter-work', function() {
+      .on('painter-work', function () {
         self.out();
-        // setTimeout(function(){
+        // setTimeout(function (){
         //   body.trigger('painter-');
         // }, workLimit);
       })
-      .on('bg-color-change', function(e, bgColor) {
+      .on('bg-color-change', function (e, bgColor) {
         self.setBackground(bgColor);
       });
 
     this.uploadEvents();
   };
 
-  BgTools.prototype.uploadEvents = function() {
+  BgTools.prototype.uploadEvents = function () {
     var self = this;
-    // $('input').on('touchstart',function(){
+    // $('input').on('touchstart',function (){
     //   console.log(9999)
     // })
     var photoIpt = $('.label-uploader');
-    photoIpt.on('change', function(e) {
+    photoIpt.on('change', function (e) {
       var file = (e.target.files || e.dataTransfer.files)[0];
       if (file) {
         if (typeof FileReader !== 'undefined' && typeof window.URL !== 'undefined') {
           var reader = new FileReader();
-          reader.onload = function() {
+          reader.onload = function () {
             self.triggerPreview(file);
           };
           reader.readAsDataURL(file);
@@ -195,12 +196,12 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     });
   };
 
-  BgTools.prototype.triggerPreview = function(file) {
+  BgTools.prototype.triggerPreview = function (file) {
     var url = window.URL.createObjectURL(file);
     this.container.trigger('controlrable', {
       'name': 'image',
       'value': {
-        'url':url,
+        'url': url
       },
       'target': 'bg'
     });
@@ -209,7 +210,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     // console.log(iframe);
   };
 
-  BgTools.prototype.setBackground = function(bgColor) {
+  BgTools.prototype.setBackground = function (bgColor) {
     if (bgColor) {
       var colors = bgColor.split(',');
       colors[3] = '0.95)';
