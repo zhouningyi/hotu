@@ -2,7 +2,7 @@
 //发光笔触
 // 'lineCap': 'round',
 // 'lineJoin': 'miter',
-define(function() {
+define(function () {
   return {
     initOpt: {
       'id': 'light',
@@ -26,45 +26,31 @@ define(function() {
           'N': 8
         }
       },
-      'hue': 320,
-      'widthMax': 10,
-      'curStyle':{
-        'hue': 320,
-        'widthMax': 10,
-      },
       'controls': {
         'widthMax': {
-          'set': function(value) {
-            return (value - 8) / 15;
-          },
-          'get': function(ki) {
-            return 8 + ki * 15;
-          },
+          'range': [1, 20],
+          'value': 10,
           'constructorUI': 'Slider',
           'descUI': '粗细',
           'containerName': 'shape'
         },
         'hue': {
-          'set': function(value) {
-            return value / 360;
-          },
-          'get': function(ki) {
-            return 360 * ki;
-          },
-          'constructorUI': 'HueSlider',
+          'range': [0, 1],
+          'value': 0.5,
           'descUI': '颜色',
+          'constructorUI': 'HueSlider',
           'containerName': 'color'
-        },
+        }
       }
     },
 
-    begin: function() {
-      var curStyle = this.curStyle;
-      var widthMax = curStyle.widthMax || this.widthMax;
+    begin: function () {
+      var controls = this.controls;
+      var widthMax = controls.widthMax.value;
+      var hue = Math.floor(controls.hue.value * 360);
       this.secondBol = true;
       var scaleList = this.scaleList = [];
-      var drawN = this.drawN = Math.min(Math.floor(this.widthMax / 1.5) + 1, this.drawNMax);
-      var hue = curStyle.hue || this.hue;
+      var drawN = this.drawN = Math.min(Math.floor(widthMax / 1.5) + 1, this.drawNMax);
       for (var i = 0; i < drawN; i++) {
         var ii = i / (drawN - 1);
         var dii = Math.pow(1 - ii, 0.5);
@@ -79,7 +65,7 @@ define(function() {
       }
     },
 
-    second: function(opt) { //补上一个点
+    second: function (opt) { //补上一个点
       var ctx = this.ctx = opt.ctx;
       this.secondBol = false;
       var widthPrev = this.widthPrev;
@@ -108,9 +94,10 @@ define(function() {
         ctx.closePath();
       }
     },
-    draw: function(opt) {
+    draw: function (opt) {
       var drawN = this.drawN; //要描边几次
-      var color = this.color;
+      var controls = this.controls;
+      var widthMax = controls.widthMax.value;
       var Easing = this.Easing;
       var record = opt.record || {};
       var pt = opt.pt || {};
@@ -124,7 +111,6 @@ define(function() {
       var kFinal = this.getSmooth('width', ki);
       kFinal = (kFinal < 0) ? 0 : kFinal;
 
-      var widthMax = this.widthMax;
       var width = widthMax * kFinal;
       width = (width < 1) ? 1 : width;
       var widthPrev = this.widthPrev || width;
@@ -185,7 +171,7 @@ define(function() {
       this.yp = y;
       this.xp = x;
     },
-    end: function() {
+    end: function () {
       var ctx = this.ctx;
       this.secondBol = false;
       var widthPrev = this.widthPrev;
@@ -222,7 +208,7 @@ define(function() {
       this.sinp = null;
 
     },
-    buttonStyle: function(node) {
+    buttonStyle: function (node) {
       node.css({
         'textShadow': '0 0 9px #707',
         'color': '#f9f'

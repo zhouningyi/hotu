@@ -1,6 +1,6 @@
 'use strict';
 
-define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer) {
+define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer', 'ui/loading'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer, Loading) {
   var clickEvent = 'touchstart mousedown',
     body = $('body');
 
@@ -15,28 +15,29 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
   var drawContainer = $('.draw-container');
   var bgContainer = $('.bg-container');
 
-  var isAutoSave = false;
   var isLoadLast = true;
   var url = new Url(); //从url中抽取信息
   var weixin = new Weixin(url); //微信的分享机制
 
   function Controller() {
-    var self = this;
-    // body.on('brush-change', function (e, brushType) {
-    //   // self.brush.buttonStyle($('#brush'));
-    // }); //笔触更换导致ui变化
-
     this.dispatchBanner(this.init.bind(this), 'direct'); //判断走哪一种方式进入主程序
   }
 
   Controller.prototype.dispatchBanner = function (cb, type) { //是否要载入banner提示
-    if (type === 'direct') {
-      return cb();
+    var dispatchs = {
+      'direct': function () {
+        return cb();
+      },
+      'loading': function () {
+        return new Loading($('.main-container'), cb);
+      }
+    };
+    if (dispatchs[type]) {
+      dispatchs[type]();
     }
-    // new Loading($('.main-container'), cb);
   };
 
-  Controller.prototype.animIn = function () { //动画进入
+  Controller.prototype.uiAnimIn = function () { //动画进入
     importantToolsNode.keyAnim('fadeInLeft', {
       time: 0.4
     });
@@ -49,7 +50,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
   };
 
   Controller.prototype.init = function () {
-    this.animIn();
+    this.uiAnimIn();
 
     var brushes = this.brushes = new Brushes();
     var brushObj = brushes.brushObj;
@@ -102,6 +103,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       modelDraw.getLastStorage({
         success: function (d) {
           if (!d) return;
+          // self.processingDrawData.bind(self)(d);
           setTimeout(self.processingDrawData.bind(self)(d), 10);
         },
         fail: function () {

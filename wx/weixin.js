@@ -12,7 +12,7 @@
       this.events();
     }
 
-    Weixin.prototype.share = function() {
+    Weixin.prototype.share = function () {
       var js_ticket_url = encodeURIComponent(window.location.origin + window.location.pathname + window.location.search);
       $.getJSON('http://hotu.co/hotu-api/api/weixin/sign?url=' + js_ticket_url,
         function(data, status) {
@@ -33,14 +33,15 @@
         data: {
           'code': url.getCode()
         },
-        success: function(d) {
+        success: function (d) {
           var openid = d.openid;
+          // alert(JSON.stringify(d));
           if (openid) {
             body.trigger('openid', openid);
             self.userid = openid; //+
           }
         },
-        error: function(e) {
+        error: function (e) {
           var openid = 'optid-err' + Math.floor(Math.random() * 10000000);
           body.trigger('openid', openid);
         }

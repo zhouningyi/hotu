@@ -10,7 +10,7 @@ define(['zepto'],function($){
 
   Exports.prototype.init = function(){
     var painter = this.painter;
-    var quality = Math.min(painter.quality,2.5);//这他妈得是最大的了
+    var quality = Math.min(painter.quality,2.0);//这他妈得是最大的了
     var canvasW = this.canvasW= painter.containerW*quality;
     var canvasH = this.canvasH = painter.containerH*quality;
     var canvas = this.canvas = $('<canvas width="'+canvasW+'" height="'+canvasH+'"></canvas>');

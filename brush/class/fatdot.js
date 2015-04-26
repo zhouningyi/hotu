@@ -4,7 +4,7 @@ define(function() {
   return {
     'initOpt': {
       'desc': '可爱 画点笔触',
-      'name':'点点',
+      'name': '点点',
       'id': 'fatdot',
       'fillStyle': 'rgba(255,255,255,1)',
       'lineWidth': 1,

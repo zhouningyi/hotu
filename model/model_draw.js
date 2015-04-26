@@ -49,23 +49,6 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
   ModelDraw.prototype.events = function () {
     var self = this;
     body
-      .on('controlrable', function (e, obj) {
-        if (obj && obj.target === 'brush') {
-          var controls = self.controls;
-          var name = obj.name;
-          if (controls) {
-            if (name in controls) {
-              var conObj = controls[name];
-              var get = conObj.get;
-              var value = obj.value;
-              if (get) {
-                var style = self.style || {};
-                style[name] = get(value);
-              }
-            }
-          }
-        }
-      })
       .on('openid', function (e, openid) {
         self.userid = openid;
       })
@@ -105,8 +88,9 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
       type = opt.type;
       this.timePrev = 0;
       curData = this.curData = this.addFrame();
+      this.newRecord(type);
     }
-    this.newRecord(type);
+    
     this.timeStart = getTimeAbsolute();
     // this.cancelSubmit();
     // this.autoSubmit();
@@ -134,7 +118,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
     var meta = metas[type]; //寻找这个层级的信息
     if (meta) {
       var curThis = this['cur' + upper(type)];
-      if (curThis && curThis.c && curThis.c.length === 0) return; //如已经创建了一个空的curve 就不要重复创建了。
+      if (curThis && curThis.c && curThis.c.length === 0) return curThis; //如已经创建了一个空的curve 就不要重复创建了。
 
       var i = this['index' + upper(type)] || 0; //在这一级的编号
       var c = []; //下一级的children数组
@@ -170,15 +154,23 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
   };
 
   ModelDraw.prototype.addCurve = function () {
-    this.saveStorage(); //画一笔的时候 就自动保存
     var curCurve = this.add('curve');
     if (curCurve) { //如果有重复添加，也就是上一条曲线为空，this.add() 没有返回。
-      if (this.style) {
-        curCurve.style = JSON.parse(JSON.stringify(this.style));
-        // this.styleChanging=null;
-      }
+      curCurve.style = this.getCurStyle();
       curCurve.brushType = this.curBrushType;
     }
+  };
+
+  ModelDraw.prototype.getCurStyle = function () {
+    var style = {};
+    var curBrush = this.curBrush;
+    var controls = curBrush.controls;
+    if (controls) {
+      for (var key in controls) {
+        style[key] = controls[key].value;
+      }
+    }
+    return JSON.parse(JSON.stringify(style));
   };
 
   ModelDraw.prototype.addPt = function (pt) { //点：储存相对于屏幕的比例
@@ -194,14 +186,9 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
 
   ModelDraw.prototype.setBrushType = function (brush) {
     var brushType = brush.id;
+    this.curBrush = brush;
     if (brushType !== this.curBrushType) {
-      var controls = this.controls = brush.controls;
-      var style = this.style = {};
-      if (controls) {
-        for (var name in controls) {
-          style[name] = brush[name];
-        }
-      }
+      this.controls = brush.controls;
       this.curBrushType = brushType;
       var curCurve = this.curCurve;
       if (curCurve && (!curCurve.c || curCurve.c.length === 0)) {
@@ -209,7 +196,6 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
       }
     }
   };
-
 
   ModelDraw.prototype.back = function () {
     this.saveStorage(); //后退一笔的时候 就自动保存

@@ -20,7 +20,7 @@ define(['./animator', 'async'], function (Animator, async) {
   Renderer.prototype.ptTransform = function (opt, data) {
     var ptTransformStr = opt.ptTransform || 'normal'; //
     var bbox = {};
-    if (ptTransformStr == 'center_x') {
+    if (ptTransformStr === 'center_x') {
       if (data.info) {
         bbox = data.info.bbox;
         var xMin = bbox.xMin;
@@ -32,7 +32,7 @@ define(['./animator', 'async'], function (Animator, async) {
         this.py = (0.5 - dy / 2) * this.frameH;
       }
       return;
-    } else if (ptTransformStr == 'normal') {
+    } else if (ptTransformStr === 'normal') {
       this.ph = this.frameW;
     }
     // var phi = frameW
@@ -83,6 +83,17 @@ define(['./animator', 'async'], function (Animator, async) {
     }
   }
 
+  Renderer.prototype.getCanvasTmp = function (ctx) {
+    var canvas = ctx.canvas;
+    var canvasW = Math.floor(canvas.width);
+    var canvasH = Math.floor(canvas.height);
+    var canvasName = 'canvas' + canvasW + canvasH;
+    if (!this[canvasName]) {
+      this[canvasName] = $('<canvas width="' + canvasW + '" height="' + canvasH + '"></canvas>');
+    }
+    return this[canvasName];
+  };
+
   Renderer.prototype.drawFrame = function (frame, ctx, opt) {
     opt = opt || {
       frame: {
@@ -105,11 +116,11 @@ define(['./animator', 'async'], function (Animator, async) {
     var curve, curves = frame.c;
     for (var index in curves) {
       curve = curves[index];
+       // console.log(curve.style,'genDrawFrameFuncs');
       funcs.push(this.genDrawCurveFunc(curve, ctx, opt));
     }
     return funcs;
   };
-
 
   Renderer.prototype.genDrawCurveFunc = function (curve, ctx, opt) {
     var drawCurve = this.drawCurve.bind(this);
@@ -130,6 +141,7 @@ define(['./animator', 'async'], function (Animator, async) {
     var curveOpt = opt.curve;
     done = done || function () {};
     var funcs = this.genDrawCurveFuncs(curve, ctx);
+    if(opt.doneCurve) opt.doneCurve();//绘制一根线完成后的动作
     dispatch(funcs, done, curveOpt);
   };
 

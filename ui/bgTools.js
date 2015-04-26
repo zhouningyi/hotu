@@ -52,14 +52,20 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     var colorNode = this.colorNode;
     var bg = this.bg;
     var color = bg.color;
+    var controls = bg.controls;
 
     var hueSlider = new HueSlider(colorNode, {
-      'value': color.hue / 360,
-      'target': 'bg'
+      'targetName': 'bg',
+      'id': 'bg',
+      'target': bg,
+      'control': controls.hue
     });
+
     var lightSatSelector = new LightSatSelector(colorNode, {
-      'value': color,
-      'target': 'bg'
+      'targetName': 'bg',
+      'id': 'bg',
+      'target': bg,
+      'control': controls.lightSat
     });
 
   };
@@ -121,7 +127,6 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
         'minWidth': ph,
         'height': 'auto'
       });
-      console.log(bgToolsNode)
       bgToolsNode.keyAnim('toolsInLeft', {
         'time': 0.4,
         'cb': function () {
@@ -153,11 +158,9 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       // e.preventDefault();
     });
     body
-      .on('controlrable', function (e, obj) {
-        var bg = self.bg;
-        if (obj && obj.target && obj.target === 'bg') {
-          bg.setOptions(obj);
-        }
+      .off('controlrable' + '-' + 'lightSat' + '-' + 'bg' + '-' + 'bg')
+      .on('controlrable' + '-' + 'lightSat' + '-' + 'bg' + '-' + 'bg', function (e, obj) {
+        self.bg.setStyle(obj);
       })
       .on('painter-work', function () {
         self.out();
@@ -198,16 +201,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
 
   BgTools.prototype.triggerPreview = function (file) {
     var url = window.URL.createObjectURL(file);
-    this.container.trigger('controlrable', {
-      'name': 'image',
-      'value': {
-        'url': url
-      },
-      'target': 'bg'
-    });
-
-    // var iframe = $('<iframe src="http://www.baidu.com" style="width:100%;height:100%;"><>/iframe').appendTo($('.draw-container'));
-    // console.log(iframe);
+    this.bg.image(url);
   };
 
   BgTools.prototype.setBackground = function (bgColor) {

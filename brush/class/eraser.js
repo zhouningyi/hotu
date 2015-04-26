@@ -3,16 +3,16 @@
 // 'lineCap': 'round',
 // 'lineJoin': 'miter',
 define(['./../../utils/utils'], function (Utils) {
-  var hsla2obj = Utils.hsla2obj;
   return {
     initOpt: {
       'redraw': false,
-      'id': 'mark',
-      'name': '马克笔',
-      'desc': '马克笔',
-      'globalCompositeOperation': 'source-over',
+      'id': 'eraser',
+      'name': '橡皮',
+      'desc': '橡皮',
+      'globalCompositeOperation': 'destination-out',
       'lineJoin': 'miter',
       'lineCap': 'butt',
+      'color': 'rgba(0,0,0,0.4)',
       'smooth': {
         'x': {
           'f': 'Sinusoidal.In',
@@ -29,40 +29,18 @@ define(['./../../utils/utils'], function (Utils) {
       },
       'controls': {
         'widthMax': {
-          'range': [1, 50],
-          'value': 8,
+          'range': [1, 90],
+          'value': 15,
           'constructorUI': 'Slider',
           'descUI': '粗细',
           'containerName': 'shape'
         },
         'opacity': {
           'range': [0, 1],
-          'value': 0.5,
+          'value': 0.4,
           'constructorUI': 'Slider',
           'descUI': '透明',
-          'containerName': 'color'
-        },
-        'hue': {
-          'range': [0, 1],
-          'value': 0.5,
-          'descUI': '颜色',
-          'constructorUI': 'HueSlider',
-          'containerName': 'color'
-        },
-        'lightSat': {
-          'range': [{
-            'light': 0,
-            'sat': 0
-          }, {
-            'light': 1,
-            'sat': 1
-          }],
-          'value': {
-            'light': 0.4,
-            'sat': 0.9
-          },
-          'constructorUI': 'LightSatSelector',
-          'containerName': 'color'
+          'containerName': 'shape'
         }
       }
     },

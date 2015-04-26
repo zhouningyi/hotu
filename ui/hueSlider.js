@@ -1,38 +1,45 @@
 'use strict';
 //对UI的总体控制
-define(['zepto', 'anim', './../utils/utils'], function($,a,Utils) {
+define(['zepto', 'anim', './../utils/utils'], function ($,a,Utils) {
+  var body = $('body');
   var isNone = Utils.isNone;
   var upper = Utils.upper;
+  var getPt = Utils.getPt;
   function HueSelector(container, obj) {
     this.container = container;
-    this.hue = this.hue01 = obj.value;
-    this.key = 'hue';
-    this.target = obj.target || 'brush';
-    this.containerW = container.width();
-    this.containerH = container.height();
+
+    this.control = obj.control;
+    this.target = obj.target;
+    this.targetName = obj.targetName;
+
     this.init();
     this.events();
 
-    var self = this;
+    this.updateByTarget();
   }
 
-  HueSelector.prototype.setHue = function(hue01) {
-    var container = this.container;
-    var pNode = this.node.find('.slider-pointer');
-    if (isNone(hue01)) hue01 = this.hue01 || 0;
+  HueSelector.prototype.updateByTarget = function () {
+    this.ui2Target(this.target.controls.hue.value);
+  };
 
-    var hue = this.hue = parseInt(360 * hue01, 10);
-    var hsl = 'hsl(' + hue + ',90%,50%)';
-    var x = hue01 * this.lineW;
+  HueSelector.prototype.ui2Target = function (hue01) {
+    var lineNode = this.node.find('.slider-line-gradient');
+    var pNode = this.node.find('.slider-pointer');
+    var target = this.target;
+    
+    var container = this.container;
+
+    var control = this.control, range = control.range;
+    control.value = (range[1] - range[0]) * hue01 + range[0] * (1 - hue01);
+    target.onStyleChange();
+    var colorShowSat = target.colorShowSat;
     pNode.css({
-      'left': x - this.pNodeW / 2,
-      'background': hsl
+      'left': hue01 * lineNode.width() - pNode.width() / 2,
+      'background': colorShowSat
     });
-    container.trigger('controlrable', {
-      'target':this.target,
-      'name':this.key,
-      'value':hue01,
-    });
+    
+    body.trigger('preview' + '-' + this.targetName);
+    body.trigger('update' + '-' + 'hue' +  this.targetName);
   };
 
   HueSelector.prototype.init = function () {
@@ -43,56 +50,26 @@ define(['zepto', 'anim', './../utils/utils'], function($,a,Utils) {
         <div class="slider-pointer"></div>\
       </div>')
     .appendTo(this.container);
-    this.lineW = node.find('.slider-line-gradient').width();
-    var pNodeW = this.pNodeW = node.find('.slider-pointer').width();
-    var left = Math.floor(this.hue01*this.lineW);
-    node.find('.slider-pointer').css({'left':left-pNodeW/2});
   };
 
-
-  HueSelector.prototype.events = function() {
+  HueSelector.prototype.events = function () {
     var node = this.node;
     var self = this;
-    node.on('touchstart mousedown', function() {
+    node.on('touchstart mousedown', function (e) {
       self.isDown = true;
     })
-    .on('touchend mouseup touchleave mouseout', function() {
+    .on('touchend mouseup touchleave mouseout', function (e) {
       self.isDown = false;
     })
-    .on('touchstart mousedown touchmove mousemove',function(e){
-      if(self.isDown){
-        var pt = self.getPt(e);
+    .on('touchstart mousedown touchmove mousemove', function (e){
+      if (self.isDown) {
+        var pt = getPt(e);
         var x = pt[0];
-        var width = node.width();
-        var hue01 = x/width;
-        self.setHue(hue01);
+        self.ui2Target(x / node.width());
       }
     });
+    body.on('update-ui-by-brush', this.updateByTarget.bind(this));
   };
-
-  HueSelector.prototype.getPt = function(e) { //获取点相对于容器的位置
-    var node = $(e.target);
-    var nodeW = node.width();
-    var nodeH = node.height();
-    var offset = node.offset();
-    var left = offset.left;
-    var top = offset.top;
-    var x, y;
-    if (e.type.indexOf('mouse') !== -1) {
-      x = e.x || e.pageX;
-      y = e.y || e.pageY;
-      return [x - left, y - top];
-    }
-    var touch = window.event.touches[0];
-    x = touch.pageX - left;
-    y = touch.pageY - top;
-    x = (x < nodeW) ? x : nodeW;
-    x = (x > 0) ? x : 1;
-    y = (y < nodeH) ? y : nodeH;
-    y = (y > 0) ? y : 1;
-    return [x, y];
-  };
-
 
   return HueSelector;
 });

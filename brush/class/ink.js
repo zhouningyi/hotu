@@ -1,7 +1,7 @@
 'use strict';
 
 //ink 毛笔的效果
-define(['zepto'], function($) {
+define(['zepto'], function ($) {
   function generateSprite(fillColor) { //根据ai+drawscript得到笔触
     fillColor = fillColor || 'rgba(0,0,0,1)';
     var width = 50;
@@ -40,7 +40,7 @@ define(['zepto'], function($) {
     ctx.restore();
   }
 
-  function limit(d, limi) {
+  function limit (d, limi) {
     return Math.floor(d / limi) * limi;
   }
   return {
@@ -52,7 +52,7 @@ define(['zepto'], function($) {
       'lineCap': 'round',
       'lineJoin': 'miter',
       'distLimit': 2,
-      'sprite': generateSprite(),
+      'opacity': 1,
       'smooth': {
         'x': {
           'f': 'Sinusoidal.In',
@@ -68,60 +68,54 @@ define(['zepto'], function($) {
         }
       },
       'phi': Math.PI / 6,
-      'hue': 180,
-      'color': {
-        'hue':180,
-        'sat':0,
-        'light':10
-      },
-      'widthMax': 10,
       'controls': {
         'widthMax': {
-          'set': function(value) {
-            return (value - 3) / 30;
-          },
-          'get': function(ki) {
-            return 3 + ki * 30;
-          },
+          'range': [1, 50],
+          'value': 30,
           'constructorUI': 'Slider',
           'descUI': '粗细',
           'containerName': 'shape'
         },
         'hue': {
-          'set': function(hue) {
-            return hue / 360;
-          },
-          'get': function(ki) {
-            return 360 * ki;
-          },
+          'range': [0, 1],
+          'value': 0.5,
           'descUI': '颜色',
           'constructorUI': 'HueSlider',
           'containerName': 'color'
         },
-        'color': {
-          'set': function(c) {
-            return c;
-            ////////?////////?////////?////////?////////?////////?////////?////////?////////?
+        'lightSat': {
+          'range': [{
+            'light': 0,
+            'sat': 0
+          }, {
+            'light': 1,
+            'sat': 1
+          }],
+          'value': {
+            'light': 0,
+            'sat': 0
           },
-          'get': function(v) {
-            return v;
-          }, //ki为传入的参数
           'constructorUI': 'LightSatSelector',
           'containerName': 'color'
         }
       }
     },
-    begin: function() {
+    onStyleChange: function () {
+      this.hsla2color();//更新颜色
+      this.sprite = generateSprite(this.colorShow); //
+    },
+    begin: function () {
       this.secondBol = true;
       this.ptIndex = 0;
     },
-    second: function(opt) { //补上一个点
+    second: function (opt) { //补上一个点
       drawSprite(this.ctx, this.sprite, this.xp, this.yp, this.widthPrev, this.phi);
       this.secondBol = false;
     },
-    draw: function(opt) {
+    draw: function (opt) {
       var color = this.color;
-      color = color.color;
+      var controls = this.controls;
+      var widthMax = controls.widthMax.value;
       var Easing = this.Easing;
       var record = opt.record || {};
       var pt = this.pt = opt.pt || {};
@@ -133,8 +127,8 @@ define(['zepto'], function($) {
       var ki = Easing.Sinusoidal.In(1 - speedPhi);
       var kWidth = this.getSmooth('kWidth', ki);
       kWidth = Math.pow(kWidth, 5);
-
-      var width = this.widthMax * kWidth;
+      
+      var width = widthMax * kWidth;
       var widthPrev = this.widthPrev || width;
 
       var x = pt[0];
@@ -196,15 +190,7 @@ define(['zepto'], function($) {
       this.sinPrev = sin;
       this.ptIndex += 1;
     },
-    onStyleChange: function(obj) { //当风格属性变化 触发的事件
-      // obj.color = 'rgba(255,0,0,0.3)';
-      if (obj && obj.color) {
-        var color = obj.color.color
-        // this.sprite = generateSprite('rgba(0,0,0,0.3)');//obj.color
-        this.sprite = generateSprite(color); //
-      }
-    },
-    end: function() {
+    end: function () {
       if (this.ptIndex > 1) {
         if (this.kWidthPrev > 0.5) {
           drawSprite(this.ctx, this.sprite, this.xp, this.yp, this.widthPrev, this.phi);
@@ -219,7 +205,7 @@ define(['zepto'], function($) {
           ctx.lineTo(this.pbx, this.pby);
           ctx.lineTo(this.pax, this.pay);
           ctx.lineWidth = 0.5;
-          ctx.strokeStyle = ctx.fillStyle = this.color.color;
+          ctx.strokeStyle = ctx.fillStyle = this.color;
           ctx.fill();
           ctx.stroke();
           ctx.closePath();
@@ -231,7 +217,7 @@ define(['zepto'], function($) {
       this.ptIndex = 0;
       this.secondBol = false;
     },
-    buttonStyle: function(node) {
+    buttonStyle: function (node) {
       node.css({
         'textShadow': '0 0 1px #000',
         'color': '#000'

@@ -2,15 +2,19 @@
 //发光笔触
 // 'lineCap': 'round',
 // 'lineJoin': 'miter',
-define(function() {
+define(['./../../utils/utils'], function (Utils) {
+  var hsla2obj = Utils.hsla2obj;
   return {
     initOpt: {
-      'id': 'normal',
-      'name': '硬笔',
-      'desc': '硬笔',
+      'redraw': false,
+      'id': 'pen',
+      'name': '钢笔',
+      'desc': '钢笔',
       'globalCompositeOperation': 'source-over',
       'lineJoin': 'miter',
       'lineCap': 'butt',
+      'opacity': 0.9,
+      'color': 'rgba(0,0,0,1)',
       'smooth': {
         'x': {
           'f': 'Sinusoidal.In',
@@ -25,39 +29,26 @@ define(function() {
           'N': 8
         }
       },
-      'hue': 320,
-      'opacity': 0.8,
-      'color': {
-        'light': 20,
-        'sat': 0,
-        'color': 'hsla(320,0%,20%,1)',
-        'hue': 320,
-        'opacity':0.3
-      },
-      'widthMax': 2,
       'controls': {
         'widthMax': {
-          'set': function(value) {
-            return (value - 1) / 10;
-          },
-          'get': function(ki) {
-            return 1 + ki * 10;
-          },
+          'range': [1, 10],
+          'value': 5,
           'constructorUI': 'Slider',
           'descUI': '粗细',
           'containerName': 'shape'
-        },
+        }
       }
     },
-    begin:function(){
+    begin: function () {
       this.secondBol = true;
     },
-    second: function(opt) { //补上一个点
+    onStyleChange: function () {
+      // this.hsla2color();//更新颜色
+    },
+    second: function (opt) { //补上一个点
       var color = this.color;
       if (!color) return console.log('normal brush 没有颜色');
-      color = color.color;
       var ctx = this.ctx;
-      var widthMax = this.widthMax;
       this.secondBol = false;
       var widthPrev = this.widthPrev;
       var xp = this.xp;
@@ -81,11 +72,11 @@ define(function() {
       ctx.fill();
       ctx.closePath();
     },
-    draw: function(opt) {
+    draw: function (opt) {
+      var controls = this.controls;
       var ctx = this.ctx = opt.ctx || this.ctx;
       var color = this.color;
       if (!color) return console.log('normal brush 没有颜色');
-      color = color.color;
       var Easing = this.Easing;
       var record = opt.record || {};
       var pt = opt.pt || {};
@@ -99,7 +90,7 @@ define(function() {
       var kFinal = this.getSmooth('width', ki);
       kFinal = (kFinal < 0) ? 0 : kFinal;
 
-      var widthMax = this.widthMax;
+      var widthMax = this.widthMax || controls.widthMax.value;
       var width = widthMax * kFinal;
       width = (width < 1) ? 1 : width;
       var widthPrev = this.widthPrev || width;
@@ -138,6 +129,7 @@ define(function() {
           var p4y = y + width * sin;
           ctx.beginPath();
           ctx.fillStyle = color;
+          ctx.strokeStyle = color;
           ctx.moveTo(xp, yp);
           ctx.lineTo(p1x, p1y);
           ctx.lineTo(p4x, p4y);
@@ -155,10 +147,9 @@ define(function() {
       this.yp = y;
       this.xp = x;
     },
-    end: function() {
+    end: function () {
       var color = this.color;
       if (!color) return console.log('normal brush 没有颜色');
-      color = color.color;
       var ctx = this.ctx;
       this.secondBol = false;
       var widthPrev = this.widthPrev;
@@ -192,7 +183,7 @@ define(function() {
       this.sinp = null;
 
     },
-    buttonStyle: function(node) {
+    buttonStyle: function (node) {
       node.css({
         'textShadow': '0 0 9px #707',
         'color': '#f9f'
