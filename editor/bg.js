@@ -1,6 +1,7 @@
 'use strict';
 
-define(['zepto'], function($) {
+define(['zepto', './../utils/utils'], function ($, Utils) {
+  var setCanvasOpacity = Utils.setCanvasOpacity;
   function Bg(container) {
     container = this.container = container || $('.container');
     this.container = container;
@@ -13,6 +14,7 @@ define(['zepto'], function($) {
     this.dom();
     this.update();
     this.events();
+    this.opacity = 1;
     this.controls = {
       'widthMax': {
         'range': [1, 50],
@@ -20,13 +22,6 @@ define(['zepto'], function($) {
         'constructorUI': 'Slider',
         'descUI': '粗细',
         'containerName': 'shape'
-      },
-      'opacity': {
-        'range': [0, 1],
-        'value': 0.8,
-        'constructorUI': 'Slider',
-        'descUI': '透明',
-        'containerName': 'color'
       },
       'hue': {
         'range': [0, 1],
@@ -49,6 +44,13 @@ define(['zepto'], function($) {
         },
         'constructorUI': 'LightSatSelector',
         'containerName': 'color'
+      },
+      'bgImageOpacity': {
+        'range': [0, 1],
+        'value': 1,
+        'descUI': '背景透明度',
+        'constructorUI': 'LightSatSelector',
+        'containerName': 'color'
       }
     };
   }
@@ -56,12 +58,13 @@ define(['zepto'], function($) {
   Bg.prototype.onStyleChange = function () {
     this.hsla2color();
     this.update();
+    this.updateImageOpacity();
   };
 
   Bg.prototype.hsla2color = function () { //默认的hsla转换
     var controls = this.controls;
     if (!controls) return;
-    var opacity = controls.opacity.value;
+    var opacity = this.opacity;
     var hue = Math.round(controls.hue.value * 360);
     var lightSat = controls.lightSat.value;
     var light = Math.round(lightSat.light * 100);
@@ -85,7 +88,7 @@ define(['zepto'], function($) {
     this.updateCanvas();
   };
 
-  Bg.prototype.dom = function(obj) {
+  Bg.prototype.dom = function (obj) {
     obj = obj || {};
     var quality = obj.quality || 1;
     var canvas = $('<canvas width="' + this.containerW * quality + '" height="' + this.containerH * quality + '"></canvas>').css({
@@ -94,6 +97,7 @@ define(['zepto'], function($) {
       'pointerEvents': 'none',
       'opacity': 0
     }).appendTo(this.container);
+    var tmpCtx = this.tmpCtx = $('<canvas width="' + this.containerW * quality + '" height="' + this.containerH * quality + '"></canvas>')[0].getContext('2d');
 
     canvas = this.canvas = canvas[0];
     var ctx = this.ctx = canvas.getContext('2d');
@@ -105,52 +109,81 @@ define(['zepto'], function($) {
   ///////////////////////////////////////////////背景替换///////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
-  Bg.prototype.toImage = function() {
+  Bg.prototype.toImage = function () {
+    this.updateCanvas({
+      bgImg: true
+    });
     return this.canvas;
   };
 
-  Bg.prototype.updateCanvas = function() {
+  Bg.prototype.updateCanvas = function (obj) {
     var ctx = this.ctx;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.fillStyle = this.color;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    if(obj && obj.bgImg) {
+      if(!this.bgImg) return;
+      var tmpCtx = this.tmpCtx;
+      tmpCtx.clearRect(0, 0, tmpCtx.canvas.width, tmpCtx.canvas.height);
+      var bgImageStyle = this.bgImageStyle;
+      tmpCtx.drawImage(this.bgImg[0], bgImageStyle._left, bgImageStyle._top, bgImageStyle._width, bgImageStyle._height);
+      setCanvasOpacity(this.tmpCtx, this.controls.bgImageOpacity.value);
+      ctx.drawImage(tmpCtx.canvas, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
   };
 
-
-  Bg.prototype.applyStyle = function(node) {
+  Bg.prototype.setImageStyle = function (node) {
     var width = node[0].width;
     var height = node[0].height;
     var containerW = this.container.width();
     var containerH = this.container.height();
-
-    if (width / containerW > height / containerH) return node.css({
+    var bgImageStyle = this.bgImageStyle = (width / containerW > height / containerH) ? {
       'position': 'absolute',
+      'display': 'block',
       'top': (containerH - containerW * height / width) / 2,
-      'display': 'block',
-      'width': '100%',
+      '_top': (containerH - containerW * height / width) / 2,
+      'left': 0,
+      '_left': 0,
       'height': 'auto',
+      'width': '100%',
+      '_width': containerW,
+      '_height': containerW * height / width,
       'backgroundPosition': 'center'
-    });
-
-    return node.css({
+    } : {
       'position': 'absolute',
       'display': 'block',
-      'height': '100%',
+      'top': 0,
+      '_top': 0,
+      'left': (containerW - containerH * width / height) / 2,
+      '_left': (containerW - containerH * width / height) / 2,
+      '_width': containerH * width / height,
       'width': 'auto',
+      '_height': containerH,
+      'height': '100%',
       'verticalAlign': 'middle',
       'backgroundPosition': 'center'
-    });
+    };
+    return node.css(bgImageStyle);
   };
 
   Bg.prototype.image = function (url) {
     var self = this;
-    var bgImg =$('<img src="' + url + '"></img>').appendTo(this.container.find('.bg-image-container').empty());
-    setTimeout(function() {
-      self.applyStyle(bgImg);
-    }, 10);
+    var image = new Image();
+    image.src = url;
+    image.onload = function () {
+      var bgImg = self.bgImg = $(this).appendTo(self.container.find('.bg-image-container').empty());
+      window.bgImg = bgImg[0];
+      self.setImageStyle(bgImg);
+    };
   };
 
-  Bg.prototype.events = function(obj) {
+  Bg.prototype.updateImageOpacity = function () {
+    this.container.find('.bg-image-container').css({
+      opacity: this.controls.bgImageOpacity.value
+    });
+  };
+
+  Bg.prototype.events = function () {
 
   };
 

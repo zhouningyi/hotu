@@ -215,7 +215,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
             floatTag.in({
               node: node,
               type: 'bottom',
-              helpText: bol ? '上传成功' : '请您重试' //,
+              helpText: bol ? '敬请期待' : '敬请期待' //,
             });
           });
         }

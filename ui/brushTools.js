@@ -257,37 +257,25 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     }
   };
 
-  BrushTools.prototype.updateUI = function () { //保持ui的数值显示与brush一致
-    var curBrush = this.curBrush;
-    var brushType = curBrush.id;
-    if (!brushType) return;
-    var controls = curBrush.controls;
-    var i = 0;
-    for (var name in controls) {
-      var value = curBrush[name];
-      var obj = controls[name];
-      var set = obj.set.bind(curBrush);
-      value = set(value);
-      // setTimeout(function () {
-      // if (name === 'color') {
-      //   setTimeout(function () {
-      //     var colorObj = hsla2obj(value);
-      //     body.trigger('ui' + '-' + 'color' + '-' + 'brush' + '-' + brushType, {'value': value});
-      //     body.trigger('ui' + '-' + 'hue' + '-' + 'brush' + '-' + brushType, {'value': colorObj.hue / 360});
-      //     body.trigger('ui' + '-' + 'opacity' + '-' + 'brush' + '-' + brushType, {'value': colorObj.opacity});
-      //   }, 10);
-      //   return;
-      // }
-
-      body.trigger('ui' + '-' + name + '-' + 'brush' + '-' + brushType, {
-        'name': name,
-        'value': value,
-        'id': brushType,
-        'target': 'brush'
-      });
-      // }, 10 * i++);
-    }
-  };
+  // BrushTools.prototype.updateUI = function () { //保持ui的数值显示与brush一致
+  //   var curBrush = this.curBrush;
+  //   var brushType = curBrush.id;
+  //   if (!brushType) return;
+  //   var controls = curBrush.controls;
+  //   var i = 0;
+  //   for (var name in controls) {
+  //     var value = curBrush[name];
+  //     var obj = controls[name];
+  //     var set = obj.set.bind(curBrush);
+  //     value = set(value);
+  //     body.trigger('ui' + '-' + name + '-' + 'brush' + '-' + brushType, {
+  //       'name': name,
+  //       'value': value,
+  //       'id': brushType,
+  //       'target': 'brush'
+  //     });
+  //   }
+  // };
 
   BrushTools.prototype.setBackground = function (bgColor) {
     if (bgColor) {

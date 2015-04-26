@@ -35,7 +35,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
             <i class="style-normal iconfont iconfont-mobile block icon-android-camera" id="background-image">&#xe601;</i>\
             <span class="icon-text gray-middle">背景图<span>\
             </label>\
-        </div>\
+          </div>\
         </div>\
       </div>')
       .css({
@@ -44,12 +44,14 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       })
       .appendTo(container);
     var colorNode = this.colorNode = bgToolsNode.find('.color-ui');
+    var uploadNode = this.uploadNode = bgToolsNode.find('.upload-ui');
 
     this.renderControl();
   };
 
   BgTools.prototype.renderControl = function () {
     var colorNode = this.colorNode;
+    var uploadNode = this.uploadNode;
     var bg = this.bg;
     var color = bg.color;
     var controls = bg.controls;
@@ -66,6 +68,14 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       'id': 'bg',
       'target': bg,
       'control': controls.lightSat
+    });
+
+    var bgImageOpacitySlider = new Slider(uploadNode, {
+      'key': 'bgImageOpacity',
+      'targetName': 'bg',
+      'id': 'bg',
+      'target': bg,
+      'control': controls.bgImageOpacity
     });
 
   };
@@ -155,7 +165,6 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     var self = this;
     var workLimit = 3000;
     this.bgToolsNode.on('touchstart mousedown', function (e) { //点击后 不要影响
-      // e.preventDefault();
     });
     body
       .off('controlrable' + '-' + 'lightSat' + '-' + 'bg' + '-' + 'bg')
@@ -164,9 +173,6 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       })
       .on('painter-work', function () {
         self.out();
-        // setTimeout(function (){
-        //   body.trigger('painter-');
-        // }, workLimit);
       })
       .on('bg-color-change', function (e, bgColor) {
         self.setBackground(bgColor);
@@ -177,9 +183,6 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
 
   BgTools.prototype.uploadEvents = function () {
     var self = this;
-    // $('input').on('touchstart',function (){
-    //   console.log(9999)
-    // })
     var photoIpt = $('.label-uploader');
     photoIpt.on('change', function (e) {
       var file = (e.target.files || e.dataTransfer.files)[0];
@@ -187,19 +190,19 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
         if (typeof FileReader !== 'undefined' && typeof window.URL !== 'undefined') {
           var reader = new FileReader();
           reader.onload = function () {
-            self.triggerPreview(file);
+            self.previewImage(file);
           };
           reader.readAsDataURL(file);
         } else if (typeof window.URL !== 'undefined') {
-          self.triggerPreview(file);
+          self.previewImage(file);
         } else {
-          alert('亲, 您的手机不支持预览');
+          alert('亲, 您的设备不支持预览');
         }
       }
     });
   };
 
-  BgTools.prototype.triggerPreview = function (file) {
+  BgTools.prototype.previewImage = function (file) {
     var url = window.URL.createObjectURL(file);
     this.bg.image(url);
   };

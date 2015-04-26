@@ -11,9 +11,9 @@ define(['zepto'],function($){
   Exports.prototype.init = function(){
     var painter = this.painter;
     var quality = Math.min(painter.quality,2.0);//这他妈得是最大的了
-    var canvasW = this.canvasW= painter.containerW*quality;
-    var canvasH = this.canvasH = painter.containerH*quality;
-    var canvas = this.canvas = $('<canvas width="'+canvasW+'" height="'+canvasH+'"></canvas>');
+    var canvasW = this.canvasW= painter.containerW * quality;
+    var canvasH = this.canvasH = painter.containerH * quality;
+    var canvas = this.canvas = $('<canvas width="' + canvasW + '" height="' + canvasH + '"></canvas>');
     this.ctx = canvas[0].getContext('2d');
   };
 
@@ -21,7 +21,8 @@ define(['zepto'],function($){
     var imgBg = this.bg.toImage();
     var imgPainterLayers = this.painter.toImage();
     var ctx = this.ctx;
-    ctx.drawImage(imgBg, 0,0,this.canvasW,this.canvasH);
+    ctx.globalAlpha = 0.2;
+    ctx.drawImage(imgBg, 0, 0, this.canvasW, this.canvasH);
     for(var i in imgPainterLayers){
       var imgPainterLayer = imgPainterLayers[i];
       ctx.drawImage(imgPainterLayer, 0, 0, this.canvasW, this.canvasH);

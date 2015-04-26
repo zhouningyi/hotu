@@ -18,7 +18,7 @@
         function(data, status) {
           data = data || {};
           var config = data.config;
-          // config.debug = true;
+          config.debug = false;
           wx.config(config);
         });
     };
