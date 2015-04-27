@@ -21,7 +21,6 @@ define(['zepto'],function($){
     var imgBg = this.bg.toImage();
     var imgPainterLayers = this.painter.toImage();
     var ctx = this.ctx;
-    ctx.globalAlpha = 0.2;
     ctx.drawImage(imgBg, 0, 0, this.canvasW, this.canvasH);
     for(var i in imgPainterLayers){
       var imgPainterLayer = imgPainterLayers[i];
@@ -30,7 +29,9 @@ define(['zepto'],function($){
 
     var dataURL = this.canvas[0].toDataURL('image/png');
     // dataURL = dataURL.replace('image/png', 'image/octet-stream');
-    var img = $('<img width="'+this.canvasW+'" height="'+this.canvasH+'" src="'+dataURL+'"></img>').css({
+    var img =
+     $('<img width="'+this.canvasW+'" height="'+this.canvasH+'" src="'+dataURL+'"></img>')
+     .css({
       'width':'100%',
       'height':'auto',
       'pointerEvents':'auto',

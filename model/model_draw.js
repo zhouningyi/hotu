@@ -270,7 +270,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
 
   ModelDraw.prototype.getLastStorage = function (obj) { //从localStorage寻找数据
     if (typeof (Storage) == "undefined") return alert('无localstorage,sorry,看到这个bug, 请您告知公众号或zhouningyi1');
-    var data = window.localStorage.getItem('cur_drawing_data_hotu');
+    var data = window.localStorage.getItem('cur_drawing_data_hotu_v1');
     if (data) obj.success(data);
     return;
     if (obj.fail) obj.fail();
@@ -280,7 +280,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
     if (typeof (Storage) == "undefined") return console.log('不能自动保存');
     var data = this.curData;
     if (!data) return console.log('no curdata');
-    if (data.c && data.c.length > 0) window.localStorage.setItem('cur_drawing_data_hotu', JSON.stringify(data));
+    if (data.c && data.c.length > 0) window.localStorage.setItem('cur_drawing_data_hotu_v1', JSON.stringify(data));
   };
 
   ModelDraw.prototype.clear = function () {

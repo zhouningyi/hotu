@@ -1,6 +1,7 @@
 'use strict';
 //对UI的总体控制
-define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSatSelector', './hueSlider', './slider'], function (Utils, $, Renderer, keyAnim, LightSatSelector, HueSlider, Slider) {
+define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSatSelector', './hueSlider', './slider', './../utils/exif', './../utils/binaryajax'], function (Utils, $, Renderer, keyAnim, LightSatSelector, HueSlider, Slider, EXIF, Binary) {
+  var BinaryFile = Binary.BinaryFile;
   var values = Utils.values,
     genCanvas = Utils.genCanvas,
     body = $('body');
@@ -189,22 +190,44 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       if (file) {
         if (typeof FileReader !== 'undefined' && typeof window.URL !== 'undefined') {
           var reader = new FileReader();
-          reader.onload = function () {
-            self.previewImage(file);
-          };
           reader.readAsDataURL(file);
+          reader.onload = function (event) {
+            self.previewImage(file, event);
+          };
         } else if (typeof window.URL !== 'undefined') {
           self.previewImage(file);
         } else {
-          alert('亲, 您的设备不支持预览');
+          return alert('亲, 您的设备不支持预览');
         }
       }
+      e.preventDefault();
     });
   };
 
-  BgTools.prototype.previewImage = function (file) {
+  BgTools.prototype.previewImage = function (file, e) {
     var url = window.URL.createObjectURL(file);
-    this.bg.image(url);
+    var imgRotation = 0;
+    if(e){
+      var base64 = e.target.result.replace(/^.*?,/,'');
+      var binary = atob(base64); 
+      var binaryData = new BinaryFile(binary);
+      var exif = EXIF.readFromBinaryFile(binaryData);
+      var orientation = exif.Orientation || 1;
+      var imgRotation;
+      switch(orientation) {
+        case 3: 
+          imgRotation = 180; 
+          break;
+        case 6: 
+          imgRotation = 90; 
+          break;
+        case 8: 
+         imgRotation = 270; 
+        break;
+       }
+      console.log(imgRotation, 'imgRotationimgRotationimgRotationimgRotation');
+    }
+    this.bg.image(url, imgRotation);
   };
 
   BgTools.prototype.setBackground = function (bgColor) {

@@ -39,11 +39,11 @@ define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
     var self = this;
     node.on('touchstart mousedown', function (e) {
         self.isDown = true;
-        e.stopPropagation();
+        e.preventDefault();
       })
       .on('touchend mouseup touchleave mouseout', function (e) {
         self.isDown = false;
-        e.stopPropagation();
+        e.preventDefault();
       })
       .on('touchstart mousedown touchmove mousemove', function (e) {
         if (self.isDown) {
@@ -55,6 +55,7 @@ define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
             self.ui2Target(value);
           }
         }
+        e.preventDefault();
       });
     body.on('update-ui-by-brush', this.updateByTarget.bind(this));
   };

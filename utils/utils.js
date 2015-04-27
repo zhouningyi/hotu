@@ -128,23 +128,7 @@ define(['zepto'], function($) {
     return [x, y];
   };
 
-  function setCanvasOpacity(ctx, alpha){
-    alpha =  Math.floor(alpha * 255);
-    if (!ctx) return;
-    var idata = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-    var data = idata.data;
-    for(var index in data){
-      if(index % 4 === 3){
-        if(data[index]) data[index] = alpha;
-      }
-    }
-    ctx.putImageData(idata, 0, 0);
-    return ctx;
-
-  }
-
   return {
-    'setCanvasOpacity': setCanvasOpacity,
     'rgbToHsl': rgbToHsl,
     'hsla2obj': hsla2obj,
     'upper': upper,

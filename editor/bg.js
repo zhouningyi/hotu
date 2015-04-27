@@ -1,7 +1,7 @@
 'use strict';
 
-define(['zepto', './../utils/utils'], function ($, Utils) {
-  var setCanvasOpacity = Utils.setCanvasOpacity;
+define(['zepto' ], function ($) {//'./../utils/exif'
+
   function Bg(container) {
     container = this.container = container || $('.container');
     this.container = container;
@@ -63,7 +63,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
 
   Bg.prototype.hsla2color = function () { //默认的hsla转换
     var controls = this.controls;
-    if (!controls) return;
+    if (!controls) {return;}
     var opacity = this.opacity;
     var hue = Math.round(controls.hue.value * 360);
     var lightSat = controls.lightSat.value;
@@ -80,7 +80,6 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     setTimeout(function () {
       self.container.trigger('bg-color-change', bgColor);
     }, 100);
-    // console.log(bgColor,9999)
 
     this.container.css({
       'background': bgColor
@@ -97,7 +96,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
       'pointerEvents': 'none',
       'opacity': 0
     }).appendTo(this.container);
-    var tmpCtx = this.tmpCtx = $('<canvas width="' + this.containerW * quality + '" height="' + this.containerH * quality + '"></canvas>')[0].getContext('2d');
+    this.tmpCtx = $('<canvas width="' + this.containerW * quality + '" height="' + this.containerH * quality + '"></canvas>')[0].getContext('2d');
 
     canvas = this.canvas = canvas[0];
     var ctx = this.ctx = canvas.getContext('2d');
@@ -122,58 +121,58 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     ctx.fillStyle = this.color;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     if(obj && obj.bgImg) {
-      if(!this.bgImg) return;
+      if(!this.imageCanvas) return;
       var tmpCtx = this.tmpCtx;
       tmpCtx.clearRect(0, 0, tmpCtx.canvas.width, tmpCtx.canvas.height);
+      tmpCtx.globalAlpha = this.controls.bgImageOpacity.value;
       var bgImageStyle = this.bgImageStyle;
-      tmpCtx.drawImage(this.bgImg[0], bgImageStyle._left, bgImageStyle._top, bgImageStyle._width, bgImageStyle._height);
-      setCanvasOpacity(this.tmpCtx, this.controls.bgImageOpacity.value);
+      tmpCtx.drawImage(this.imageCanvas, bgImageStyle.left, bgImageStyle.top, bgImageStyle.width, bgImageStyle.height);
       ctx.drawImage(tmpCtx.canvas, 0, 0, ctx.canvas.width, ctx.canvas.height);
     }
   };
 
-  Bg.prototype.setImageStyle = function (node) {
-    var width = node[0].width;
-    var height = node[0].height;
-    var containerW = this.container.width();
-    var containerH = this.container.height();
-    var bgImageStyle = this.bgImageStyle = (width / containerW > height / containerH) ? {
-      'position': 'absolute',
-      'display': 'block',
-      'top': (containerH - containerW * height / width) / 2,
-      '_top': (containerH - containerW * height / width) / 2,
-      'left': 0,
-      '_left': 0,
-      'height': 'auto',
-      'width': '100%',
-      '_width': containerW,
-      '_height': containerW * height / width,
-      'backgroundPosition': 'center'
-    } : {
-      'position': 'absolute',
-      'display': 'block',
-      'top': 0,
-      '_top': 0,
-      'left': (containerW - containerH * width / height) / 2,
-      '_left': (containerW - containerH * width / height) / 2,
-      '_width': containerH * width / height,
-      'width': 'auto',
-      '_height': containerH,
-      'height': '100%',
-      'verticalAlign': 'middle',
-      'backgroundPosition': 'center'
-    };
-    return node.css(bgImageStyle);
-  };
+  Bg.prototype.image = function(url, rotation) {
+    if (rotation) {
+      this.rotation = rotation;
+    }
+    var container = this.container;
 
-  Bg.prototype.image = function (url) {
     var self = this;
     var image = new Image();
     image.src = url;
-    image.onload = function () {
-      var bgImg = self.bgImg = $(this).appendTo(self.container.find('.bg-image-container').empty());
-      window.bgImg = bgImg[0];
-      self.setImageStyle(bgImg);
+    image.onload = function() {
+      var oHeight = this.height;
+      var oWidth = this.width;
+      var iWidth = (rotation === 270 || rotation === 90) ? oHeight : oWidth;
+      var iHeight = (rotation === 270 || rotation === 90) ? oWidth : oHeight;
+
+      var containerW = container.width();
+      var containerH = container.height();
+      var bgImageStyle = self.bgImageStyle = (iWidth / containerW > iHeight / containerH) ? {
+        'position': 'absolute',
+        'display': 'block',
+        'top': (containerH - containerW * iHeight / iWidth) / 2,
+        'left': 0,
+        'width': containerW,
+        'height': containerW * iHeight / iWidth,
+      } : {
+        'position': 'absolute',
+        'display': 'block',
+        'top': 0,
+        'left': (containerW - containerH * iWidth / iHeight) / 2,
+        'width': containerH * iWidth / iHeight,
+        'height': containerH,
+      };
+
+      var imageCanvas = self.imageCanvas = $('<canvas width="' + iWidth + '" height="' + iHeight + '"></canvas>')
+        .css(bgImageStyle)
+        .appendTo(container.find('.bg-image-container').empty())[0];
+      var imageCtx = imageCanvas.getContext('2d');
+      imageCtx.save();
+      imageCtx.translate(iWidth/2, iHeight/2);
+      imageCtx.rotate(rotation*Math.PI/180 || 0);
+      imageCtx.drawImage(this, -oWidth/2, -oHeight/2,  oWidth, oHeight);
+      imageCtx.restore();
     };
   };
 

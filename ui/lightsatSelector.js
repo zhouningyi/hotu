@@ -85,11 +85,11 @@ define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
     var target = this.target;
     this.node.on('touchstart mousedown', function (e) {
       self.isDown = true;
-      e.stopPropagation();
+      e.preventDefault();
     })
     .on('touchend mouseup touchleave mouseout', function (e) {
       self.isDown = false;
-      e.stopPropagation();
+      e.preventDefault();
     })
     .on('touchstart mousedown touchmove mousemove', function (e) {
       var pt = getPt(e);
@@ -109,6 +109,7 @@ define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
           'y': y
         });
       }
+      e.preventDefault();
     });
 
     body
