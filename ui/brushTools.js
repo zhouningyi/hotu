@@ -194,6 +194,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
             });
           self.uiStatus = 'in';
           self.preview(self.curBrush);
+          body.trigger('update-ui-by-brush');
           cb();
         }
       });

@@ -213,7 +213,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       var binaryData = new BinaryFile(binary);
       var exif = EXIF.readFromBinaryFile(binaryData);
       var orientation = exif.Orientation || 1;
-      var imgRotation;
+      var imgRotation = 0;
       switch(orientation) {
         case 3: 
           imgRotation = 180; 
@@ -225,7 +225,6 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
          imgRotation = 270; 
         break;
        }
-      console.log(imgRotation, 'imgRotationimgRotationimgRotationimgRotation');
     }
     this.bg.image(url, imgRotation);
   };

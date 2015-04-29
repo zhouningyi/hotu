@@ -23,6 +23,18 @@
         });
     };
 
+    Weixin.prototype.getFollowers = function() {
+      $.ajax({
+        url: 'http://hotu.co/hotu-api/api/weixin/getfollowers',
+        dataType: 'json',
+        type: 'get',
+        success: function (d) {
+        },
+        error: function (e) {
+        }
+      });
+    };
+
     Weixin.prototype.getOpenid = function() {
       var self = this;
       var url = this.url;

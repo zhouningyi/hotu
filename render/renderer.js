@@ -1,5 +1,5 @@
 'use strict';
-define(['./animator', 'async'], function (Animator, async) {
+define(['./animator', 'async', ''], function (Animator, async) {
 
   function Renderer(brushes, opt) {
     if (brushes) {
@@ -35,8 +35,6 @@ define(['./animator', 'async'], function (Animator, async) {
     } else if (ptTransformStr === 'normal') {
       this.ph = this.frameW;
     }
-    // var phi = frameW
-    // if()
   };
 
   Renderer.prototype._ptTransform = function (pt) { //绘制的面板可能和看到的不一致

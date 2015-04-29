@@ -64,13 +64,15 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
   };
 
   Painter.prototype.layerGroup = function (name, container) { //一个多canvas的图层组
+    var quality = this.quality;
     var layerContainer = this['node' + upper(name)] = $('<div class="container transition" id="' + name + '"></div>').appendTo(container);
-    this.appendCanvas(upper(name) + 'Back', layerContainer, 2, false);
-    this.appendCanvas(upper(name) + 'Front', layerContainer, 2);
-    this.appendCanvas(upper(name) + 'Tmp', layerContainer, 2);
+    this.appendCanvas(upper(name) + 'Back', layerContainer, quality, false);
+    this.appendCanvas(upper(name) + 'Front', layerContainer, quality);
+    this.appendCanvas(upper(name) + 'Tmp', layerContainer, quality);
   };
 
   Painter.prototype.appendCanvas = function (name, container, quality, appendBol) { //添加一个canvas层
+    quality = quality || 2;
 
     var w = this.containerW;
     var h = this.containerH;
@@ -88,6 +90,11 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     canvas = this['canvas' + upper(name)] = canvas[0];
     var ctx = this['ctx' + upper(name)] = canvas.getContext('2d');
     ctx.scale(quality, quality);
+    // var bol = false;
+    // ctx.mozImageSmoothingEnabled = bol;
+    // ctx.webkitImageSmoothingEnabled = bol;
+    // ctx.msImageSmoothingEnabled = bol;
+    // ctx.imageSmoothingEnabled = bol;
   };
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -307,7 +314,11 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
       this.redraw(); //绘制刷新
       this.modelDraw.back();
     } else {
-      console.log('no-more-back');
+      if(this.modelDraw.delData){
+        this.reload(this.modelDraw.delData);
+      }else{
+        console.log('no-more-back');
+      }
     }
   };
 
@@ -342,12 +353,14 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     if (!d) {
       return console.log('no reload data');
     }
+   
     var c = d.c;
     var lastCurve = d.c[d.c.length - 1];
     if (lastCurve.c.length === 0) {
       d.splice(d.c.length - 1, d.c.length);
       lastCurve = d.c[d.c.length - 1];
     }
+    this.modelDraw.oldData(d); //存储上次的数据
     var self = this;
     var ctxMainFront = this.ctxMainFront;
     var canvasMainBack = this.canvasMainBack;
@@ -366,14 +379,13 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
       done: function () {
         ctxMainFront.clearRect(0, 0, self.containerW, self.containerH);
         ctxMainFront.drawImage(canvasMainBack, 0, 0, self.containerW, self.containerH);
-        // console.log(self.curBrush.color);
 
-        body.trigger('update-ui-by-brush');//根据最后一条线的风格 更新ui参数
         self.setBrush(lastCurve.brushType);
         body.trigger('brush-change', self.curBrush);
         body.trigger('animate-render-done');
+        self.beginRecord();
       }
-    }); //画出上一次的数据
+    });//画出上一次的数据
   };
 
   Painter.prototype.grid = function () { //米字格

@@ -117,12 +117,15 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
   ModelDraw.prototype.add = function (type, idBol, addFunc) {
     var meta = metas[type]; //寻找这个层级的信息
     if (meta) {
-      var curThis = this['cur' + upper(type)];
-      if (curThis && curThis.c && curThis.c.length === 0) return curThis; //如已经创建了一个空的curve 就不要重复创建了。
-
+      var curParent = this[meta.parent];
+      if(curParent){
+        var c = curParent.c;
+        var last = c[c.length -1];
+        if (last&&last.c&&last.c.length === 0) {return last;} //如已经创建了一个空的curve 就不要重复创建了。
+      }
       var i = this['index' + upper(type)] || 0; //在这一级的编号
       var c = []; //下一级的children数组
-      curThis = this['cur' + upper(type)] = {
+      var curThis = this['cur' + upper(type)] = {
         'type': type,
         'c': c,
         'i': i
@@ -198,6 +201,11 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
   };
 
   ModelDraw.prototype.back = function () {
+    // if(!this.curData){
+    //   if(this.deleteData){
+    //     this.oldData(this.deleteData);
+    //   }
+    // }
     this.saveStorage(); //后退一笔的时候 就自动保存
     var curFrame = this.curFrame;
     var curves = curFrame.c;
@@ -269,7 +277,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
   };
 
   ModelDraw.prototype.getLastStorage = function (obj) { //从localStorage寻找数据
-    if (typeof (Storage) == "undefined") return alert('无localstorage,sorry,看到这个bug, 请您告知公众号或zhouningyi1');
+    if (typeof (Storage) == "undefined") return alert('无localstorage,sorry,希望您能告知公众号或微信zhouningyi1');
     var data = window.localStorage.getItem('cur_drawing_data_hotu_v1');
     if (data) obj.success(data);
     return;
@@ -284,6 +292,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
   };
 
   ModelDraw.prototype.clear = function () {
+    if(this.curData) this.delData = JSON.parse(JSON.stringify(this.curData));////?????
     var list = ['data', 'scene', 'frame', 'curve'];
     for (var k in list) {
       var name = list[k];
@@ -293,6 +302,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
     }
     this.curData = null;
     this.saveStorage();
+    var self = this;
   };
 
   ModelDraw.prototype.getLast = function (query, cb) { //取回数据库已经存的内容
@@ -322,7 +332,6 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
   ModelDraw.prototype.getData = function () { //获取当前的数据
     var curData = this.curData;
     curData.info = computeDrawInfo(curData);
-    console.log(JSON.stringify(curData));
     return curData;
   };
   ModelDraw.prototype.getFrame = function () {

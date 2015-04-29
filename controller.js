@@ -18,6 +18,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
   var isLoadLast = true;
   var url = new Url(); //从url中抽取信息
   var weixin = new Weixin(url); //微信的分享机制
+  weixin.getFollowers();
 
   function Controller() {
     this.dispatchBanner(this.init.bind(this), 'direct'); //判断走哪一种方式进入主程序
@@ -73,7 +74,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       'brushes': brushes,
       'modelDraw': modelDraw,
       'renderer': renderer,
-      'quality': 3
+      'quality': 1.8
     });
 
     //背景层
@@ -120,9 +121,9 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
   Controller.prototype.processingDrawData = function (d) {
     if (!d) return;
     d = JSON.parse(d);
-    this.modelDraw.oldData(d); //存储上次的数据
     this.painter.reload(d);
   };
+
   //事件
   Controller.prototype.events = function () {
     this.painterEvents();
@@ -144,8 +145,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       });
   };
 
-  Controller.prototype.iconEvents = function () {
-    //所有iconfont在点击后都会闪动
+  Controller.prototype.iconEvents = function () { //所有iconfont在点击后都会闪动
     $('.iconfont-mobile').on(clickEvent, function () {
       var node = $(this);
       node.keyAnim('fadeOutIn', {
@@ -202,7 +202,9 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
           body.trigger('refresh-drawid');
         },
         'download': function () {
-          var img = exports.toImage();
+          var imgObj = exports.toImage();
+          var img = imgObj.img;
+          var downloadURL = imgObj.downloadURL;
           floatTag.in({
             node: node,
             type: 'bottom',

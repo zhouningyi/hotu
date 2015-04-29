@@ -132,7 +132,7 @@ define(['zepto' ], function ($) {//'./../utils/exif'
   };
 
   Bg.prototype.image = function(url, rotation) {
-    if (rotation) {
+    if (rotation||rotation ===0) {
       this.rotation = rotation;
     }
     var container = this.container;
@@ -141,8 +141,8 @@ define(['zepto' ], function ($) {//'./../utils/exif'
     var image = new Image();
     image.src = url;
     image.onload = function() {
-      var oHeight = this.height;
-      var oWidth = this.width;
+      var oHeight = this.naturalHeight;
+      var oWidth = this.naturalWidth;
       var iWidth = (rotation === 270 || rotation === 90) ? oHeight : oWidth;
       var iHeight = (rotation === 270 || rotation === 90) ? oWidth : oHeight;
 
@@ -164,14 +164,23 @@ define(['zepto' ], function ($) {//'./../utils/exif'
         'height': containerH,
       };
 
+      var widthMax = 2000;
+      var heightMax = 2000;
+      if (iWidth > widthMax) {
+        iHeight = widthMax * iHeight / iWidth;
+      }
+      if (iHeight > heightMax) {
+        iWidth = heightMax * iWidth / iHeight;
+      }
+      var imageNode = container.find('.bg-image-container').empty();
       var imageCanvas = self.imageCanvas = $('<canvas width="' + iWidth + '" height="' + iHeight + '"></canvas>')
         .css(bgImageStyle)
-        .appendTo(container.find('.bg-image-container').empty())[0];
+        .appendTo(imageNode)[0];
       var imageCtx = imageCanvas.getContext('2d');
       imageCtx.save();
-      imageCtx.translate(iWidth/2, iHeight/2);
-      imageCtx.rotate(rotation*Math.PI/180 || 0);
-      imageCtx.drawImage(this, -oWidth/2, -oHeight/2,  oWidth, oHeight);
+      imageCtx.translate(iWidth / 2, iHeight / 2);
+      imageCtx.rotate(rotation * Math.PI / 180 || 0);
+      imageCtx.drawImage(this, -oWidth / 2, -oHeight / 2, oWidth, oHeight);
       imageCtx.restore();
     };
   };
