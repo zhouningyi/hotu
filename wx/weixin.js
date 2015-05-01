@@ -4,18 +4,19 @@
   define(['./jweixin-1.0.0', 'zepto'], function(wx, $) {
     var body = $('body');
 
+
     function Weixin(url) {
       this.url = url;
-      this.share();
-      this.getOpenid();
+      this.sign();
       this.genShare();
       this.events();
+      this.getFollowers();
     }
 
-    Weixin.prototype.share = function () {
-      var js_ticket_url = encodeURIComponent(window.location.origin + window.location.pathname + window.location.search);
-      $.getJSON('http://hotu.co/hotu-api/api/weixin/sign?url=' + js_ticket_url,
-        function(data, status) {
+    Weixin.prototype.sign = function () {
+      var jsTicketUrl = encodeURIComponent(window.location.origin + window.location.pathname + window.location.search);
+      $.getJSON('http://hotu.co/hotu-api/api/weixin/sign?url=' + jsTicketUrl,
+        function (data, status) {
           data = data || {};
           var config = data.config;
           config.debug = false;
@@ -35,7 +36,7 @@
       });
     };
 
-    Weixin.prototype.getOpenid = function() {
+    Weixin.prototype.getOpenid = function(obj) {
       var self = this;
       var url = this.url;
       $.ajax({
@@ -46,16 +47,11 @@
           'code': url.getCode()
         },
         success: function (d) {
-          var openid = d.openid;
-          // alert(JSON.stringify(d));
-          if (openid) {
-            body.trigger('openid', openid);
-            self.userid = openid; //+
-          }
+          if (d && d.openid) {return obj.success(d);}
+          return obj.fail(d);
         },
         error: function (e) {
-          var openid = 'optid-err' + Math.floor(Math.random() * 10000000);
-          body.trigger('openid', openid);
+          return obj.fail(e);
         }
       });
     };

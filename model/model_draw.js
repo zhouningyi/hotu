@@ -14,7 +14,9 @@
 //color://对color的统计
 //length://对长度的统计
 
-define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, DrawDataInfo) {
+define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], function ($, Utils, DrawDataInfo, config) {
+  var storage = config.storage;
+  var tmpStorageKey = storage.tmpKey;
   var upper = Utils.upper;
   var computeDrawInfo = DrawDataInfo.computeDrawInfo; //计算一副绘画中的统计信息
 
@@ -278,7 +280,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
 
   ModelDraw.prototype.getLastStorage = function (obj) { //从localStorage寻找数据
     if (typeof (Storage) == "undefined") return alert('无localstorage,sorry,希望您能告知公众号或微信zhouningyi1');
-    var data = window.localStorage.getItem('cur_drawing_data_hotu_v1');
+    var data = window.localStorage.getItem(tmpStorageKey);
     if (data) obj.success(data);
     return;
     if (obj.fail) obj.fail();
@@ -288,7 +290,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
     if (typeof (Storage) == "undefined") return console.log('不能自动保存');
     var data = this.curData;
     if (!data) return console.log('no curdata');
-    if (data.c && data.c.length > 0) window.localStorage.setItem('cur_drawing_data_hotu_v1', JSON.stringify(data));
+    if (data.c && data.c.length > 0) window.localStorage.setItem(tmpStorageKey, JSON.stringify(data));
   };
 
   ModelDraw.prototype.clear = function () {

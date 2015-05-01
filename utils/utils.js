@@ -13,7 +13,6 @@ define(['zepto'], function($) {
     return result;
   }
 
-
   function prevant(e) { //清除默认事件
     e.preventDefault();
     e.stopPropagation();
@@ -128,7 +127,17 @@ define(['zepto'], function($) {
     return [x, y];
   };
 
+  function getQueryStringByName(name) {
+    var reg = new RegExp('[\?\&]' + name + '=([^\&]+)', 'i');
+    var result = window.location.href.match(reg);
+    if (result == null || result.length < 1) {
+      return '';
+    }
+    return result[1];
+  }
+
   return {
+    'getQueryStringByName': getQueryStringByName,
     'rgbToHsl': rgbToHsl,
     'hsla2obj': hsla2obj,
     'upper': upper,
@@ -140,7 +149,5 @@ define(['zepto'], function($) {
     'genCanvas': genCanvas,
     'getPt': getPt
   };
-
-
 
 });

@@ -117,6 +117,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
       .on('touchstart mousedown', this.touchstart.bind(this))
       .on('touchmove mousemove', this.touchmove.bind(this))
       .on('touchend mouseup touchleave mouseout', this.touchleave.bind(this));
+      // .on('touchend mouseup touchleave mouseout', this.touchleave.bind(this));
   };
 
   Painter.prototype.painteWorkEvents = function () {

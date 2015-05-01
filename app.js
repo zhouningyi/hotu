@@ -1,7 +1,4 @@
 "use strict";
-require(['./config', 'model/browser', './controller'], function (a, browser, Controller) {
+require(['./config', './controller'], function (a, Controller) {
   return new Controller();
-  // require(['./controller'], function (Controller) {
-  //   return new Controller();
-  // });
 });

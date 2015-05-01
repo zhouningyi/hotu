@@ -2,7 +2,7 @@
 
 //对于绘图的数据 进行一次计算
 
-define(['./../utils/utils'], function(Utils) {
+define(['./../utils/utils'], function (Utils) {
   var isNone = Utils.isNone;
 
   function computeDrawInfo(d) { //计算frame文件的info

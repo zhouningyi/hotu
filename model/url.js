@@ -1,51 +1,73 @@
 'use strict';
 
-//对url的操作
-define(['zepto'], function($) {
+//管理url相关的操作
+define(['zepto', './../utils/utils'], function ($, Utils) {
+  var getQueryStringByName = Utils.getQueryStringByName;
 
-  function Url() {
-    var states = getQueryStringByName('state');
-    this._states = getInfoObj(states.split('andandand'));
+  function Url(config) {
+    this.config = config;
+    var browser = config.browser;
+    if (browser.weixin) { //切分state参数的字符
+      this.browser = 'weixin';
+      var weixin = config.weixin;
+      this.keysWeixinInStates = weixin.keysWeixinInStates;
+      this.and = config.url.and;
+      this.equalto = config.url.equalto;
+      var states = getQueryStringByName('state');
+      var info = this.info = this.getInfo(states);
+      if (info.fromid) {// && info.fromtype === 'openid'
+        config.sns.fromid = info.fromid;
+      }
+      if (info.drawid) {
+        config.draw.previd = info.drawid;
+      }
+    }
   }
 
   /////////////////////从url获取信息
   Url.prototype.getFromid = function() {
-    return this._states.fromid || 'default';
+    if (this.browser === 'weixin') {
+      return this.info.fromid || 'default';
+    }
+  };
+  
+  Url.prototype.getDrawid = function () {
+    if(this.browser === 'weixin'){
+      return this.info.drawid || 'default';
+    }else{
+
+    }
   };
 
-  Url.prototype.getDrawid = function() {
-    return this._states.drawid || 'default';
-  };
-
-  Url.prototype.getCode = function() {
+  Url.prototype.getCode = function () {
     return getQueryStringByName('code');
   };
 
-  /////////////////////生成url
-  Url.prototype.genState = function(obj) {
-    var value, result=[];
-    for(var key in obj){
-      value = obj[key];
-      result.push(key + 'equalsto' + value);
+  Url.prototype.getState = function (obj) { //生成url的state参数
+    if (!(this.browser === 'weixin')) {
+      return console.log('必须微信登录');
     }
-    return result.join('andandand');
+    var keysWeixinInStates = this.keysWeixinInStates;
+    var key, value, result = [];
+    for (key in obj) {
+      if (key in keysWeixinInStates) {
+        value = obj[key];
+        result.push(key + this.equalto + value);
+      }
+    }
+    return result.join(this.and);
   };
 
-
-  function getQueryStringByName(name) {
-    var reg =new RegExp('[\?\&]' + name + '=([^\&]+)', 'i');
-    var result = window.location.href.match(reg);
-    if (result == null || result.length < 1) {
-      return '';
-    }
-    return result[1];
-  }
-
-  function getInfoObj(arr) {
+  Url.prototype.getURL = function (obj) { //生成url
+    var state = this.getState(obj);
+  };
+  /////////////////////从url中获取
+  Url.prototype.getInfo = function (states) {
+    var arr = states.split(this.and);
     var str, splits, key, value, result = {};
     for (var k in arr) {
       str = arr[k];
-      splits = str.split('equalsto');
+      splits = str.split(this.equalto);
       key = splits[0];
       value = splits[1];
       result[key] = value;

@@ -204,31 +204,31 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     });
   };
 
-  BgTools.prototype.previewImage = function (file, e) {
+  BgTools.prototype.previewImage = function(file, e) {
     var url = window.URL.createObjectURL(file);
     var imgRotation = 0;
-    if(e){
-      var base64 = e.target.result.replace(/^.*?,/,'');
-      var binary = atob(base64); 
+    if (e) {
+      var base64 = e.target.result.replace(/^.*?,/, '');
+      var binary = atob(base64);
       var binaryData = new BinaryFile(binary);
       var exif = EXIF.readFromBinaryFile(binaryData);
       var orientation = exif.Orientation || 1;
       var imgRotation = 0;
-      switch(orientation) {
-        case 3: 
-          imgRotation = 180; 
+      switch (orientation) {
+        case 3:
+          imgRotation = 180;
           break;
-        case 6: 
-          imgRotation = 90; 
+        case 6:
+          imgRotation = 90;
           break;
-        case 8: 
-         imgRotation = 270; 
-        break;
-       }
+        case 8:
+          imgRotation = 270;
+          break;
+      }
     }
     this.bg.image(url, imgRotation);
   };
-
+  
   BgTools.prototype.setBackground = function (bgColor) {
     if (bgColor) {
       var colors = bgColor.split(',');

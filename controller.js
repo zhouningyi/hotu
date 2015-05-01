@@ -1,41 +1,40 @@
 'use strict';
 
-define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer', 'ui/loading'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer, Loading) {
-  var clickEvent = 'touchstart mousedown',
-    body = $('body');
+define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer', 'ui/loading', './model/user', './app_config', './model/browser'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer, Loading, User, config, browser) {
+  var clickEvent = 'touchstart mousedown';
 
+  //绘图相关组件
   var painter, bg, exports, gui, floatTag, brushTools, bgTools, brushes;
 
-  var drawToolsNode = $('#draw-tools');
-  var endToolsNode = $('.end-tools');
-  var importantToolsNode = $('.important-tools');
-  var floatTagNode = $('.float-tag');
-
-  var uiContainer = $('.ui-container');
-  var drawContainer = $('.draw-container');
-  var bgContainer = $('.bg-container');
-
-  var isLoadLast = true;
-  var url = new Url(); //从url中抽取信息
-  var weixin = new Weixin(url); //微信的分享机制
-  weixin.getFollowers();
+  //组件相关的node
+  var body = $('body'), drawToolsNode = $('#draw-tools'), endToolsNode = $('.end-tools'),
+  importantToolsNode = $('.important-tools'), floatTagNode = $('.float-tag'), bannerNode = $('.main-container'),
+  uiContainer = $('.ui-container'), drawContainer = $('.draw-container'), bgContainer = $('.bg-container');
 
   function Controller() {
-    this.dispatchBanner(this.init.bind(this), 'direct'); //判断走哪一种方式进入主程序
+    this.init();
+    this.login();
   }
 
-  Controller.prototype.dispatchBanner = function (cb, type) { //是否要载入banner提示
-    var dispatchs = {
-      'direct': function () {
-        return cb();
+  var isLoadLast = true;
+  var url, weixin, user;
+  Controller.prototype.login = function () { //登录等流程相关的组件
+    config.browser = browser;
+    url = new Url(config); //从url中抽取信息 并修改config
+    weixin = new Weixin(url); //微信的分享机制
+    user = new User({
+      'weixin': weixin,
+      'url': url,
+      'config': config
+    });
+    user.login({
+      success: function (d) {
       },
-      'loading': function () {
-        return new Loading($('.main-container'), cb);
+      fail: function () {
+        new Loading(bannerNode, function (){
+        });
       }
-    };
-    if (dispatchs[type]) {
-      dispatchs[type]();
-    }
+    });
   };
 
   Controller.prototype.uiAnimIn = function () { //动画进入
@@ -53,7 +52,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
   Controller.prototype.init = function () {
     this.uiAnimIn();
 
-    var brushes = this.brushes = new Brushes();
+    brushes = this.brushes = new Brushes();
     var brushObj = brushes.brushObj;
     var frameOpt = {
       frameW: drawContainer.width(),
@@ -90,22 +89,19 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     gui = new Gui();
 
     this.events();
-    this.dispatchLoadlast();
+    painter.beginRecord(); //开始记录
+    this.loadLast();
   };
 
-  Controller.prototype.dispatchLoadlast = function () { //是否要载入banner提示
+
+  Controller.prototype.loadLast = function () { //是否要载入banner提示
     var modelDraw = this.modelDraw;
     var self = this;
-    var drawid = url.getDrawid();
-    body.trigger('drawid', drawid);
-    var openid = url.getFromid();
-    body.trigger('openid', openid);
     if (isLoadLast) {
       modelDraw.getLastStorage({
         success: function (d) {
           if (!d) return;
-          // self.processingDrawData.bind(self)(d);
-          setTimeout(self.processingDrawData.bind(self)(d), 10);
+          self.processingDrawData(d);
         },
         fail: function () {
           modelDraw.getLast({
@@ -114,14 +110,16 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
           }, self.processingDrawData.bind(self));
         }
       })
-    } else {}
-    self.painter.beginRecord(); //开始记录
+    } else {
+    }
   };
 
   Controller.prototype.processingDrawData = function (d) {
-    if (!d) return;
-    d = JSON.parse(d);
-    this.painter.reload(d);
+    var self = this;
+    setTimeout(function (){
+      d = JSON.parse(d);
+      self.painter.reload(d);
+    });
   };
 
   //事件

@@ -132,7 +132,7 @@ define(['zepto' ], function ($) {//'./../utils/exif'
   };
 
   Bg.prototype.image = function(url, rotation) {
-    if (rotation||rotation ===0) {
+    if (rotation || rotation ===0) {
       this.rotation = rotation;
     }
     var container = this.container;

@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
-  <!-- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" charset="UTF-8"> -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="CeBIT Control">
+  <meta name="apple-mobile-web-app-title" content="糊.涂">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="full-screen" content="yes">
   <meta name="browsermode" content="application">
   <meta name="format-detection" content="telephone=no, email=no" />
   <title id="title">糊涂</title>
-  <style type="text/css"></style>
-<script>
-var _hmt = _hmt || [];
+  <script>
+  var ua = navigator.userAgent.toLowerCase();
+  if(ua.indexOf('micromessenger')!== -1 && ua.indexOf('wechat_redirect')!== -1){
+    window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2b66f49eb82d70de&redirect_uri=http%3A%2F%2Fhotu.co%2Fhua%2F&response_type=code&scope=snsapi_base&state=fromidequuualstodirectannndfromTypeequuualstoname#wechat_redirect';
+  }
+ var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
   hm.src = "//hm.baidu.com/hm.js?96b40bce5ee9af86aa9fb5aed5b58670";
@@ -20,9 +22,6 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>
-
-<!--   <link rel="stylesheet" href="./bower_components/ionicons/css/ionicons.min.css">
-  <link rel="stylesheet" href="./ui/ui.css"> -->
   <link rel="stylesheet" href="http://at.alicdn.com/t/font_1428865194_383283.css">
   <link rel="stylesheet" href="./dest/app.min.css">
 </head>
@@ -68,8 +67,5 @@ var _hmt = _hmt || [];
   </div>
       <script data-main="./app.js" src="./bower_components/requirejs/require.min.js"></script>
     <!-- <script data-main="./dest/app.min.js" src="./bower_components/requirejs/require.min.js"></script> -->
-
-   <!-- <script>alert(window.location.href);</script> -->
-
 </body>
 </html>
