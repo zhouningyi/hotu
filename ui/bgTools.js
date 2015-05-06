@@ -2,9 +2,10 @@
 //对UI的总体控制
 define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSatSelector', './hueSlider', './slider', './../utils/exif', './../utils/binaryajax'], function (Utils, $, Renderer, keyAnim, LightSatSelector, HueSlider, Slider, EXIF, Binary) {
   var BinaryFile = Binary.BinaryFile;
-  var values = Utils.values,
-    genCanvas = Utils.genCanvas,
-    body = $('body');
+  var values = Utils.values;
+  var prevent = Utils.prevent;
+  var genCanvas = Utils.genCanvas;
+  var body = $('body');
 
   function BgTools(opt) {
     var container = this.container = opt.container;
@@ -78,7 +79,6 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       'target': bg,
       'control': controls.bgImageOpacity
     });
-
   };
 
   BgTools.prototype.out = function (cb) { //隐藏
@@ -166,13 +166,14 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     var self = this;
     var workLimit = 3000;
     this.bgToolsNode.on('touchstart mousedown', function (e) { //点击后 不要影响
+      e.stopPropagation();
     });
     body
       .off('controlrable' + '-' + 'lightSat' + '-' + 'bg' + '-' + 'bg')
       .on('controlrable' + '-' + 'lightSat' + '-' + 'bg' + '-' + 'bg', function (e, obj) {
         self.bg.setStyle(obj);
       })
-      .on('painter-work', function () {
+      .on('painter-work root-work', function () {
         self.out();
       })
       .on('bg-color-change', function (e, bgColor) {
@@ -186,6 +187,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     var self = this;
     var photoIpt = $('.label-uploader');
     photoIpt.on('change', function (e) {
+      prevent(e);
       var file = (e.target.files || e.dataTransfer.files)[0];
       if (file) {
         if (typeof FileReader !== 'undefined' && typeof window.URL !== 'undefined') {
@@ -200,7 +202,6 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
           return alert('亲, 您的设备不支持预览');
         }
       }
-      e.preventDefault();
     });
   };
 
@@ -228,7 +229,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     }
     this.bg.image(url, imgRotation);
   };
-  
+
   BgTools.prototype.setBackground = function (bgColor) {
     if (bgColor) {
       var colors = bgColor.split(',');

@@ -3,6 +3,7 @@
 define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
   var body = $('body');
   var isNone = Utils.isNone;
+  var prevent = Utils.prevent;
   var upper = Utils.upper;
   var rgbToHsl = Utils.rgbToHsl;
   var getPt = Utils.getPt;
@@ -84,14 +85,15 @@ define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
     var control = this.control;
     var target = this.target;
     this.node.on('touchstart mousedown', function (e) {
+      prevent(e);
       self.isDown = true;
-      e.preventDefault();
     })
     .on('touchend mouseup touchleave mouseout', function (e) {
+      prevent(e);
       self.isDown = false;
-      e.preventDefault();
     })
     .on('touchstart mousedown touchmove mousemove', function (e) {
+      prevent(e);
       var pt = getPt(e);
       var x = pt[0];
       var y = pt[1];
@@ -109,7 +111,6 @@ define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
           'y': y
         });
       }
-      e.preventDefault();
     });
 
     body

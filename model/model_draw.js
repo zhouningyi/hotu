@@ -22,7 +22,7 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
 
   var metas = { //五个层级的元素
     'scene': {
-      'parent': 'curData',
+      'parent': 'curDrawData',
       'children': 'frame',
     },
     'frame': {
@@ -46,6 +46,12 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
     this.frameW = obj.frameW || $(window).width();
     this.recordPtBol = true;
     this.events();
+    try {
+      window.localStorage.setItem('cur_drawing_data_hotu_v1', '{}');
+      window.localStorage.setItem('cur_drawing_data_hotu', '{}');
+      window.localStorage.setItem('cur_drawing_data_hotu_v11', '{}');
+    }catch (e) {
+    }
   }
 
   ModelDraw.prototype.events = function () {
@@ -73,23 +79,23 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
   }
 
   ModelDraw.prototype.oldData = function (d) {
-    this.curData = d;
+    this.curDrawData = d;
   };
 
   ModelDraw.prototype.beginRecord = function (opt) { //开始一组新的绘制 分有数据和没数据2种情况
     opt = opt || {};
     this.curBrushType = opt.brush;
 
-    var curData = this.curData; //开始编辑过去的数据
+    var curDrawData = this.curDrawData; //开始编辑过去的数据
     var type;
-    if (curData) {
-      this.timePrev = curData.timeEnd || 0; //过去数据结束的时间 为现在起始时间
-      type = curData.type;
-      this['cur' + upper(type)] = curData;
+    if (curDrawData) {
+      this.timePrev = curDrawData.timeEnd || 0; //过去数据结束的时间 为现在起始时间
+      type = curDrawData.type;
+      this['cur' + upper(type)] = curDrawData;
     } else { //需要自己新建一份数据
       type = opt.type;
       this.timePrev = 0;
-      curData = this.curData = this.addFrame();
+      curDrawData = this.curDrawData = this.addFrame();
       this.newRecord(type);
     }
     
@@ -137,7 +143,7 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
       if (addFunc) addFunc(curThis);
 
       var parent = meta.parent;
-      var curParent = this[parent] || this.curData;
+      var curParent = this[parent] || this.curDrawData;
 
       if (curParent) curParent.c.push(curThis); //给parent的c里放进此级元素
 
@@ -203,7 +209,7 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
   };
 
   ModelDraw.prototype.back = function () {
-    // if(!this.curData){
+    // if(!this.curDrawData){
     //   if(this.deleteData){
     //     this.oldData(this.deleteData);
     //   }
@@ -251,15 +257,15 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
   };
 
   ModelDraw.prototype.save = function (obj, cb) { //取回数据库已经存的内容
-    var curData = this.curData;
-    curData.timeEnd = this.getTimeRelative();
-    curData.frameH = this.frameH;
-    curData.frameW = this.frameW;
+    var curDrawData = this.curDrawData;
+    curDrawData.timeEnd = this.getTimeRelative();
+    curDrawData.frameH = this.frameH;
+    curDrawData.frameW = this.frameW;
     cb = cb || function () {};
     var saveData = {
       'userid': this.userid || 'first',
       'drawid': this.drawid || 'draw',
-      'data': JSON.stringify(this.curData)
+      'data': JSON.stringify(this.curDrawData)
     };
 
     $.ajax({
@@ -288,13 +294,14 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
 
   ModelDraw.prototype.saveStorage = function () { //从localStorage寻找数据
     if (typeof (Storage) == "undefined") return console.log('不能自动保存');
-    var data = this.curData;
-    if (!data) return console.log('no curdata');
-    if (data.c && data.c.length > 0) window.localStorage.setItem(tmpStorageKey, JSON.stringify(data));
+    var curDrawData = this.curDrawData;
+    if (!curDrawData) return console.log('no curDrawData');
+    var data = {'drawing': curDrawData};
+    if (data.drawing.c && data.drawing.c.length > 0) window.localStorage.setItem(tmpStorageKey, JSON.stringify(data));
   };
 
   ModelDraw.prototype.clear = function () {
-    if(this.curData) this.delData = JSON.parse(JSON.stringify(this.curData));////?????
+    if(this.curDrawData) this.delData = JSON.parse(JSON.stringify(this.curDrawData));////?????
     var list = ['data', 'scene', 'frame', 'curve'];
     for (var k in list) {
       var name = list[k];
@@ -302,7 +309,7 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
       this['cur' + upper(name)] = null;
       this[name + 'N'] = 0;
     }
-    this.curData = null;
+    this.curDrawData = null;
     this.saveStorage();
     var self = this;
   };
@@ -332,9 +339,9 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
   };
 
   ModelDraw.prototype.getData = function () { //获取当前的数据
-    var curData = this.curData;
-    curData.info = computeDrawInfo(curData);
-    return curData;
+    var curDrawData = this.curDrawData;
+    curDrawData.info = computeDrawInfo(curDrawData);
+    return curDrawData;
   };
   ModelDraw.prototype.getFrame = function () {
     return this.curFrame;

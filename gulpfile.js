@@ -38,7 +38,6 @@ function handleError(err) {
 // });
 
 
-
 gulp.task('requirejsBuild', function() {
   try{
   rjs({
@@ -53,7 +52,7 @@ gulp.task('requirejsBuild', function() {
       },
       // ... more require.js options
     })
-    .pipe(uglify())
+    // .pipe(uglify())
     .on('error', handleError)
     .pipe(gulp.dest('./dest')); // pipe it to the output DIR
   }catch(e){

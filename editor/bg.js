@@ -172,10 +172,9 @@ define(['zepto' ], function ($) {//'./../utils/exif'
       if (iHeight > heightMax) {
         iWidth = heightMax * iWidth / iHeight;
       }
-      var imageNode = container.find('.bg-image-container').empty();
       var imageCanvas = self.imageCanvas = $('<canvas width="' + iWidth + '" height="' + iHeight + '"></canvas>')
         .css(bgImageStyle)
-        .appendTo(imageNode)[0];
+        .appendTo(container)[0];
       var imageCtx = imageCanvas.getContext('2d');
       imageCtx.save();
       imageCtx.translate(iWidth / 2, iHeight / 2);

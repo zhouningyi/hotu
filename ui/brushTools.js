@@ -5,6 +5,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
   var genCanvas = Utils.genCanvas;
   var hsla2obj = Utils.hsla2obj;
   var body = $('body');
+  var prevent = Utils.prevent;
   function BrushTools(opt) {
     this.container = opt.container;
     this.brushes = opt.brushes;
@@ -25,7 +26,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       container = this.container,
       brushToolsW = this.container.width() - this.bindNode.width() - 10,
       brushToolsNode = this.brushToolsNode = $(
-        '<div class="sub-tools">\
+        '<div class="sub-tools out-left">\
           <div class="brush-list"></div>\
           <div class="sub-tools-preview"></div>\
           <div class="control-ui color-ui"></div>\
@@ -93,6 +94,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
           var brushType = $(this).attr('id');
           var brush = brushes[brushType];
           body.trigger('brush-change', brush);
+          prevent(e);
         });
       toolsListNode.append(node);
     }
@@ -149,9 +151,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
   BrushTools.prototype.in = function (obj, cb) { //隐藏
     if (this.uiStatus !== 'in' && this.uiStatus !== 'lock' && obj) {
       if (this.uiStatus === 'null') {
-        this.brushToolsNode.css({
-          'display': 'block'
-        });
+        this.brushToolsNode.removeClass('out-left');
       }
       var self = this;
       var node = obj.node;
@@ -216,7 +216,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     var brushes = this.brushes;
     var workLimit = 3000;
     this.brushToolsNode.on('touchstart mousedown', function (e) { //点击后 不要影响
-      e.preventDefault();
+      prevent(e);
     });
 
     body
@@ -239,7 +239,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
         // self.updateUI();
         // self.preview(curBrush);
       })
-      .on('painter-work', function () {
+      .on('painter-work  root-work', function () {
         self.out();
         // setTimeout(function (){
         //   body.trigger('painter-');

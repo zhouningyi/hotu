@@ -1,9 +1,8 @@
 'use strict';
 //'./../ui/util' 目前暂时不用
 define(['zepto', './../utils/utils'], function ($, Utils) {
-  var prevant = Utils.prevant; //清除默认事件
+  var prevent = Utils.prevent; //清除默认事件
   var upper = Utils.upper; //首字母大写
-  var keys = Utils.keys; //算对象的keys
   var isNone = Utils.isNone; //是否存在
 
   var body = $('body');
@@ -65,7 +64,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
 
   Painter.prototype.layerGroup = function (name, container) { //一个多canvas的图层组
     var quality = this.quality;
-    var layerContainer = this['node' + upper(name)] = $('<div class="container transition" id="' + name + '"></div>').appendTo(container);
+    var layerContainer = this['node' + upper(name)] = $('<div class="container" id="' + name + '"></div>').appendTo(container);
     this.appendCanvas(upper(name) + 'Back', layerContainer, quality, false);
     this.appendCanvas(upper(name) + 'Front', layerContainer, quality);
     this.appendCanvas(upper(name) + 'Tmp', layerContainer, quality);
@@ -117,7 +116,6 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
       .on('touchstart mousedown', this.touchstart.bind(this))
       .on('touchmove mousemove', this.touchmove.bind(this))
       .on('touchend mouseup touchleave mouseout', this.touchleave.bind(this));
-      // .on('touchend mouseup touchleave mouseout', this.touchleave.bind(this));
   };
 
   Painter.prototype.painteWorkEvents = function () {
@@ -154,7 +152,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     var curBrush = this.curBrush;
     var modelDraw = this.modelDraw;
 
-    prevant(e);
+    prevent(e);
     var pt = this.getPt(e);
     this.startPt = pt;
     this.mvPt = null;
@@ -174,7 +172,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
 
   //////////////////////////move的阶段//////////////////////////
   Painter.prototype.touchmove = function (e) {
-    prevant(e);
+    prevent(e);
     var container = this.container;
     var pt = this.getPt(e);
     var modelDraw = this.modelDraw;
@@ -190,7 +188,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
 
   //////////////////////////leave的阶段//////////////////////////
   Painter.prototype.touchleave = function (e) {
-    prevant(e);
+    prevent(e);
     if (this.isAfterDown) {
       this.curBrush.end(this.ctxMainFront);
       this.leaveEvents();//touchleave时 按照事件移动距离 对本次操作类型进行判断

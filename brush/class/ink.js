@@ -71,7 +71,7 @@ define(['zepto'], function ($) {
       'controls': {
         'widthMax': {
           'range': [1, 50],
-          'value': 30,
+          'value': 20,
           'constructorUI': 'Slider',
           'descUI': '粗细',
           'containerName': 'shape'

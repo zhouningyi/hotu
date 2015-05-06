@@ -1,5 +1,12 @@
 
 /*动画效果*/
+.out-left{
+  transform-origin: 0% 0% 0;
+  -webkit-transform-origin: 0% 0% 0;
+  opacity: 0.0;
+  -webkit-transform: scale3d(0, 0.0, 1);
+  transform: scale3d(0, 0.0, 1);
+}
 @-webkit-keyframes fadeOutIn {
   0% {
     transform-origin: 50% 50% 0;

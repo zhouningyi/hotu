@@ -1,0 +1,93 @@
+/**
+loading 相关的css
+*/
+.loading-container {
+  background-color: rgba(40, 40, 40, 1);
+  top: 0%;
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+  pointer-events: none;
+  text-align: center;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.entry-image-container {
+  position: relative;
+  z-index: 11;
+  text-align: center;
+  width: 50%;
+  max-width: 250px;
+  min-width: 150px;
+  pointer-events: auto;
+  padding-top: 20%;
+  margin: 0 auto;
+}
+
+.entry-image{
+  position: relative;
+  width: 100%;
+  height: auto;
+  background: #000;
+  box-shadow: 0px 0px 120px #fff;
+}
+.entry-word{
+  padding: 0px 10px 10px 0px;
+  pointer-events:auto;
+}
+.entry-img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 250px;
+  min-width: 150px;
+}
+.loading-submit-button{
+  z-index: 11;
+  position: absolute;
+  right: 25%;
+  bottom: 10%;
+  background: rgba(0,0,0,0.8);
+  border-radius: 3px;
+  color: rgb(200,200,200);
+  height: 40px;
+  line-height: 40px;
+  width: 30%;
+  font-size: 18px;
+  max-width: 120px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.loading-animation-container{
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+@-webkit-keyframes loading-animation{
+    0% {
+    opacity: 1;
+    transform-origin: 50% 50% 0;
+    -webkit-transform-origin: 50% 50% 0;
+    -webkit-transform: rotateZ(0deg);
+    transform: rotateZ(0deg);
+  }
+  100% {
+    opacity: 0.1;
+    transform-origin: 50% 50% 0;
+    -webkit-transform-origin: 50% 50% 0;
+    -webkit-transform: rotateZ(300deg);
+    transform: rotateZ(300deg);
+    
+  }
+}
+
+
+

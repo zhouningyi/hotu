@@ -4,6 +4,7 @@ define(['zepto', 'anim', './../utils/utils'], function ($,a,Utils) {
   var body = $('body');
   var isNone = Utils.isNone;
   var upper = Utils.upper;
+  var prevent = Utils.prevent;
   var getPt = Utils.getPt;
   function HueSelector(container, obj) {
     this.container = container;
@@ -56,20 +57,20 @@ define(['zepto', 'anim', './../utils/utils'], function ($,a,Utils) {
     var node = this.node;
     var self = this;
     node.on('touchstart mousedown', function (e) {
+      prevent(e);
       self.isDown = true;
-       e.preventDefault();
     })
     .on('touchend mouseup touchleave mouseout', function (e) {
+      prevent(e);
       self.isDown = false;
-       e.preventDefault();
     })
-    .on('touchstart mousedown touchmove mousemove', function (e){
+    .on('touchstart mousedown touchmove mousemove', function (e) {
+      prevent(e);
       if (self.isDown) {
         var pt = getPt(e);
         var x = pt[0];
         self.ui2Target(x / node.width());
       }
-       e.preventDefault();
     });
     body.on('update-ui-by-brush', this.updateByTarget.bind(this));
   };

@@ -13,7 +13,7 @@ define(['zepto'], function($) {
     return result;
   }
 
-  function prevant(e) { //清除默认事件
+  function prevent(e) { //清除默认事件
     e.preventDefault();
     e.stopPropagation();
   }
@@ -142,7 +142,7 @@ define(['zepto'], function($) {
     'hsla2obj': hsla2obj,
     'upper': upper,
     'keys': keys,
-    'prevant': prevant,
+    'prevent': prevent,
     'isNone': isNone,
     'values': values,
     'getQueryString': getQueryString,

@@ -1,25 +1,30 @@
 'use strict';
 
-define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer', 'ui/loading', './model/user', './app_config', './model/browser'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer, Loading, User, config, browser) {
+define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer', 'ui/loading', './model/user', './app_config', './model/browser', './ui/uploadSubmit'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer, Loading, User, config, browser, UploadSubmit) {
   var clickEvent = 'touchstart mousedown';
 
   //绘图相关组件
-  var painter, bg, exports, gui, floatTag, brushTools, bgTools, brushes;
+  var painter, bg, exports, gui, floatTag, brushTools, bgTools, brushes, layers, uploadSubmit;
 
   //组件相关的node
   var body = $('body'), drawToolsNode = $('#draw-tools'), endToolsNode = $('.end-tools'),
-  importantToolsNode = $('.important-tools'), floatTagNode = $('.float-tag'), bannerNode = $('.main-container'),
-  uiContainer = $('.ui-container'), drawContainer = $('.draw-container'), bgContainer = $('.bg-container');
+  importantToolsNode = $('.important-tools'), floatTagNode = $('.float-tag'), mainNode = $('.main-container'),
+  uiContainer = $('.ui-container'), drawContainer = $('.draw-container'), bgContainer = $('.bg-container'),
+  layersContainer = $('.layers-container');
 
   function Controller() {
     this.init();
-    this.login();
+    this.dispatch();
+    this.test();
   }
+  
+  Controller.prototype.test = function () {
+    uploadSubmit = new UploadSubmit(mainNode);
+  };
 
   var isLoadLast = true;
   var url, weixin, user;
-  Controller.prototype.login = function () { //登录等流程相关的组件
-    config.browser = browser;
+  Controller.prototype.dispatch = function () { //登录等流程相关的组件 分出不同的流程
     url = new Url(config); //从url中抽取信息 并修改config
     weixin = new Weixin(url); //微信的分享机制
     user = new User({
@@ -29,30 +34,23 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     });
     user.login({
       success: function (d) {
+        // new Loading(mainNode, {
+        //   'config': config
+        // });
+        console.log('d', d);
       },
       fail: function () {
-        new Loading(bannerNode, function (){
-        });
+        // new Loading(mainNode, {
+        //   'config': config
+        // });
       }
     });
   };
 
-  Controller.prototype.uiAnimIn = function () { //动画进入
-    importantToolsNode.keyAnim('fadeInLeft', {
-      time: 0.4
-    });
-    drawToolsNode.keyAnim('fadeInLeft', {
-      time: 0.6
-    });
-    endToolsNode.keyAnim('fadeInLeft', {
-      time: 0.8
-    });
-  };
-
   Controller.prototype.init = function () {
-    this.uiAnimIn();
-
-    brushes = this.brushes = new Brushes();
+    this.animInUI();
+    // layers = new Layers([bgContainer, drawContainer], layersContainer);
+    brushes = new Brushes();
     var brushObj = brushes.brushObj;
     var frameOpt = {
       frameW: drawContainer.width(),
@@ -69,11 +67,13 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       renderer: this.renderer
     });
 
+    config.browser = browser;
+    var quality = config.draw.quality = config.draw.quality(browser);
     painter = this.painter = new Painter(drawContainer, {
       'brushes': brushes,
       'modelDraw': modelDraw,
       'renderer': renderer,
-      'quality': 1.8
+      'quality': quality
     });
 
     //背景层
@@ -82,7 +82,8 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       'container': uiContainer,
       'bind': drawToolsNode,
       'brushes': brushObj,
-      'bg': bg
+      'bg': bg,
+      'quality': quality
     });
 
     exports = new Exports(floatTagNode, bg, painter);
@@ -109,16 +110,28 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
             drawid: drawid
           }, self.processingDrawData.bind(self));
         }
-      })
+      });
     } else {
     }
   };
 
+  Controller.prototype.animInUI = function () { //动画进入
+    importantToolsNode.keyAnim('fadeInLeft', {
+      time: 0.4
+    });
+    drawToolsNode.keyAnim('fadeInLeft', {
+      time: 0.6
+    });
+    endToolsNode.keyAnim('fadeInLeft', {
+      time: 0.8
+    });
+  };
+
   Controller.prototype.processingDrawData = function (d) {
     var self = this;
-    setTimeout(function (){
+    setTimeout(function () {
       d = JSON.parse(d);
-      self.painter.reload(d);
+      self.painter.reload(d.drawing);
     });
   };
 
@@ -181,6 +194,9 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
             helpText: '选择图片'
           });
         },
+        'layers': function () {
+          layers.switch();
+        },
         'broadcast': painter.broadcast.bind(painter),
         'refresh': window.location.reload.bind(window.location)
       };
@@ -211,13 +227,15 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
           }, function () {});
         },
         'submit-message': function () {
-          painter.save({}, function (bol) {
-            floatTag.in({
-              node: node,
-              type: 'bottom',
-              helpText: bol ? '敬请期待' : '敬请期待' //,
-            });
-          });
+          var bol = false;
+          uploadSubmit.switch();
+          // painter.save({}, function (bol) {
+            // floatTag.in({
+            //   node: node,
+            //   type: 'bottom',
+            //   helpText: bol ? '敬请期待' : '敬请期待' //,
+            // });
+          // });
         }
       };
       if (cbs[id]) {
@@ -231,7 +249,6 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
         }
       }
     });
-
     //上方的工具
     importantToolsNode.delegate('i', clickEvent, function (e) {
       prevant(e);

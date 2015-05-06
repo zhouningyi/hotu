@@ -18,7 +18,7 @@ define(function() {
     'brush': {},
 
     'storage': { //在localstorage中临时存储画作的位置
-      'tmpKey': 'cur_drawing_data_hotu_v1'
+      'tmpKey': 'cur_drawing_data_hotu_v12'
     },
 
     'weixin': {
@@ -37,12 +37,12 @@ define(function() {
     },
     
     'draw': {
-      'quality': function(browser) { //根据浏览器的情况进行设置
+      'quality': function (browser) { //根据浏览器的情况进行设置
         var setting = {
-          'ipad': 1.5,
+          'ipad': 1.6,
           'iphone': 2,
           'android': 1.5,
-          'android23': 1.5,
+          'android23': 1.5
         };
         for (var key in browser) {
           if (setting[key]) {
