@@ -2,9 +2,9 @@
 // 引入 gulp
 var gulp = require('gulp'),
   rjs = require('gulp-requirejs'),
-  livereload = require('gulp-livereload'),
   connect = require('gulp-connect'),
   webserver = require('gulp-webserver'),
+  sftp = require('gulp-sftp'),
   watch = require('gulp-watch'),
 // sass = require('gulp-ruby-sass'),
 // autoprefixer = require('gulp-autoprefixer'),
@@ -91,9 +91,18 @@ gulp.task('livereload', function() {
     .pipe(connect.reload());
 });
 
+gulp.task('sftp', function () {
+    return gulp.src('./dest/*.*')
+        .pipe(sftp({
+            'host': '121.40.68.211',
+            'user': 'kupai',
+            'pass': '9c383c42',
+            'remotePath': '/home/kupai/minjin/static/hotu/dest/'
+        }));
+});
+
 // // 默认任务
 gulp.task('default', function() {
-  var server = livereload();
   // gulp.run('scripts');
   gulp.run('requirejsBuild');
   gulp.run('cssBuild');
@@ -133,8 +142,7 @@ gulp.task('default', function() {
    //    'port': 8888,
    //  }));
 
-  // gulp.watch('./dest/*.*', function (file) {
-  //   console.log(file)
-  //       // server.changed(file.path);
-  // });
+  gulp.watch('./dest/*.*', function (file) {
+    gulp.run('sftp');
+  });
 });
