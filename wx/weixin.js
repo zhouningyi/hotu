@@ -4,7 +4,6 @@
   define(['./jweixin-1.0.0', 'zepto'], function(wx, $) {
     var body = $('body');
 
-
     function Weixin(url) {
       this.url = url;
       this.sign();
@@ -19,7 +18,7 @@
         function (data, status) {
           data = data || {};
           var config = data.config;
-          config.debug = false;
+          config.debug = true;
           wx.config(config);
         });
     };

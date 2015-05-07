@@ -38,13 +38,13 @@ define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
       \
       <div class="submit-line-group submit-tag-group">\
        <div class="input-desc">把作品分享到这些相册：</div>\
-       <div class="select-tag-group"></div>\
+       <div class="submit-tag-area"></div>\
       </div>\
       \
       <div class="submit-line-group submit-access-group">\
        <div class="input-desc">权限：</div>\
-       <div class="select-access-group">\
-         <div class="select-access selected">浏览</div>\
+       <div class="submit-access-area">\
+         <div class="submit-access selected">浏览</div>\
        </div>\
       </div>\
       \
@@ -57,7 +57,7 @@ define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
     this.titleGroup = submitNode.find('.submit-title-group');
     this.inputGroup = submitNode.find('.submit-input-group');
     this.tagGroup = submitNode.find('.submit-tag-group');
-    this.selectTagGroup = submitNode.find('.select-tag-group');
+    this.selectTagGroup = submitNode.find('.submit-tag-area');
     this.buttonNode = submitNode.find('.submit-submit-button');
     this.cancelButtonNode = submitNode.find('.submit-cancel-button');
     this.contentNode = submitNode.find('.submit-content-container');
@@ -94,7 +94,7 @@ define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
       var tag = tagData[k];
       var text = tag.text;
       var selClass = (tag.selected) ? 'selected' : 'unselected';
-      html += '<div class="select-tag ' + selClass + '">' + text + '</div>';
+      html += '<div class="submit-tag ' + selClass + '">' + text + '</div>';
     }
     selectTagGroup.html(html);
   };

@@ -30,7 +30,7 @@ define(['zepto', 'anim'], function ($, l) { //'./../utils/qrcode' QRCode
           <div class="loading-animation-container"></div>\
           <div class="entry-image-container">\
           <img class="entry-image" src="http://open-wedding.qiniudn.com/qrcodeblack.jpg"></img>\
-          <img class="entry-word entry-img" src="http://open-wedding.qiniudn.com/word2.png">\
+          <img class="entry-word entry-img" src="http://open-wedding.qiniudn.com/word3.png">\
           </div>\
           <div class="loading-submit-button">跳 过</div>\
         </div>')

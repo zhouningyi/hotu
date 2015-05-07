@@ -1,49 +1,75 @@
 .submit-line-group{
   padding: 0;
   position: relative;
-  margin: 16px 10% 0px 10%;
+  margin:16px 10% 0px 10%;
   width: 80%;
   pointer-events: none;
 }
 
 .submit-container{
-  z-index: 110;
+  /*display: none;*/
+  z-index: 2;
   position: absolute;
   width: 100%;
-  display: block;
   background-color: #333;
   top: 0;
   bottom: 0px;
-  pointer-events:none;
+  pointer-events:auto;
+  text-align: left;
+  overflow-y: auto;
 }
+.submit-content-container{
+  position: relative;
+  pointer-events:auto;
+  width: 100%;
+  height: auto;
+  text-align: center;
+}
+
+
 .submit-title-group{
-  margin-top: 10px;
+  text-align: left;
 }
 .submit-title{
   display: inline-block;
-  font-size: 50px;
-  padding: 0;
-  margin: 0;
-  color: hsl(160,100%,40%);
+  font-size: 70px;
+  color: transparent;
+  text-stroke: 1.0px hsl(160,100%,40%);
+  -webkit-text-stroke: 1.0px hsl(160,100%,40%);
 }
 .submit-vice-title{
   display: inline-block;
-  font-size: 30px;
+  font-size: 12px;
   color: hsl(160,100%,40%);
-  padding: 0;
-  margin: 0;
-}
-.inputs-container{
-  position: absolute;
-  top:0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(250,250,250,0.9);
-  z-index: 1000;
-  pointer-events:auto;
 }
 
+
+.input-desc{
+  position: relative;
+  margin: 10px 0px;
+  width: 80%;
+  color: #666;
+  text-align: left;
+}
+.submit-input{
+  margin: 5px 0px;
+  width: 100%;
+  text-indent: 10px;
+  font-size: 18px;
+  padding: 0;
+  color: hsl(160,100%,30%);  
+  border-radius: 2px;
+  border: solid 0px #c46;
+  height: 40px;
+  line-height: 40px;
+  background-color: #222;
+  /*-webkit-appearance: textfield;*/
+  -webkit-appearance:none;
+  -webkit-rtl-ordering: logical;
+  -webkit-user-select: text;
+  cursor: auto;
+  pointer-events: auto;
+}
 input:-moz-placeholder {
     color: #555;
     left: 4px;
@@ -66,76 +92,94 @@ input:-moz-placeholder {
     font-size: 14px;
 }
 
-.upload-input-group{
-  position: relative;
-  width: 100%;
-  margin-top: 30px;  
-  padding: 0px;
-}
-.upload-input-text{
-  margin:10px 10% 10px 10%;
-  width: 80%;
-  text-indent: 10px;
-  font-size: 18px;
-  padding: 0;
-  color: hsl(150,100%,25%);  
-  border-radius: 2px;
-  border: solid 0px #c46;
-  height: 40px;
-  line-height: 40px;
-  background-color: #222;
-  -webkit-appearance: textfield;
-  -webkit-rtl-ordering: logical;
-  -webkit-user-select: text;
-  cursor: auto;
-  pointer-events: auto;
-}
-.select-tag-group{
-  position: relative;
-  margin: 10px 10% 5px 10%;
-  width: 80%;
+
+
+.submit-tag-group{
   text-align: left;
 }
-.select-tag{
+.submit-tag-area{
+  position: relative;
+  margin: 0;
+  width: 100%;
+}
+.submit-tag{
   position: relative;
   display: inline-block;
   width: auto;
   padding: 5px 5px;
+  font-size: 14px;
   margin: 0px 10px 10px 0px;
+  pointer-events: auto;
 }
-.select-tag-selected{
+.submit-tag.selected{
   color:  hsl(160,100%,40%);
   border: 5px solid hsl(160,100%,40%);  
 }
-.select-tag-unselected{
+
+.submit-tag.unselected{
   color:  #666;
   border: 5px solid #666;  
 }
-.input-desc{
-  position: relative;
-  margin:0px 10% 0px 10%;
-  width: 80%;
-  color: #666;
+
+
+.submit-access-group{
   text-align: left;
+  margin-top: 5px;
+}
+.submit-access-area{
+  position: relative;
+  margin: 0;
+  width: 100%;
+}
+.submit-access{
+  position: relative;
+  display: inline-block;
+  width: auto;
+  padding: 5px 10px;
   font-size: 14px;
+  border-radius: 15px;
+  margin: 0px 10px 10px 0px;
+  pointer-events:auto;
+}
+.submit-access.selected{
+  color: hsl(160,100%,20%);
+  background: hsl(160,100%,40%);  
+}
+.submit-access.unselected{
+  color:  #fff;
+  background: #666;  
+}
+
+.submit-button-group{
+  text-align: right;
+  height: 40px;
 }
 .submit-submit-button{
-  z-index: 11;
+ background: hsl(160,100%,40%);
+ float: right;
+ color: rgba(250,250,250,1);
+ width: 40%;
+}
+.submit-cancel-button{
+ background: #222;
+ float: right;
+ color: #666;
+ width: 30%;
+}
+.submit-button{
   position: relative;
-  margin: 5px 10%;
-  float: right;
-  color: rgba(250,250,250,1);
+  display: block;
+  margin: 0px 5px;
   border-radius: 2px;
-  background: hsl(160,100%,40%);
   font-weight: bold;
+  font-size: 18px;
+  letter-spacing: 4px;
   height: 40px;
   line-height: 40px;
-  width: 40%;
-  font-size: 18px;
-  max-width: 150px;
-  min-width: 100px;
+  max-width: 200px;
+  min-width: 80px;
   cursor: pointer;
-  letter-spacing: 4px;
   pointer-events: auto;
+  text-align: center;
 }
 

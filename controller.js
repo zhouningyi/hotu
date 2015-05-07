@@ -37,7 +37,6 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
         // new Loading(mainNode, {
         //   'config': config
         // });
-        console.log('d', d);
       },
       fail: function () {
         // new Loading(mainNode, {
@@ -49,7 +48,6 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
 
   Controller.prototype.init = function () {
     this.animInUI();
-    // layers = new Layers([bgContainer, drawContainer], layersContainer);
     brushes = new Brushes();
     var brushObj = brushes.brushObj;
     var frameOpt = {

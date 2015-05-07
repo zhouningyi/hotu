@@ -2,6 +2,10 @@
 // 引入 gulp
 var gulp = require('gulp'),
   rjs = require('gulp-requirejs'),
+  livereload = require('gulp-livereload'),
+  connect = require('gulp-connect'),
+  webserver = require('gulp-webserver'),
+  watch = require('gulp-watch'),
 // sass = require('gulp-ruby-sass'),
 // autoprefixer = require('gulp-autoprefixer'),
 minifyCSS = require('gulp-minify-css'),
@@ -72,11 +76,29 @@ gulp.task('cssBuild', function() {
     .pipe(gulp.dest('./dest/'));
 });
 
+gulp.task('webserver', function() {
+  var server = connect.server({
+    livereload: true,
+    port: 8080,
+    // root: ['.', '.tmp']
+  });
+  console.log(server, 'server');
+});
+
+gulp.task('livereload', function() {
+  gulp.src(['./dest/*.*'])
+    .pipe(watch('./dest/*.*'))
+    .pipe(connect.reload());
+});
+
 // // 默认任务
 gulp.task('default', function() {
+  var server = livereload();
   // gulp.run('scripts');
   gulp.run('requirejsBuild');
   gulp.run('cssBuild');
+  gulp.run('webserver');
+  gulp.run('livereload');
 
   gulp.watch([
       './ui/*.css',
@@ -98,4 +120,21 @@ gulp.task('default', function() {
       ], function(event) {
       gulp.run('requirejsBuild');
   });
+
+   // gulp.src('./dest/')
+   //  .pipe(webserver({
+   //    'livereload': true,
+   //    'open': true,
+   //    'directoryListing': {
+   //              enable:true,
+   //              path: 'hotu'
+   //          },
+   //    'host': 'localhost',
+   //    'port': 8888,
+   //  }));
+
+  // gulp.watch('./dest/*.*', function (file) {
+  //   console.log(file)
+  //       // server.changed(file.path);
+  // });
 });
