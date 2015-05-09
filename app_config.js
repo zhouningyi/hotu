@@ -51,6 +51,7 @@ define(function() {
         }
         return 1.75;
       }
-    }
+    },
+    drawData: null
   };
 });

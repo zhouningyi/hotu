@@ -16,17 +16,16 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
 
     this.events();
     body.trigger('brush-change', this.curBrush);
-
-    this.status = 'select';
   }
-
+  
+var brushToolsNode, colorNode, shapeNode, toolsListNode, previewNode, curBrushNode;
   BrushTools.prototype.init = function (brushes) {
     var toolsListN = this.toolsListN = 4,
       brushes = brushes || this.brushes,
       container = this.container,
-      brushToolsW = this.container.width() - this.bindNode.width() - 10,
-      brushToolsNode = this.brushToolsNode = $(
-        '<div class="sub-tools out-left">\
+      brushToolsW = this.container.width() - this.bindNode.width() - 10;
+    brushToolsNode = $(
+        '<div class="sub-tools">\
           <div class="brush-list"></div>\
           <div class="sub-tools-preview"></div>\
           <div class="control-ui color-ui"></div>\
@@ -39,16 +38,18 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       .appendTo(container);
     this.initBrushList(brushes);
     this.initPreview(brushes);
-    var colorNode = this.colorNode = brushToolsNode.find('.color-ui')
-    var shapeNode = this.shapeNode = brushToolsNode.find('.shape-ui');
+    colorNode = brushToolsNode.find('.color-ui')
+    shapeNode = brushToolsNode.find('.shape-ui');
     this.renderControl();
+    //结束的时候
+    brushToolsNode.addClass('out-left');
   };
 
   BrushTools.prototype.renderControl = function () { //根据brush渲染对应的ui控制器
     var curBrush = this.curBrush;
     var controls = curBrush.controls;
-    var colorNode = this.colorNode.empty();
-    var shapeNode = this.shapeNode.empty();
+    colorNode.empty();
+    shapeNode.empty();
     
     var mapUI = {
       'HueSlider': HueSlider,
@@ -56,8 +57,8 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       'Slider': Slider
     };
     var mapContainer = {
-      'color': this.colorNode,
-      'shape': this.shapeNode
+      'color': colorNode,
+      'shape': shapeNode
     };
     var obj, uiName, descUI, ConstructorUI, containerName, constructorUI, container, ki;
     for (var key in controls) {
@@ -83,14 +84,13 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     var self = this;
     var brushArr = values(brushes);
     var curBrush = this.curBrush = brushArr[0];
-    var brushToolsNode = this.brushToolsNode,
-      brushes = this.brushes;
+    var brushes = this.brushes;
     var brush, name;
-    var toolsListNode = this.toolsListNode = brushToolsNode.find('.brush-list');
+    toolsListNode = brushToolsNode.find('.brush-list');
     for (var k = 0; k < brushArr.length; k++) {
       brush = brushArr[k];
       var node = $('<div class="brush-list-icon" id="' + brush.id + '">' + brush.name + '</div>')
-        .on('touchstart mousedown', function () {
+        .on('touchstart mousedown', function (e) {
           var brushType = $(this).attr('id');
           var brush = brushes[brushType];
           body.trigger('brush-change', brush);
@@ -99,9 +99,8 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       toolsListNode.append(node);
     }
   };
-
   BrushTools.prototype.initPreview = function (brushes) {
-    var previewNode = this.previewNode = this.brushToolsNode.find('.sub-tools-preview');
+    previewNode = brushToolsNode.find('.sub-tools-preview');
     this.rendererPreview = new Renderer(brushes, {
       frameW: previewNode.width(),
       frameH: previewNode.height()
@@ -134,7 +133,6 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     if (this.uiStatus !== 'out' && this.uiStatus !== 'lock') {
       var self = this;
       cb = cb || function () {};
-      var brushToolsNode = this.brushToolsNode;
       this.uiStatus = 'lock';
       brushToolsNode.keyAnim('toolsOutLeft', {
         'time': 0.4,
@@ -151,13 +149,11 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
   BrushTools.prototype.in = function (obj, cb) { //隐藏
     if (this.uiStatus !== 'in' && this.uiStatus !== 'lock' && obj) {
       if (this.uiStatus === 'null') {
-        this.brushToolsNode.removeClass('out-left');
+        brushToolsNode.removeClass('out-left');
       }
       var self = this;
       var node = obj.node;
       var curBrush = this.curBrush;
-
-      var brushToolsNode = this.brushToolsNode;
 
       var parent = obj.parent;
       var ph = parent.height();
@@ -215,21 +211,18 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     var self = this;
     var brushes = this.brushes;
     var workLimit = 3000;
-    this.brushToolsNode.on('touchstart mousedown', function (e) { //点击后 不要影响
+    brushToolsNode.on('touchstart mousedown', function (e) { //点击后 不要影响
       prevent(e);
     });
 
     body
-    .on('animate-render-done', function () {
-      self.brushToolsNode.addClass('tools-out-left');
-    })
       .on('brush-change', function (e, brush) {
         var brushType = brush.id;
         self.preview(brush);
         self.curBrush = brush;
-        if (self.curBrushNode) self.curBrushNode.removeClass('brush-list-icon-active');
-        self.curBrushNode = self.toolsListNode.find('#' + brushType);
-        self.curBrushNode.addClass('brush-list-icon-active');
+        if (curBrushNode) curBrushNode.removeClass('brush-list-icon-active');
+        curBrushNode = toolsListNode.find('#' + brushType);
+        curBrushNode.addClass('brush-list-icon-active');
         self.renderControl(brush);
       })
       .on('preview-brush', function (e, obj) {
@@ -258,32 +251,13 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     }
   };
 
-  // BrushTools.prototype.updateUI = function () { //保持ui的数值显示与brush一致
-  //   var curBrush = this.curBrush;
-  //   var brushType = curBrush.id;
-  //   if (!brushType) return;
-  //   var controls = curBrush.controls;
-  //   var i = 0;
-  //   for (var name in controls) {
-  //     var value = curBrush[name];
-  //     var obj = controls[name];
-  //     var set = obj.set.bind(curBrush);
-  //     value = set(value);
-  //     body.trigger('ui' + '-' + name + '-' + 'brush' + '-' + brushType, {
-  //       'name': name,
-  //       'value': value,
-  //       'id': brushType,
-  //       'target': 'brush'
-  //     });
-  //   }
-  // };
 
   BrushTools.prototype.setBackground = function (bgColor) {
     if (bgColor) {
       var colors = bgColor.split(',');
       colors[3] = '0.95)';
       bgColor = colors.join(',');
-      this.brushToolsNode.css({
+      brushToolsNode.css({
         background: bgColor
       });
     }

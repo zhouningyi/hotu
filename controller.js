@@ -1,6 +1,6 @@
 'use strict';
 
-define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer', 'ui/loading', './model/user', './app_config', './model/browser', './ui/uploadSubmit'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer, Loading, User, config, browser, UploadSubmit) {
+define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer', 'ui/loading', './model/user', './app_config', './model/browser', './ui/uploadSubmit', './ui/gallery'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer, Loading, User, config, browser, UploadSubmit, Gallery) {
   var clickEvent = 'touchstart mousedown';
 
   //绘图相关组件
@@ -19,7 +19,11 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
   }
   
   Controller.prototype.test = function () {
-    uploadSubmit = new UploadSubmit(mainNode);
+    this.gallery = new Gallery(mainNode);
+    // uploadSubmit = new UploadSubmit(mainNode, {
+    //   config: config
+    // });
+    // uploadSubmit.in();
   };
 
   var isLoadLast = true;
@@ -226,7 +230,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
         },
         'submit-message': function () {
           var bol = false;
-          uploadSubmit.switch();
+          // uploadSubmit.switch();
           // painter.save({}, function (bol) {
             // floatTag.in({
             //   node: node,

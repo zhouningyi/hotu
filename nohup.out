@@ -1,0 +1,42 @@
+[18:58:29] Using gulpfile ~/git/components/hotu/gulpfile.js
+[18:58:29] Starting 'default'...
+gulp.run() has been deprecated. Use task dependencies or gulp.watch task triggering instead.
+[18:58:29] Starting 'requirejsBuild'...
+[18:58:29] Finished 'requirejsBuild' after 34 ms
+[18:58:29] Starting 'cssBuild'...
+[18:58:29] Starting 'webserver'...
+{} 'server'
+[18:58:29] Finished 'webserver' after 8.05 ms
+[18:58:29] Starting 'livereload'...
+[18:58:29] Finished 'livereload' after 4.28 ms
+[18:58:29] Finished 'default' after 80 ms
+[18:58:29] Server started http://localhost:8080
+[18:58:29] LiveReload started on port 35729
+[18:58:33] Starting 'sftp'...
+[18:58:33] Authenticating with password.
+[18:58:33] 'sftp' errored after 17 ms
+[18:58:33] Error in plugin 'gulp-sftp'
+Message:
+    connect ENETUNREACH
+Details:
+    code: ENETUNREACH
+    errno: ENETUNREACH
+    syscall: connect
+    level: client-socket
+[18:58:33] gulp-sftp SFTP abrupt closure
+[18:58:33] Connection :: close with error
+[18:58:33] Finished 'cssBuild' after 4.49 s
+[18:58:33] Starting 'sftp'...
+[18:58:33] Authenticating with password.
+[18:58:33] 'sftp' errored after 6.82 ms
+[18:58:33] Error in plugin 'gulp-sftp'
+Message:
+    connect ENETUNREACH
+Details:
+    code: ENETUNREACH
+    errno: ENETUNREACH
+    syscall: connect
+    level: client-socket
+[18:58:33] gulp-sftp SFTP abrupt closure
+[18:58:33] Connection :: close with error
+[18:58:38] Server stopped

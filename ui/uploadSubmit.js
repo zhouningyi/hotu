@@ -2,8 +2,24 @@
 
 define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
   var prevent = Utils.prevent;
+  var animateSeries = Utils.animateSeries;
   function UploadSubmit(container, opt) {
     this.opt = opt || {};
+    var config = opt.config;
+    config.drawData = this.drawData = config.drawData || {};
+    this.tagData = [{
+      'text': '默认相册',
+      'selected': 1
+    }, {
+      'text': '在杭州',
+      'selected': 0
+    }, {
+      'text': '荒原',
+      'selected': 0
+    }];
+    this.accessData = {
+      'public': 1
+    };
     this.container = container;
     this.init();
     this.status = 'disable';
@@ -11,9 +27,11 @@ define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
   }
 
   UploadSubmit.prototype.switch = function () {
-    if(this.status==='in') this.out();
-    if(this.status==='out' || this.status==='disable') this.in();
+    if(this.status === 'in') this.out();
+    if(this.status === 'out' || this.status === 'disable') this.in();
   };
+
+  var mainNode, titleGroup, submitNode, inputGroup, tagGroup, selectTagArea, buttonSubmitNode, buttonCancelNode, buttonGroup, contentNode, accessNode, publicButton, renderTags, drawNameInput, drawDescInput, userNameInput;
 
   UploadSubmit.prototype.init = function () {
     var placeholder = '昵称22';
@@ -21,7 +39,7 @@ define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
     var userName = opt.userName || '大湿，请留名';
     var drawName = opt.drawName || '给作品起个名字呗';
     var drawDesc = opt.drawDesc || '给作品写段描述呗';
-    var mainNode = this.mainNode = $(
+    mainNode = $(
     '<div class="submit-container out-left">\
       <div class="submit-content-container">\
        \
@@ -44,7 +62,7 @@ define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
       <div class="submit-line-group submit-access-group">\
        <div class="input-desc">权限：</div>\
        <div class="submit-access-area">\
-         <div class="submit-access selected">浏览</div>\
+         <div id="public" class="transition-fast submit-access selected">浏览</div>\
        </div>\
       </div>\
       \
@@ -54,138 +72,129 @@ define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
       </div>\
      </div>').appendTo(this.container);
     var submitNode = this.submitNode = mainNode.find('.submit-content-container') ;
-    this.titleGroup = submitNode.find('.submit-title-group');
-    this.inputGroup = submitNode.find('.submit-input-group');
-    this.tagGroup = submitNode.find('.submit-tag-group');
-    this.selectTagGroup = submitNode.find('.submit-tag-area');
-    this.buttonNode = submitNode.find('.submit-submit-button');
-    this.cancelButtonNode = submitNode.find('.submit-cancel-button');
-    this.contentNode = submitNode.find('.submit-content-container');
-    this.accessNode = submitNode.find('.submit-access-group');
+    titleGroup = submitNode.find('.submit-title-group');
+
+    inputGroup = submitNode.find('.submit-input-group');
+    drawNameInput = submitNode.find('#drawing_name');
+    drawDescInput = submitNode.find('#drawing_desc');
+    userNameInput = submitNode.find('#user_name');
+
+    tagGroup = submitNode.find('.submit-tag-group');
+
+    selectTagArea = submitNode.find('.submit-tag-area');
+
+    buttonSubmitNode = submitNode.find('.submit-submit-button');
+    buttonCancelNode = submitNode.find('.submit-cancel-button');
+    buttonGroup = submitNode.find('.submit-button-group');
+    contentNode = submitNode.find('.submit-content-container');
+    accessNode = submitNode.find('.submit-access-group');
+    publicButton = submitNode.find('#public');
+
     this.renderTags();
   };
 
-  UploadSubmit.prototype.renderTags = function() {
-    var selectTagGroup = this.selectTagGroup;
-    var tagData = [{
-      'text': '默认相册',
-      'selected': 1
-    }, {
-      'text': '在杭州',
-      'selected': 0
-    }, {
-      'text': '荒原',
-      'selected': 0
-    }, {
-      'text': '荒原',
-      'selected': 0
-    }, {
-      'text': '荒原',
-      'selected': 0
-    }, {
-      'text': '荒原',
-      'selected': 0
-    }, {
-      'text': '荒原',
-      'selected': 0
-    } ];
+  UploadSubmit.prototype.renderTags = function () {
+    var tagData = this.tagData;
     var html = '';
     for (var k in tagData) {
       var tag = tagData[k];
       var text = tag.text;
       var selClass = (tag.selected) ? 'selected' : 'unselected';
-      html += '<div class="submit-tag ' + selClass + '">' + text + '</div>';
+      html += '<div class="transition-fast submit-tag ' + selClass + '" id="' + k + '">' + text + '</div>';
     }
-    selectTagGroup.html(html);
+    selectTagArea.html(html);
   };
 
   UploadSubmit.prototype.in = function () {
     if (this.status !== 'in') {
       if (this.status === 'disable') {
-      this.mainNode.removeClass('out-left');
-     }
-     this.mainNode.keyAnim('fadeIn', {
-        time: 1,
-        delay: 0.3
+        mainNode.removeClass('out-left');
+      }
+      mainNode
+      .css({
+        'pointer-events': 'auto'
       })
-      this.submitNode.keyAnim('fadeInLeft', {
-        time: 0.3
-      });
-      this.titleGroup.keyAnim('fadeInLeft', {
-        time: 0.8,
-        delay: 0.3
-      });
-      this.inputGroup.keyAnim('fadeInLeft', {
-        time: 0.7,
-        delay: 0.3
-      });
-      this.tagGroup.keyAnim('fadeInLeft', {
-        time: 0.6,
-        delay: 0.3
-      });
-      this.contentNode.keyAnim('fadeInLeft', {
-        time: 0.4,
-        delay: 0.3
+      .keyAnim('fadeIn', {
+        time: 0.75
       })
-      this.accessNode.keyAnim('fadeInLeft', {
-        time: 0.3,
-        delay: 0.3
+      .find('div')
+      .css({
+        'pointerEvents': 'auto'
       })
-      this.buttonNode.keyAnim('fadeInLeft', {
-        time: 0.2,
-        delay: 0.3
-      })
+      animateSeries ([titleGroup, drawNameInput, drawDescInput, userNameInput, tagGroup, buttonSubmitNode, accessNode, buttonCancelNode], 'fadeInLeft', {
+        time: function (k) {return 0.06 * (k + 1);},
+        delay: function (k) {return 0.03 * (k + 1);}
+      });
       this.status = 'in';
     }
   };
 
   UploadSubmit.prototype.out = function () {
     if (this.status !== 'out') {
-      this.mainNode.keyAnim('fadeOutLeft', {
-        time: 0.8,
-        delay: 0.5
+      mainNode
+      .keyAnim('fadeOut', {
+        time: 2,
+        delay: 0.6
       })
-      this.submitNode.keyAnim('fadeOutLeft', {
-        time: 0.8,
-        delay: 0.5
-      });
-      this.titleGroup.keyAnim('fadeOutLeft', {
-        time: 0.8,
-        delay: 0.3
-      });
-      this.inputGroup.keyAnim('fadeOutLeft', {
-        time: 0.7,
-        delay: 0.3
-      });
-      this.tagGroup.keyAnim('fadeOutLeft', {
-        time: 0.6,
-        delay: 0.3
-      });
-      this.contentNode.keyAnim('fadeOutLeft', {
-        time: 0.4,
-        delay: 0.3
+      .css({
+        'pointerEvents': 'none'
       })
-      this.accessNode.keyAnim('fadeOutLeft', {
-        time: 0.3,
-        delay: 0.3
+      .find('div')
+      .css({
+        'pointerEvents': 'none'
       })
-      this.buttonNode.keyAnim('fadeOutLeft', {
-        time: 0.2,
-        delay: 0.3
-      })
+      animateSeries ([titleGroup, drawNameInput, drawDescInput, userNameInput, tagGroup, buttonSubmitNode, accessNode, buttonCancelNode], 'fadeOutLeft', {
+        time: function (k) {return 0.1 * (k + 1);},
+        delay: function (k) {return 0.05 * (k + 1);}
+      });
       this.status = 'out';
     }
   };
 
+  function sumSel(obj) {
+    var sum = 0;
+    for (var k in obj) {
+      if (obj[k].selected) sum++;
+    }
+    return sum;
+  }
+
   UploadSubmit.prototype.events = function () {
     var self = this;
-    this.buttonNode.on('touchstart mousedown', function (e) {
+    var tagData = this.tagData;
+    var accessData = this.accessData;
+    buttonSubmitNode.on('touchstart mousedown', function (e) {
       self.out();
       prevent(e);
     });
-    this.cancelButtonNode.on('touchstart mousedown', function (e) {
+
+    buttonCancelNode.on('touchstart mousedown', function (e) {
       self.out();
       prevent(e);
+    });
+
+    selectTagArea.delegate('.submit-tag', 'click', function (d) {
+      var node = $(this);
+      var id = node.attr('id');
+      if (node.hasClass('selected') && sumSel(tagData) > 1) {
+        node.removeClass('selected').addClass('unselected');
+        tagData[id].selected = 0;
+      } else {
+        node.removeClass('unselected').addClass('selected');
+        tagData[id].selected = 1;
+      }
+    });
+
+    publicButton.on('click', function (e) {
+      var node = $(this);
+      var id = node.attr('id');
+      if (node.hasClass('selected')) {
+        node.removeClass('selected').addClass('unselected');
+        accessData[id] = 0;
+      } else {
+        node.removeClass('unselected').addClass('selected');
+        accessData[id] = 1;
+      }
     });
   };
 

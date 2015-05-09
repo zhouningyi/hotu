@@ -13,13 +13,15 @@
     }
 
     Weixin.prototype.sign = function () {
+      var self = this;
       var jsTicketUrl = encodeURIComponent(window.location.origin + window.location.pathname + window.location.search);
       $.getJSON('http://hotu.co/hotu-api/api/weixin/sign?url=' + jsTicketUrl,
         function (data, status) {
           data = data || {};
           var config = data.config;
-          config.debug = true;
+          config.debug = false;
           wx.config(config);
+          self.genShare();
         });
     };
 
@@ -61,10 +63,6 @@
         .on('drawid', function(e, drawid) {
           self.drawid = drawid;
           self.genShare();
-        })
-        .on('openid', function(e, openid) {
-          self.userid = openid;
-          self.genShare();
         });
     };
 
@@ -80,7 +78,7 @@
           drawid: self.drawid || 'draw_id_err'
         });
 
-        var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://hotu.co/hua?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
+        var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://hotu.co/hotu?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
         var shareObj = {
           title: title,
           link: shareUrl,

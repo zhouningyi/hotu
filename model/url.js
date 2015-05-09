@@ -10,9 +10,10 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     if (browser.weixin) { //切分state参数的字符
       this.browser = 'weixin';
       var weixin = config.weixin;
-      this.keysWeixinInStates = weixin.keysWeixinInStates;
-      this.and = config.url.and;
-      this.equalto = config.url.equalto;
+      var weixinUrl = weixin.url;
+      this.keysWeixinInStates = weixinUrl.keysWeixinInStates;
+      this.and = weixinUrl.and;
+      this.equalto = weixinUrl.equalto;
       var states = getQueryStringByName('state');
       var info = this.info = this.getInfo(states);
       if (info.fromid) {// && info.fromtype === 'openid'
@@ -43,8 +44,8 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     return getQueryStringByName('code');
   };
 
-  Url.prototype.getState = function (obj) { //生成url的state参数
-    if (!(this.browser === 'weixin')) {
+  Url.prototype.genState = function (obj) { //生成url的state参数
+    if (this.browser !== 'weixin') {
       return console.log('必须微信登录');
     }
     var keysWeixinInStates = this.keysWeixinInStates;
@@ -55,11 +56,12 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
         result.push(key + this.equalto + value);
       }
     }
+
     return result.join(this.and);
   };
 
-  Url.prototype.getURL = function (obj) { //生成url
-    var state = this.getState(obj);
+  Url.prototype.genURL = function (obj) { //生成url
+    var state = this.genState(obj);
   };
   /////////////////////从url中获取
   Url.prototype.getInfo = function (states) {

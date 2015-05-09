@@ -1,6 +1,6 @@
 'use strict';
 
-define(['zepto'], function($) {
+define(['zepto', 'anim'], function ($) {
   function upper(str) { //首字母大写
     return str[0].toUpperCase() + str.slice(1);
   }
@@ -136,8 +136,20 @@ define(['zepto'], function($) {
     return result[1];
   }
 
+  function animateSeries(nodeList, aniName, opt) {
+    var timeFunc = opt.time, delayFunc = opt.delay;
+    for (var k in nodeList) {
+      k = parseInt(k);
+      nodeList[k].keyAnim(aniName, {
+        time: timeFunc(k),
+        delay: delayFunc(k)
+      });
+    }
+  }
+
   return {
     'getQueryStringByName': getQueryStringByName,
+    'animateSeries': animateSeries,
     'rgbToHsl': rgbToHsl,
     'hsla2obj': hsla2obj,
     'upper': upper,

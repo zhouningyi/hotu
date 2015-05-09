@@ -18,7 +18,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     this.events();
 
     this.status = 'select';
-    this.bgToolsNode.addClass('tools-out-left');
+    this.bgToolsNode.addClass('out-left');
   }
 
   BgTools.prototype.init = function (bg) {

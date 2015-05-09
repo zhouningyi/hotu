@@ -1,0 +1,69 @@
+
+/*相册的css*/
+.nav{
+  max-height: 80px;
+  width: 100%;
+  background-color: rgba(0,0,0,0.3);
+}
+.nav .user-name{
+  color: #fff;
+  position: relative;
+  max-height: 72px;
+  position: relative;
+  display: block;
+  background: rgba(0,0,0,1);
+  text-align: left;
+  vertical-align: middle;
+}
+.gallery-container{
+  background-color: #222;
+  z-index: 4;
+}
+.gallery-container .gallery{
+  overflow-y: auto;
+  text-align: left;
+  font-size:0px;
+  width: 100%;
+  height: 100%;
+  background-color: #222;
+}
+.gallery .gallery-scroll{
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.gallery .grid{
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding:0;
+  border: none;
+  vertical-align: baseline;
+  pointer-events:none;
+  text-align: center;
+}
+
+.grid .image-container{
+  position: absolute;
+  background-color: #fff;
+  vertical-align: middle;
+}
+
+.grid .image-title{
+  position: absolute;
+  bottom: 0%;
+  left: 0%;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 8% 0px;
+  text-align: left;
+  color: #fff;
+  width: 100%;
+  font-size: 14px;
+}
+.grid .image{
+  cursor: pointer;
+  pointer-events:auto;
+  width: 100%;
+  height: 100%;
+  border: none;
+}

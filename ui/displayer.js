@@ -1,10 +1,10 @@
 'use strict';
 //播放作品的面板
 define(['zepto'], function($) {
-
   var body = $('body');
 
   function Displayer(container, opt) {
+    console.log(9999);
     opt = opt || {};
 
     container = container || $('.container');
@@ -57,7 +57,6 @@ define(['zepto'], function($) {
       .on('touchmove mousemove', this.touchmove.bind(this))
       .on('touchend mouseup touchleave mouseout', this.touchleave.bind(this));
   };
-
 
   return Painter;
 });
