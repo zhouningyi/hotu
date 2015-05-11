@@ -1,6 +1,6 @@
 'use strict';
 //对UI的总体控制
-define(['zepto', 'anim', './../utils/utils', './displayer'], function($, a, Utils, Displayer) {
+define(['zepto', 'anim', './../utils/utils', './displayer'], function ($, a, Utils, Displayer) {
   var body = $('body');
   var isNone = Utils.isNone;
   var prevent = Utils.prevent;
@@ -38,13 +38,11 @@ define(['zepto', 'anim', './../utils/utils', './displayer'], function($, a, Util
     this.render();
   };
 
+var gridSize;
   Gallery.prototype.computeSize = function () {
-    var offset = this.offset;
     var container = this.container;
     var containerW = container.width();
-    var containerH = container.height();
-    var galleryW = this.galleryW = containerW - 2 * offset;
-    var gridSize;
+    var galleryW = this.galleryW = containerW - 2 * this.offset;
     
     var gridMax = this.gridMax;
     var gridMin = this.gridMin;

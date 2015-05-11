@@ -65,7 +65,7 @@ gulp.task('requirejsBuild', function() {
 });
 
 // 压缩css的任务
-gulp.task('cssBuild', function() {
+gulp.task('cssBuild', function () {
   return gulp.src(['./ui/*.css'])
     .pipe(minifyCSS({
       aggressiveMerging:false,
@@ -76,10 +76,10 @@ gulp.task('cssBuild', function() {
     .pipe(gulp.dest('./dest/'));
 });
 
-gulp.task('webserver', function() {
+gulp.task('webserver', function () {
   var server = connect.server({
     livereload: true,
-    port: 8080,
+    port: 8080
     // root: ['.', '.tmp']
   });
   console.log(server, 'server');
@@ -106,7 +106,6 @@ gulp.task('default', function() {
   // gulp.run('scripts');
   gulp.run('requirejsBuild');
   gulp.run('cssBuild');
-  gulp.run('webserver');
   gulp.run('livereload');
 
   gulp.watch([
@@ -115,6 +114,7 @@ gulp.task('default', function() {
       ], function(event) {
       gulp.run('cssBuild');
   });
+
   gulp.watch([
       './model/*.js',
       './render/*.js',
@@ -127,6 +127,7 @@ gulp.task('default', function() {
       './app.js',
       './config.js',
       ], function(event) {
+        console.log('requirejsBuild');
       gulp.run('requirejsBuild');
   });
 
@@ -145,4 +146,5 @@ gulp.task('default', function() {
   gulp.watch('./dest/*.*', function (file) {
     gulp.run('sftp');
   });
+  gulp.run('webserver');
 });

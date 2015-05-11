@@ -1,9 +1,10 @@
-@font-face {font-family: "iconfont";
-  src: url('//at.alicdn.com/t/font_1428865193_9306474.eot'); /* IE9*/
-  src: url('//at.alicdn.com/t/font_1428865193_9306474.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url('//at.alicdn.com/t/font_1428865193_9306474.woff') format('woff'), /* chrome銆乫irefox */
-  url('//at.alicdn.com/t/font_1428865193_9306474.ttf') format('truetype'), /* chrome銆乫irefox銆乷pera銆丼afari, Android, iOS 4.2+*/
-  url('//at.alicdn.com/t/font_1428865193_9306474.svg#iconfont') format('svg'); /* iOS 4.1- */
+@font-face {
+  font-family: 'iconfont';
+  src: url('//at.alicdn.com/t/font_1431269714_833391.eot'); /* IE9*/
+  src: url('//at.alicdn.com/t/font_1431269714_833391.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('//at.alicdn.com/t/font_1431269714_833391.woff') format('woff'), /* chrome、firefox */
+  url('//at.alicdn.com/t/font_1431269714_833391.ttf') format('truetype'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/
+  url('//at.alicdn.com/t/font_1431269714_833391.svg#iconfont') format('svg'); /* iOS 4.1- */
 }
 
 .iconfont {
@@ -15,18 +16,26 @@
   -moz-osx-font-smoothing: grayscale;
 }
 .icon-androidadd:before { content: "\e600"; }
-.icon-androidcamera:before { content: "\e601"; }
-.icon-androidcolorpalette:before { content: "\e602"; }
-.icon-androidmorevertical:before { content: "\e603"; }
-.icon-androidupload:before { content: "\e604"; }
-.icon-archive:before { content: "\e605"; }
-.icon-arrowreturnright:before { content: "\e606"; }
+.icon-androidapps:before { content: "\e601"; }
+.icon-androidcamera:before { content: "\e602"; }
+.icon-androidcolorpalette:before { content: "\e603"; }
+.icon-androiddownload:before { content: "\e604"; }
+.icon-androidupload:before { content: "\e605"; }
+.icon-archive:before { content: "\e606"; }
 .icon-camera:before { content: "\e607"; }
 .icon-crop:before { content: "\e608"; }
 .icon-geara:before { content: "\e609"; }
-.icon-ioscontact:before { content: "\e60a"; }
-.icon-iostrash:before { content: "\e60b"; }
-.icon-iosundo:before { content: "\e60c"; }
-.icon-socialyoutube:before { content: "\e60d"; }
-.icon-androidcreate:before { content: "\e60e"; }
-.icon-socialbuffer:before { content: "\e60f"; }
+.icon-heart:before { content: "\e60a"; }
+.icon-ioschatbubble:before { content: "\e60b"; }
+.icon-iosclouddownload:before { content: "\e60c"; }
+.icon-ioscloudupload:before { content: "\e60d"; }
+.icon-ioscontact:before { content: "\e60e"; }
+.icon-iostrash:before { content: "\e60f"; }
+.icon-iosundo:before { content: "\e610"; }
+.icon-more:before { content: "\e611"; }
+.icon-socialyoutube:before { content: "\e612"; }
+.icon-trasha:before { content: "\e613"; }
+.icon-androidcreate:before { content: "\e614"; }
+.icon-socialbuffer:before { content: "\e615"; }
+.icon-iospause:before { content: "\e616"; }
+.icon-iosplay:before { content: "\e617"; }

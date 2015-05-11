@@ -340,6 +340,7 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
 
   ModelDraw.prototype.getData = function () { //获取当前的数据
     var curDrawData = this.curDrawData;
+    console.log(JSON.stringify(curDrawData));
     curDrawData.info = computeDrawInfo(curDrawData);
     return curDrawData;
   };

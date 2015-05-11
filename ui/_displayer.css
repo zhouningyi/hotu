@@ -1,0 +1,150 @@
+
+.displayer-container{
+  z-index: 6;
+  background: #222;
+  pointer-events: auto;
+}
+
+.displayer-container .info-area{
+  z-index: 3;
+  position: absolute;
+  max-height: 150px;
+  width: 100%;
+  height: 25%;
+  bottom: 0;
+  text-align: left;
+}
+
+.displayer-container .display-area{
+  position: absolute;
+  background-size: 100% 100%;
+  width: 100%;
+  height: 100%;
+}
+
+.info-area .text-area{
+  display: block;
+  margin-left: 5%;
+  width: 90%;
+}
+
+.text-area .iconfont{
+  position: relative;
+  color:  hsl(0,0%,50%);
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  line-height: 30px;
+  text-align: center;
+  vertical-align: middle;
+  background-color: rgba(250,250,250,0.9);
+  display: inline-block;
+  border-radius: 25px;
+  box-shadow: 1px 1px 4px #ccc;
+}
+.text-area .iconfont-selected{
+  color: hsl(160,100%,40%);
+}
+.info-area .icon-div{
+  display: inline-block;
+  position: relative;
+  float: right;
+  padding-left: 30px;
+}
+
+.text-area .iconfont-add{
+  top: 100%;
+  position: absolute;
+  color: #666;
+  left: 5px;
+  width: 80px;
+  padding: 5px 0px;
+  display: inline-block;
+  font-size: 14px;
+  text-align: center;
+}
+
+.info-area .title{
+  position: relative;
+  color:  #666;
+  height: 30px;
+  line-height: 30px;
+  font-size: 18px;
+  padding: 0 12px;
+  border-radius: 2px;
+  background-color: rgba(250,250,250,0.7);
+  display: inline-block;
+  /*box-shadow: 1px 1px 4px #ccc;*/
+}
+
+.info-area .desc{
+  position: relative;
+  padding-left: 5%;
+  color: #fff;
+  height: 40px;
+  line-height: 40px;
+  display: inline-block;
+}
+
+.info-area .control{
+  font-size: 0px;
+  position: relative;
+  display: inline-block;
+  text-align: left;
+  pointer-events: auto;
+  color: #000;
+  margin: 0 5% 0px 5%;
+  width: 90%;
+  height: 40px;
+}
+
+.control .broadcast{
+  background: rgba(0,0,0,0.7);
+  top: 0;
+  position: relative;
+  display:inline-block;
+  height: 30px;
+  max-width: 30px;
+  margin-right: 6px;
+  /*border-right: 1px solid */
+}
+
+.control .broadcast{}
+.iconfont-display{
+  font-family: iconfont!important;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke-width: .2px;
+}
+
+.iconfont-broadcast{
+  color:  hsl(160,100%,40%);
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  line-height: 30px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.control .slider{
+  background: rgba(0,0,0,0.7);
+  display:inline-block;
+  height: 30px;
+}
+
+.slider .slider-line{
+  position: absolute;
+  width: 92%;
+  left: 4%;
+  top: 13px;
+  height: 4px;
+  background: rgba(0,0,0,0.2);
+}
+.slider-line .percent-line{
+  border-radius: 0px 12px 12px 0px;
+  width: 100%;
+  top: 1px;
+  height: 2px;
+  background-color:  hsl(160,100%,40%);
+}
