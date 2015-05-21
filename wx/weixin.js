@@ -48,7 +48,7 @@
           'code': url.getCode()
         },
         success: function (d) {
-          if (d && d.openid) {return obj.success(d);}
+          if (d && d.openid) {return obj.success(d.openid);}
           return obj.fail(d);
         },
         error: function (e) {
@@ -78,7 +78,7 @@
           drawid: self.drawid || 'draw_id_err'
         });
 
-        var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://hotu.co/hotu?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
+        var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://hotu.co/hua?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
         var shareObj = {
           title: title,
           link: shareUrl,

@@ -1,6 +1,6 @@
 'use strict';
 //对UI的总体控制
-define(['zepto', 'anim', './../utils/utils'], function ($,a,Utils) {
+define(['zepto', 'anim', './../../utils/utils'], function ($,a,Utils) {
   var body = $('body');
   var isNone = Utils.isNone;
   var upper = Utils.upper;
@@ -12,6 +12,7 @@ define(['zepto', 'anim', './../utils/utils'], function ($,a,Utils) {
     this.control = obj.control;
     this.target = obj.target;
     this.targetName = obj.targetName;
+    this.key = obj.key;
 
     this.init();
     this.events();
@@ -32,7 +33,7 @@ define(['zepto', 'anim', './../utils/utils'], function ($,a,Utils) {
 
     var control = this.control, range = control.range;
     control.value = (range[1] - range[0]) * hue01 + range[0] * (1 - hue01);
-    target.onStyleChange();
+    target.onStyleChange(this.key);
     var colorShowSat = target.colorShowSat;
     pNode.css({
       'left': hue01 * lineNode.width() - pNode.width() / 2,
@@ -72,7 +73,7 @@ define(['zepto', 'anim', './../utils/utils'], function ($,a,Utils) {
         self.ui2Target(x / node.width());
       }
     });
-    body.on('update-ui-by-brush', this.updateByTarget.bind(this));
+    body.on('update-ui-by-target', this.updateByTarget.bind(this));
   };
 
   return HueSelector;

@@ -15,14 +15,14 @@ define(['./../utils/utils'], function (Utils) {
     for (var i in curves) {
       curve = curves[i];
       brushType = curve.brushType;
-      if (isNone(brushes[brushType])) {
+      if (!brushes[brushType]) {
         brushes[brushType] = {
           curveN: 0,
           ptN: 0
         };
       }
       curBrushInfo = brushes[brushType];
-      curBrushInfo.curveN += 1;
+      curBrushInfo.curveN = curBrushInfo.curveN + 1;
     if (brushType !== (brushTypePrev || brushType)) brushChangeN += 1; //是否换笔刷
 
     if (curve) {

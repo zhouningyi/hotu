@@ -33,7 +33,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
 
     //步骤相关
     this.tmpCurves = []; //临时存储的
-    this.backN = 15; //可回退的次数
+    this.backN = opt.backN || 15; //可回退的次数
 
     //其他
     this.renderer = opt.renderer;

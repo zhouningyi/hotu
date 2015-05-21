@@ -162,12 +162,19 @@ input:-moz-placeholder {
  float: right;
  color: rgba(250,250,250,1);
  width: 40%;
+ opacity: 1;
+}
+.submit-line-group.selected{
+  opacity: 0.1;
+  -moz-opacity: 0.1;
+  -khtml-opacity: 0.1;
 }
 .submit-cancel-button{
  background: #222;
  float: right;
  color: #666;
  width: 30%;
+ opacity: 1;
 }
 .submit-button{
   position: relative;
@@ -183,5 +190,20 @@ input:-moz-placeholder {
   cursor: pointer;
   pointer-events: auto;
   text-align: center;
+}
+.big-button{
+  color: #fff;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 60px;
+  height: 60px;
+  margin: 20px 0;
+  width: 100%;
+}
+.to-gallary{
+  background:  hsl(160,100%,30%);
+}
+.to-drawing{
+  background: #222;
 }
 

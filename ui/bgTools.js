@@ -1,13 +1,17 @@
 'use strict';
 //对UI的总体控制
-define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSatSelector', './hueSlider', './slider', './../utils/exif', './../utils/binaryajax'], function (Utils, $, Renderer, keyAnim, LightSatSelector, HueSlider, Slider, EXIF, Binary) {
-  var BinaryFile = Binary.BinaryFile;
+define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './components/lightSatSelector', './components/hueSlider', './components/slider', './components/imageUploader'], function (Utils, $, Renderer, keyAnim, LightSatSelector, HueSlider, Slider, ImageUploader) {
+  
   var values = Utils.values;
   var prevent = Utils.prevent;
   var genCanvas = Utils.genCanvas;
   var body = $('body');
 
+var actionToolsNode, colorNode, commonNode, toolsListNode, curActionNode;
+
   function BgTools(opt) {
+    opt = opt || {};
+    this.actions = opt.actions;
     var container = this.container = opt.container;
 
     this.bindNode = opt.bind;
@@ -18,7 +22,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
     this.events();
 
     this.status = 'select';
-    this.bgToolsNode.addClass('out-left');
+    body.trigger('action-change', this.curAction);
   }
 
   BgTools.prototype.init = function (bg) {
@@ -27,18 +31,10 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       container = this.container,
       bgToolsW = this.container.width() - this.bindNode.width() - 10,
       bgToolsNode = this.bgToolsNode = $(
-        '<div class="sub-tools">\
-        <div class="brush-list"></div>\
+      '<div class="sub-tools">\
+        <div class="tools-list"></div>\
         <div class="control-ui color-ui"></div>\
-        <div class="control-ui upload-ui">\
-          <div class="ui-grid">\
-            <label class="label-uploader">\
-            <input type="file" name="images" id="images" accept="image/*">\
-            <i class="style-normal iconfont iconfont-mobile block icon-android-camera" id="background-image">&#xe601;</i>\
-            <span class="icon-text gray-middle">背景图<span>\
-            </label>\
-          </div>\
-        </div>\
+        <div class="control-ui common-ui"></div>\
       </div>')
       .css({
         'width': bgToolsW,
@@ -46,39 +42,75 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       })
       .appendTo(container);
     var colorNode = this.colorNode = bgToolsNode.find('.color-ui');
-    var uploadNode = this.uploadNode = bgToolsNode.find('.upload-ui');
+    var commonNode = this.commonNode = bgToolsNode.find('.common-ui');
 
+    var curAction = this.curAction = this.actions.get('bgColor');
+
+    this.initHead();
     this.renderControl();
+    setTimeout(function(){
+      bgToolsNode.addClass('out-left');
+    }, 1000);
+  };
+
+  BgTools.prototype.initHead = function () {
+    var self = this;
+    var actions = this.actions;
+    var actionList = this.actions.actionList;
+    var action, name;
+    toolsListNode = this.bgToolsNode.find('.tools-list');
+    for (var k in actionList) {
+      action = actionList[k];
+      var node = $('<div class="tools-list-icon" id="' + action.id + '">' + action.name + '</div>')
+        .on('touchstart mousedown', function (e) {
+          var actionType = $(this).attr('id');
+          var action = actions.get(actionType);
+          body.trigger('action-change', action);
+          prevent(e);
+        });
+      toolsListNode.append(node);
+    }
   };
 
   BgTools.prototype.renderControl = function () {
     var colorNode = this.colorNode;
-    var uploadNode = this.uploadNode;
-    var bg = this.bg;
-    var color = bg.color;
-    var controls = bg.controls;
+    var commonNode = this.commonNode;
+    colorNode.empty();
+    commonNode.empty();
 
-    var hueSlider = new HueSlider(colorNode, {
-      'targetName': 'bg',
-      'id': 'bg',
-      'target': bg,
-      'control': controls.hue
-    });
+    var curAction = this.curAction;
+    var controls = curAction.controls;
 
-    var lightSatSelector = new LightSatSelector(colorNode, {
-      'targetName': 'bg',
-      'id': 'bg',
-      'target': bg,
-      'control': controls.lightSat
-    });
+    var mapUI = {
+      'HueSlider': HueSlider,
+      'LightSatSelector': LightSatSelector,
+      'Slider': Slider,
+      'ImageUploader': ImageUploader
+    };
 
-    var bgImageOpacitySlider = new Slider(uploadNode, {
-      'key': 'bgImageOpacity',
-      'targetName': 'bg',
-      'id': 'bg',
-      'target': bg,
-      'control': controls.bgImageOpacity
-    });
+    var mapContainer = {
+      'color': colorNode,
+      'common': commonNode
+    };
+
+    var obj, uiName, descUI, ConstructorUI, containerName, constructorUI, container, ki;
+    for (var key in controls) {
+      obj = controls[key];
+      constructorUI = obj.constructorUI;
+      ConstructorUI = mapUI[constructorUI];
+      containerName = obj.containerName;
+      container = mapContainer[containerName];
+
+      if (ConstructorUI) {
+        new ConstructorUI(container, {
+          'key': key,
+          'targetName': 'bg',
+          'id': curAction.id,
+          'control': obj,
+          'target': curAction
+        });
+      }
+    }
   };
 
   BgTools.prototype.out = function (cb) { //隐藏
@@ -146,6 +178,7 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
               'pointerEvents': 'auto'
             });
           self.uiStatus = 'in';
+          body.trigger('update-ui-by-target');
           cb();
         }
       });
@@ -176,59 +209,19 @@ define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './lightSat
       .on('painter-work root-work', function () {
         self.out();
       })
-      .on('bg-color-change', function (e, bgColor) {
+      .on('action-change', function(e, action){
+        var actionType = action.id;
+        self.curAction = action;
+        if (curActionNode) curActionNode.removeClass('tools-list-icon-active');
+        curActionNode = toolsListNode.find('#' + actionType);
+        curActionNode.addClass('tools-list-icon-active');
+        self.renderControl();
+      })
+      .on('main-color-change', function (e, bgColor) {
         self.setBackground(bgColor);
       });
-
-    this.uploadEvents();
   };
 
-  BgTools.prototype.uploadEvents = function () {
-    var self = this;
-    var photoIpt = $('.label-uploader');
-    photoIpt.on('change', function (e) {
-      prevent(e);
-      var file = (e.target.files || e.dataTransfer.files)[0];
-      if (file) {
-        if (typeof FileReader !== 'undefined' && typeof window.URL !== 'undefined') {
-          var reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = function (event) {
-            self.previewImage(file, event);
-          };
-        } else if (typeof window.URL !== 'undefined') {
-          self.previewImage(file);
-        } else {
-          return alert('亲, 您的设备不支持预览');
-        }
-      }
-    });
-  };
-
-  BgTools.prototype.previewImage = function(file, e) {
-    var url = window.URL.createObjectURL(file);
-    var imgRotation = 0;
-    if (e) {
-      var base64 = e.target.result.replace(/^.*?,/, '');
-      var binary = atob(base64);
-      var binaryData = new BinaryFile(binary);
-      var exif = EXIF.readFromBinaryFile(binaryData);
-      var orientation = exif.Orientation || 1;
-      var imgRotation = 0;
-      switch (orientation) {
-        case 3:
-          imgRotation = 180;
-          break;
-        case 6:
-          imgRotation = 90;
-          break;
-        case 8:
-          imgRotation = 270;
-          break;
-      }
-    }
-    this.bg.image(url, imgRotation);
-  };
 
   BgTools.prototype.setBackground = function (bgColor) {
     if (bgColor) {

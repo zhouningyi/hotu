@@ -2,8 +2,14 @@
 
 define(function() {
   return {
+    'galleryURL': 'http:hotu.co/gallery/',
+    'helpLink': 'http://www.baidu.com',
+    'isConfigFromStorage': 1,
     'login': {//isFollower
       'key': 'login_info_hotu_painter',
+      'userid': 0,
+      'saveKey': 'app_config',
+      'userName': '野兽'
     },
 
     'cookie': { //cookie相关的设置
@@ -18,7 +24,7 @@ define(function() {
     'brush': {},
 
     'storage': { //在localstorage中临时存储画作的位置
-      'tmpKey': 'cur_drawing_data_hotu_v12'
+      'tmpKey': 'cur_drawing_data_hotu_v13'
     },
 
     'weixin': {
@@ -36,7 +42,8 @@ define(function() {
     'sns': { //和社交相关的属性
     },
     
-    'draw': {
+    'painter': {
+      'backN': 15,
       'quality': function (browser) { //根据浏览器的情况进行设置
         var setting = {
           'ipad': 1.6,

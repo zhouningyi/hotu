@@ -45,8 +45,8 @@ define(['./../utils/zepto_cookie'], function () {
   };
 
   User.prototype.setUserInfo = function (userInfo) {
-    userInfo = JSON.stringify(userInfo);
-    this.setUserInfoCookie(userInfo);
+    this.config.login.userid = userInfo.openid;
+    this.setUserInfoCookie(JSON.stringify(userInfo));
   };
 
   User.prototype.setUserInfoCookie = function (userInfo) {//向cookie写入信息

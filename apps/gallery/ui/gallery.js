@@ -1,6 +1,6 @@
 'use strict';
 //对UI的总体控制
-define(['zepto', 'anim', './../utils/utils', './displayer'], function ($, a, Utils, Displayer) {
+define(['zepto', 'anim', './../../../utils/utils'], function ($, a, Utils) {
   var body = $('body');
   var isNone = Utils.isNone;
   var prevent = Utils.prevent;
@@ -33,7 +33,11 @@ define(['zepto', 'anim', './../utils/utils', './displayer'], function ($, a, Uti
     {'title': '是萨达大'},
     {'title': '是事实上大'},
     {'title': '是啊啊大'},
-    {'title': '是大对的'}
+    {'title': '是大'},
+    {'title': '是大'},
+    {'title': '是萨达大'},
+    {'title': '是事实上大'},
+    {'title': '是啊啊大'},
     ];
     this.render();
   };
@@ -56,7 +60,7 @@ var gridSize;
       gridSize =  size;
     }
     this.gridSize = gridSize;
-    this.navH = gridSize / 2;
+    this.navH = gridSize * 0.75;
   };
 
   Gallery.prototype.init = function () {
@@ -64,10 +68,15 @@ var gridSize;
     var galleryContainer = this.galleryContainer = $('\
       <div class="gallery-container container">\
         <div class="gallery" style="left:' + offset + 'px; width:' + this.galleryW + 'px;">\
-        <div class="gallery-scroll" style="padding-top:'+ (this.gridSize / 2 + offset) + 'px;"></div>\
+        <div class="gallery-scroll" style="padding-top:'+ (this.gridSize * 0.75 + offset) + 'px;"></div>\
         </div>\
         <div class="nav" style="height:' + this.navH + 'px; padding:0 ' + (2 * offset) + 'px;">\
-          <div class="user-name" style=" width:' + (this.gridSize - 2 * offset) + 'px; height:'+(this.navH) + 'px">野兽</div>\
+        <div class="top-area">\
+          <div class="cancel icon-div icon-containter">\
+          <i class="iconfont iconfont-display transiton" style="display:inline-block">&#xe604;</i>\
+          <span class="iconfont-name-text">野狩</span>\
+          </div>\
+        </div>\
         </div>\
       </div>\
       ').appendTo(this.container);
@@ -87,24 +96,30 @@ var gridSize;
       title = d.title;
       id = d.id;
       index++;
-      url = 'http://hotu.co/hotu/others/test/' + index + '.jpg';
+      url = 'http://hotu.co/hotu/others/test/' + (index%10 + 1) + '.jpg';
       html += 
       '<div class="grid" style="width:' + gridSize + 'px; height:' + gridSize + 'px;">\
         <div class="image-container" style="left:' + offset + 'px;top:' + offset + 'px;width:' + (gridSize - 2 * offset) + 'px;height:' + (gridSize - 2 * offset) + 'px;">\
-          <img class="image" src="' + url + '" id="' + id + '"></img>\
+          <img class="image transition" src="' + url + '" id="' + id + '"></img>\
         \
         </div>\
       </div>';
     }
     //<div class="image-title">' + title + '</div>\
     this.galleryNode.html(html);
+    console.log(this.galleryNode.find('img'))
+    this.galleryNode.find('img').on('load', function(){
+      $(this).parent().keyAnim('bounceIn', {
+        'time': 1,
+        'delay':Math.random()*0.5
+      });
+    });
   };
 
   Gallery.prototype.events = function () {
     var container = this.container;
     var self = this;
     this.galleryContainer.delegate('img', 'touchstart mousedown', function (e) {
-      console.log(this);
     });
   };
 

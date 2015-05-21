@@ -1,6 +1,6 @@
 'use strict';
 //对UI的总体控制
-define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
+define(['zepto', 'anim', './../../utils/utils'], function ($, a, Utils) {
   var body = $('body');
   var isNone = Utils.isNone;
   var prevent = Utils.prevent;
@@ -58,7 +58,7 @@ define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
           }
         }
       });
-    body.on('update-ui-by-brush', this.updateByTarget.bind(this));
+    body.on('update-ui-by-target', this.updateByTarget.bind(this));
   };
 
   Slider.prototype.ui2Target = function (value01) {
@@ -67,7 +67,7 @@ define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
     });
     var control = this.control, range = control.range;
     control.value = (range[1] - range[0]) * value01 + range[0] * (1 - value01);
-    this.target.onStyleChange();
+    this.target.onStyleChange(this.key);
     body.trigger('preview' + '-' + this.targetName);
   };
 

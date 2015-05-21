@@ -1,34 +1,50 @@
 'use strict';
 
-define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer', 'ui/loading', './model/user', './app_config', './model/browser', './ui/uploadSubmit', './ui/displayer'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer, Loading, User, config, browser, UploadSubmit, Displayer) {
+define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer', 'ui/loading', './model/user', './app_config', './model/browser', './ui/uploadSubmit', './action/actions'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer, Loading, User, config, browser, UploadSubmit, Actions) {
   var clickEvent = 'touchstart mousedown';
 
   //绘图相关组件
-  var painter, bg, exports, gui, floatTag, brushTools, bgTools, brushes, layers, uploadSubmit;
+  var painter, bg, exports, gui, floatTag, brushTools, bgTools, brushes, actions, layers, uploadSubmit, modelDraw, renderer, brushObj;
 
   //组件相关的node
   var body = $('body'), drawToolsNode = $('#draw-tools'), endToolsNode = $('.end-tools'),
   importantToolsNode = $('.important-tools'), floatTagNode = $('.float-tag'), mainNode = $('.main-container'),
   uiContainer = $('.ui-container'), drawContainer = $('.draw-container'), bgContainer = $('.bg-container'),
-  layersContainer = $('.layers-container');
+  layersContainer = $('.layers-container'), firstContainer = $('.first-container');
 
   function Controller() {
-    this.init();
-    this.dispatch();
-    this.test();
+    this.preInit();
+    this.dispatch(this.init.bind(this));
+    // this.test();
   }
   
   Controller.prototype.test = function () {
-    // this.displayer = new Displayer(mainNode);
-    // uploadSubmit = new UploadSubmit(mainNode, {
-    //   config: config
-    // });
-    // uploadSubmit.in();
   };
+
+  Controller.prototype.preInit = function() {
+    config.browser = browser;
+
+    brushes = new Brushes(); //brush 列表
+    brushObj = brushes.brushObj;
+    actions = new Actions(); //操作列表
+
+    var frameOpt = {
+      frameW: drawContainer.width(),
+      frameH: drawContainer.height(),
+      config: config
+    };
+    modelDraw = this.modelDraw = new ModelDraw(frameOpt); //数据
+    if (config.isConfigFromStorage) {
+      modelDraw.getConfig();
+    }
+    renderer = this.renderer = new Renderer(brushObj, frameOpt); //动画播放等
+  };
+
 
   var isLoadLast = true;
   var url, weixin, user;
-  Controller.prototype.dispatch = function () { //登录等流程相关的组件 分出不同的流程
+  Controller.prototype.dispatch = function (next) { //登录等流程相关的组件 分出不同的流程
+    var self = this;
     url = new Url(config); //从url中抽取信息 并修改config
     weixin = new Weixin(url); //微信的分享机制
     user = new User({
@@ -36,31 +52,35 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       'url': url,
       'config': config
     });
+    
     user.login({
-      success: function (d) {
-        // new Loading(mainNode, {
-        //   'config': config
-        // });
+      success: function (openid) {
+        user.setUserInfo({
+          userid: openid,
+          register: 'weixin'
+        });
+        modelDraw.saveConfig();
+        self.isLogin = 1;
+        next();
       },
       fail: function () {
-        // new Loading(mainNode, {
+        // self.loading = new Loading(firstContainer, {
         //   'config': config
         // });
+        // self.isLogin = 0;
+        next();
       }
     });
   };
 
   Controller.prototype.init = function () {
-    this.animInUI();
-    brushes = new Brushes();
-    var brushObj = brushes.brushObj;
-    var frameOpt = {
-      frameW: drawContainer.width(),
-      frameH: drawContainer.height()
-    };
-    var modelDraw = this.modelDraw = new ModelDraw(frameOpt); //数据
-    var renderer = this.renderer = new Renderer(brushObj, frameOpt); //动画播放等
+    uploadSubmit = new UploadSubmit(firstContainer, {
+      'config': config,
+      'modelDraw': modelDraw,
+      'isLogin': this.isLogin
+    });
 
+    this.animInUI();
     floatTag = new FloatTag(uiContainer); //底部子菜单
     brushTools = new BrushTools({ //工具子菜单
       container: uiContainer,
@@ -69,26 +89,32 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       renderer: this.renderer
     });
 
-    config.browser = browser;
-    var quality = config.draw.quality = config.draw.quality(browser);
+    var painterOpt = config.painter;
+    var quality = painterOpt.quality = painterOpt.quality(browser);
+    var backN = painterOpt.backN;
     painter = this.painter = new Painter(drawContainer, {
       'brushes': brushes,
       'modelDraw': modelDraw,
       'renderer': renderer,
-      'quality': quality
+      'quality': quality,
+      'backN': backN
     });
 
     //背景层
-    bg = new Bg(bgContainer);
+    bg = this.bg = new Bg(bgContainer, {
+      'modelDraw': modelDraw,
+      'actions': actions
+    });
     bgTools = new BgTools({
       'container': uiContainer,
       'bind': drawToolsNode,
-      'brushes': brushObj,
+      'actions': actions,
       'bg': bg,
       'quality': quality
     });
 
     exports = new Exports(floatTagNode, bg, painter);
+
     gui = new Gui();
 
     this.events();
@@ -134,6 +160,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     setTimeout(function () {
       d = JSON.parse(d);
       self.painter.reload(d.drawing);
+      self.bg.reload(d.drawing);
     });
   };
 
@@ -153,7 +180,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       .on('painter-unwork', function () {
         gui.in();
       })
-      .on('bg-color-change', function (e, bgColor) {
+      .on('main-color-change', function (e, bgColor) {
         gui.setBackground(bgColor);
       });
   };
@@ -230,14 +257,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
         },
         'submit-message': function () {
           var bol = false;
-          // uploadSubmit.switch();
-          // painter.save({}, function (bol) {
-            // floatTag.in({
-            //   node: node,
-            //   type: 'bottom',
-            //   helpText: bol ? '敬请期待' : '敬请期待' //,
-            // });
-          // });
+          uploadSubmit.switch();
         }
       };
       if (cbs[id]) {

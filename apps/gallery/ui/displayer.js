@@ -1,6 +1,6 @@
 'use strict';
 //播放作品的面板
-define(['zepto', './../utils/utils', './components/display_slider', './../render/renderer', './../brush/brushes', './data/mock'], function ($, Utils, DisplaySlider, Renderer, Brushes, data) {
+define(['zepto', './../../../utils/utils', './display_slider', './../../../render/renderer', './../../../brush/brushes', './../../../ui/data/mock'], function ($, Utils, DisplaySlider, Renderer, Brushes, data) {
   var body = $('body');
   var upper = Utils.upper;
 
@@ -12,6 +12,7 @@ define(['zepto', './../utils/utils', './components/display_slider', './../render
 
     container = container || $('.container');
     this.container = container;
+
     container.css({display: 'block'});
     container.removeClass('out-left');
 
@@ -45,6 +46,7 @@ define(['zepto', './../utils/utils', './components/display_slider', './../render
         async: 1
       }
      }); //把出栈的线绘制到后面去
+    container.css({display: 'none'});
   }
 
   Displayer.prototype.init = function () {
@@ -52,25 +54,32 @@ define(['zepto', './../utils/utils', './components/display_slider', './../render
     $('\
       <div class="displayer-container container">\
         <div class="display-area"></div>\
+        \
+        <div class="top-area">\
+          <div class="cancel icon-div">\
+          <i class="iconfont iconfont-display transiton" style="display:inline-block">&#xe604;</i>\
+          <span class="iconfont-add">野狩</span>\
+          </div>\
+        </div>\
+          \
         <div class="info-area">\
           <div class="control"></div>\
           <div class="text-area">\
+          \
             <div class="title">荒原的心</div>\
             <div class="love icon-div">\
-            <i class="iconfont iconfont-display" style="display:inline-block">&#xe60a;</i>\
+            <i class="iconfont iconfont-display transiton" style="display:inline-block">&#xe602;</i>\
             <span class="iconfont-add">23</span>\
             </div>\
-            <div class="view icon-div">\
-            <i class="iconfont iconfont-display" style="display:inline-block">&#xe60e;</i>\
-            <span class="iconfont-add">野狩</span>\
-            </div>\
           </div>\
+          \
         </div>\
       </div>\
       ').appendTo(this.container);//<div class="desc">阿达荒原的心荒心</div>\
     var controlNode = this.controlNode = displayContainer.find('.control');
     this.displaySlider = new DisplaySlider(controlNode);
     this.loveNode = displayContainer.find('.love').find('.iconfont');
+    this.cancelNode = displayContainer.find('.cancel').find('.iconfont');
   };
 
   Displayer.prototype.appendCanvas = function (name, container, quality) { //添加一个canvas层
@@ -121,10 +130,22 @@ define(['zepto', './../utils/utils', './components/display_slider', './../render
       }
     });
   };
+
+  Displayer.prototype.hide = function () {
+    this.displayContainer.keyAnim('fadeOut',{
+      'time': 1,
+      'cb': function(){
+        $(this).css({
+          'display':'none'
+        });
+      }
+    });
+  };
   /////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////交互事件///////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   Displayer.prototype.events = function () {
+    var self = this;
     this.displaySlider.onBegin(this.start.bind(this));
     this.loveNode.on('click', function () {
       var node = $(this);
@@ -134,6 +155,9 @@ define(['zepto', './../utils/utils', './components/display_slider', './../render
         node.addClass('iconfont-selected');
       }
     });
+    this.cancelNode.on('click', function(){
+      self.hide();
+    })
   };
 
   return Displayer;

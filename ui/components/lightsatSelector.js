@@ -1,6 +1,6 @@
 'use strict';
 //对UI的总体控制
-define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
+define(['zepto', 'anim', './../../utils/utils'], function ($, a, Utils) {
   var body = $('body');
   var isNone = Utils.isNone;
   var prevent = Utils.prevent;
@@ -8,12 +8,12 @@ define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
   var rgbToHsl = Utils.rgbToHsl;
   var getPt = Utils.getPt;
 
-
   function LightSatSelector(container, obj) {
     this.container = container;
     this.control = obj.control;
     this.target = obj.target;
     this.targetName = obj.targetName;
+    this.key = obj.key;
 
     this.height = 50;
     this.nodeR = 20; //指示点的大小
@@ -104,7 +104,7 @@ define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
           light: 1 - x / self.container.width(),
           sat: 1 - y / self.height
         };
-        target.onStyleChange();
+        target.onStyleChange(self.key);
         body.trigger('preview' + '-' + self.targetName);
         self.updateLightSatPoint({
           'x': x,
@@ -114,7 +114,7 @@ define(['zepto', 'anim', './../utils/utils'], function ($, a, Utils) {
     });
 
     body
-    .on('update-ui-by-brush', this.updateByTarget.bind(this))
+    .on('update-ui-by-target' + this.targetName, this.updateByTarget.bind(this))
     .on('update' + '-' + 'hue' +  this.targetName, self.updateByTarget.bind(self));
   };
 

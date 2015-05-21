@@ -133,14 +133,15 @@ define(['zepto', 'anim'], function ($, l) { //'./../utils/qrcode' QRCode
   };
 
   Helper.prototype.events = function () {
+    var config = this.config;
     var buttonNode = this.buttonNode;
     var self = this;
-    buttonNode.on('touchstart mousedown', function () {
-      self.fullScreen(this);
+    buttonNode.on('click', function () {
+      // self.fullScreen(this);
       self.animateOut();
     });
-    this.container.find('.entry-image-container').on('touchstart mousedown', function () {
-      window.location.href = 'http://www.baidu.com';
+    this.container.find('.entry-image-container').on('click', function () {
+      window.location.href = config.helpLink;
     });
   };
 

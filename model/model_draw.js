@@ -14,9 +14,7 @@
 //color://对color的统计
 //length://对长度的统计
 
-define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], function ($, Utils, DrawDataInfo, config) {
-  var storage = config.storage;
-  var tmpStorageKey = storage.tmpKey;
+define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, DrawDataInfo) {
   var upper = Utils.upper;
   var computeDrawInfo = DrawDataInfo.computeDrawInfo; //计算一副绘画中的统计信息
 
@@ -39,9 +37,15 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
   };
 
   var body = $('body');
+  var storage, tmpStorageKey;
 
   function ModelDraw(obj) {
     obj = obj || {};
+    var config = this.config = obj.config;
+    this.config = config;
+    storage = config.storage;
+    tmpStorageKey = storage.tmpKey;
+
     this.frameH = obj.frameH || $(window).height();
     this.frameW = obj.frameW || $(window).width();
     this.recordPtBol = true;
@@ -91,11 +95,15 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
     if (curDrawData) {
       this.timePrev = curDrawData.timeEnd || 0; //过去数据结束的时间 为现在起始时间
       type = curDrawData.type;
+      if(!curDrawData.id) {
+        curDrawData.id = getId(curDrawData.type || 'frame');
+      }
       this['cur' + upper(type)] = curDrawData;
     } else { //需要自己新建一份数据
       type = opt.type;
       this.timePrev = 0;
       curDrawData = this.curDrawData = this.addFrame();
+      curDrawData.id = getId(curDrawData.type || 'frame');
       this.newRecord(type);
     }
     
@@ -186,11 +194,10 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
 
   ModelDraw.prototype.addPt = function (pt) { //点：储存相对于屏幕的比例
     var frameW = this.frameW;
-    var x = (pt[0] / frameW); //.toFixed(6);
-    var y = (pt[1] / frameW); //.toFixed(6);
-    var t = pt[2]; //.toFixed(3);
+    var x = (pt[0] / frameW).toFixed(6);
+    var y = (pt[1] / frameW).toFixed(6);
+    var t = pt[2].toFixed(3);
     pt = [x, y, t];
-    // pt = [pt[0] / frameW, pt[1] / frameW, pt[2]];
     this.curCurve.c.push(pt);
     this.curPt = pt;
   };
@@ -207,7 +214,20 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
       }
     }
   };
+  
+  ModelDraw.prototype.setBg = function (key, value) {
+    var curDrawData = this.curDrawData;
+    if(!curDrawData) return console.log('no curDrawData');
+    if(!curDrawData.bg) curDrawData.bg = {};
+    curDrawData.bg[key] = value;
+  };
 
+  ModelDraw.prototype.setInfo = function (key, value) {
+    var curDrawData = this.curDrawData;
+    if(!curDrawData) return console.log('no curDrawData');
+    curDrawData[key] = value;
+  };
+  
   ModelDraw.prototype.back = function () {
     // if(!this.curDrawData){
     //   if(this.deleteData){
@@ -256,15 +276,22 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
     window.clearTimeout(this.submitID);
   };
 
-  ModelDraw.prototype.save = function (obj, cb) { //取回数据库已经存的内容
+  ModelDraw.prototype.save = function (cb) { //取回数据库已经存的内容
     var curDrawData = this.curDrawData;
     curDrawData.timeEnd = this.getTimeRelative();
     curDrawData.frameH = this.frameH;
     curDrawData.frameW = this.frameW;
+    var userName = curDrawData.userName;
+    var drawName = curDrawData.drawName;
+    var drawid = curDrawData.id;
+    curDrawData.info = computeDrawInfo(curDrawData);
+    
     cb = cb || function () {};
     var saveData = {
       'userid': this.userid || 'first',
-      'drawid': this.drawid || 'draw',
+      'userName': userName,
+      'title': drawName,
+      'drawid': drawid,
       'data': JSON.stringify(this.curDrawData)
     };
 
@@ -274,7 +301,6 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
       'dataType': 'json',
       'data': saveData,
       'success': function (d) {
-        console.log(d, 'save-data');
         cb(1);
       },
       'error': function (e) {
@@ -282,6 +308,22 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
         cb(0);
       }
     });
+  };
+
+  ModelDraw.prototype.saveConfig = function(){// 把app_config存在localstorage里
+    if (typeof (Storage) == "undefined") return console.log('不能自动保存');
+    var config = this.config;
+    var savekey = config.login.saveKey;
+    window.localStorage.setItem(savekey, JSON.stringify(config));
+  };
+
+  ModelDraw.prototype.getConfig = function(){// 把app_config存在localstorage里
+    if (typeof (Storage) == "undefined") return console.log('不能自动保存');
+    var config = this.config;
+    var savekey = config.login.saveKey;
+    var cfg  = JSON.parse(window.localStorage.getItem(savekey));
+    if(!cfg) return false;
+    config.login = cfg.login;
   };
 
   ModelDraw.prototype.getLastStorage = function (obj) { //从localStorage寻找数据
@@ -340,7 +382,7 @@ define(['zepto', './../utils/utils', './drawDataInfo', './../app_config'], funct
 
   ModelDraw.prototype.getData = function () { //获取当前的数据
     var curDrawData = this.curDrawData;
-    console.log(JSON.stringify(curDrawData));
+    // console.log(JSON.stringify(curDrawData));
     curDrawData.info = computeDrawInfo(curDrawData);
     return curDrawData;
   };
