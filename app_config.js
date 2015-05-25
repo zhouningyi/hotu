@@ -16,6 +16,8 @@ define(function() {
       'expires': 7
     },
 
+    'upload': '/upload',
+
     'url': {
       'domain': 'hotu.co',
       'redirect_hotu_co': 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2b66f49eb82d70de&redirect_uri=http%3A%2F%2Fhotu.co%2Fhua%2F&response_type=code&scope=snsapi_base&state=123#wechat_redirect'
@@ -24,7 +26,7 @@ define(function() {
     'brush': {},
 
     'storage': { //在localstorage中临时存储画作的位置
-      'tmpKey': 'cur_drawing_data_hotu_v13'
+      'tmpKey': 'cur_drawing_data_hotu_v14'
     },
 
     'weixin': {

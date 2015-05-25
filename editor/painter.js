@@ -151,8 +151,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
   Painter.prototype.touchstart = function (e) {
     var curBrush = this.curBrush;
     var modelDraw = this.modelDraw;
-
-    prevent(e);
+    
     var pt = this.getPt(e);
     this.startPt = pt;
     this.mvPt = null;
@@ -168,6 +167,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     this.tmpCurves.push({
       curve: curCurve
     });
+    prevent(e);
   };
 
   //////////////////////////move的阶段//////////////////////////
@@ -180,9 +180,9 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     var ctx = (this.curBrush.redraw) ? this.ctxMainTmp : this.ctxMainFront;
     if (this.isAfterDown) {
       container.trigger('painter-moving');
-      modelDraw.addPt(pt);
-      brush.draw(ctx, pt);
       this.mvPt = pt;
+      pt = brush.draw(ctx, pt);
+      if(pt) modelDraw.addPt(pt);
     }
   };
 
@@ -239,6 +239,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     var left = this.left;
     var top = this.top;
     var t = this.getTimeRelative();
+    t = t.toFixed(4);
     if (e.type.indexOf('mouse') !== -1) {
       var x = e.x || e.pageX;
       var y = e.y || e.pageY;
@@ -314,7 +315,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
       this.modelDraw.back();
     } else {
       if(this.modelDraw.delData){
-        this.reload(this.modelDraw.delData);
+        // this.reload(this.modelDraw.delData); //容易出问题 不用
       }else{
         console.log('no-more-back');
       }
@@ -349,16 +350,17 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
   };
 
   Painter.prototype.reload = function (d) {
-    if (!d) {
-      return console.log('no reload data');
-    }
-   
+    console.log(d);
+    if (!d) return console.log('no reload data');
     var c = d.c;
-    var lastCurve = d.c[d.c.length - 1];
+    if(!c || !c.length) return;
+    var lastCurve = c[c.length - 1];
     if (lastCurve.c.length === 0) {
-      d.splice(d.c.length - 1, d.c.length);
-      lastCurve = d.c[d.c.length - 1];
+      c.splice(c.length - 1, c.length);
+      if(!c.length) return;
+      lastCurve = c[c.length - 1];
     }
+
     this.modelDraw.oldData(d); //存储上次的数据
     var self = this;
     var ctxMainFront = this.ctxMainFront;

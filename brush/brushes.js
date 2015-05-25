@@ -6,7 +6,7 @@ define(['./brush', './class/fatdot', './class/ink', './class/light', './class/ma
     var brushList = this.brushList = [mark, pen, light, ink, fatdot, eraser];//, 
     this.creates(brushList);
   }
-
+ 
   Brushes.prototype.create = function(bru, brushObj) {
     var initOpt = bru.initOpt || {};
     var id = initOpt.id;

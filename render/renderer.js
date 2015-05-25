@@ -38,7 +38,7 @@ define(['./animator', 'async', ''], function (Animator, async) {
   };
 
   Renderer.prototype._ptTransform = function (pt) { //绘制的面板可能和看到的不一致
-    pt = [pt[0] * this.pw + this.px, pt[1] * this.ph + this.py, pt[2]];
+    // pt = [pt[0] + this.px, pt[1] * this.ph + this.py, pt[2]];
     return pt;
   };
 
@@ -114,7 +114,6 @@ define(['./animator', 'async', ''], function (Animator, async) {
     var curve, curves = frame.c;
     for (var index in curves) {
       curve = curves[index];
-       // console.log(curve.style,'genDrawFrameFuncs');
       funcs.push(this.genDrawCurveFunc(curve, ctx, opt));
     }
     return funcs;
@@ -139,7 +138,7 @@ define(['./animator', 'async', ''], function (Animator, async) {
     var curveOpt = opt.curve;
     done = done || function () {};
     var funcs = this.genDrawCurveFuncs(curve, ctx);
-    if(opt.doneCurve) opt.doneCurve();//绘制一根线完成后的动作
+    if(opt.doneCurve) opt.doneCurve(); //绘制一根线完成后的动作
     dispatch(funcs, done, curveOpt);
   };
 

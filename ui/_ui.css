@@ -332,12 +332,12 @@ html, body {
   pointer-events:auto;
 }
 .float-tag-help{
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.6);
   position: relative;
   line-height: 40px;
   height: 40px;
   font-size: 12px;
-  color: #fff;
+  color: hsl(160,100%,40%);
   vertical-align: middle;
   text-align: center;
 }
@@ -354,6 +354,7 @@ html, body {
 .float-tag-img{
   width: 100%;
   height: auto;
+  vertical-align: bottom;
 }
 
 .float-tag-triangle{
@@ -361,7 +362,7 @@ html, body {
   width: 0;
   border-bottom: 8px;
   border-right: 8px solid transparent;
-  border-top: 8px solid rgba(0,0,0,0.4);
+  border-top: 8px solid rgba(0,0,0,0.6);
   border-left: 8px solid transparent;
   margin: 0 auto;
   height: 8px;

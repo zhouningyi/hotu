@@ -14,6 +14,7 @@ define(['./easing', './../utils/utils'], function (Easing, Utils) {
     this.setBrushStyles();
 
     this.maxDist = 80;
+    this.distLimit = 2;
     this.smoothList = [];
   }
 
@@ -21,8 +22,8 @@ define(['./easing', './../utils/utils'], function (Easing, Utils) {
   /////////////////////////////////////////////记录分析/////////////////////////////////////////////
   ////////////////////////////////////////////// /////// ////////////////////////////////////////////
   Brush.prototype.record = function (pt) { //判断是否记录点
+    this.isDraw = true;
     var maxDist = this.maxDist;
-    var drawBol = true;
     var ptPrev = this.pt;
     var timePrev = this.time;
 
@@ -36,10 +37,12 @@ define(['./easing', './../utils/utils'], function (Easing, Utils) {
       var distPhi = dist / maxDist;
       distPhi = (distPhi < 1) ? distPhi : 1;
       if (dist < this.distLimit) {
+        this.isDraw = false;
         return {
           'drawBol': false
         };
       } else {
+        this.isDraw = true;
         this.pt = ptThis;
         this.time = timeThis;
         var dTime = timeThis - timePrev;
@@ -48,7 +51,7 @@ define(['./easing', './../utils/utils'], function (Easing, Utils) {
         return {
           'speed': speed,
           'dist': dist,
-          'drawBol': drawBol,
+          'drawBol': true,
           'ptPrev': ptPrev,
           'distPhi': distPhi
         };
@@ -204,7 +207,7 @@ define(['./easing', './../utils/utils'], function (Easing, Utils) {
     ctx = ctx || this.ctx;
     ctx.save();
     var record = this.record(pt) || {};
-    if (record.drawBol) {
+    if (this.isDraw) {
       this.drawFunc({
         'pt': pt,
         'record': record,
@@ -212,8 +215,10 @@ define(['./easing', './../utils/utils'], function (Easing, Utils) {
         'maxSize': this.maxSize,
         'self': this
       });
+      ctx.restore();
+      return this.pt;
     }
-    ctx.restore();
+    return false;
   };
 
   //////////////////////结束过程//////////////////////
@@ -230,6 +235,7 @@ define(['./easing', './../utils/utils'], function (Easing, Utils) {
       var name = smoothNames[i];
       this['smoothList' + name] = [];
     }
+    this.isDraw = true;
   };
 
   Brush.prototype.checkBrushStyle = function () { //查看是否符合画笔标准

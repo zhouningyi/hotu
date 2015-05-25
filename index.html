@@ -9,6 +9,22 @@
   <meta name="full-screen" content="yes">
   <meta name="browsermode" content="application">
   <meta name="format-detection" content="telephone=no, email=no" />
+  <style type="text/css">
+  #test-container{
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  color: #fff;
+  min-width: 30px;
+  background-color: rgba(0,0,0,0.6);
+  display: inline-block;
+  padding: 0 15px;
+  pointer-events:none;
+}
+</style>
   <link href="http://open-wedding.qiniudn.com/hutulogo.png"
           sizes="144x144"
           rel="apple-touch-icon-precomposed">
@@ -80,6 +96,7 @@ var _hmt = _hmt || [];
   </div>
 
   <div class="container first-container" style="z-index:14"></div>
+  <div id="test-container" style="z-index:15;"></div>
   </div>
       <script data-main="./app.js" src="./bower_components/requirejs/require.min.js"></script>
     <!-- <script data-main="./dest/app.min.js" src="./bower_components/requirejs/require.min.js"></script> -->

@@ -241,7 +241,15 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       var id = node.attr('id');
       var cbs = {
         'restart': function () {
-          painter.restart();
+          floatTag.in({
+            node: node,
+            type: 'bottom',
+            helpText: '确认全部删除?',
+            click: function(){
+              painter.restart();
+              floatTag.out();
+            }
+          }, function () {});
           body.trigger('refresh-drawid');
         },
         'download': function () {

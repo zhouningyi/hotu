@@ -1,19 +1,5 @@
 'use strict';
 
-//数据格式
-// 对于画的数据，有很多层次，每层都是对象{}, 他们有相似的结构：
-// @type 这个层级的类型，5层结构： "scene" "frame" "group" "curve" "pt"
-// @t 开始时间(相对于frame开始的时间)
-// @c 下级元素的数组集合(除了点数据外都有)
-// @i 在元素中的时间序号
-// @id 可选
-
-//统计数据
-//ptN curveN groupN(换了几笔)
-//brushes:{ink:{ptN:xx,curveN...}};//对brush的统计
-//color://对color的统计
-//length://对长度的统计
-
 define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, DrawDataInfo) {
   var upper = Utils.upper;
   var computeDrawInfo = DrawDataInfo.computeDrawInfo; //计算一副绘画中的统计信息
@@ -54,8 +40,6 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
       window.localStorage.setItem('cur_drawing_data_hotu_v1', '{}');
       window.localStorage.setItem('cur_drawing_data_hotu', '{}');
       window.localStorage.setItem('cur_drawing_data_hotu_v11', '{}');
-      window.localStorage.setItem('cur_drawing_data_hotu_v12', '{}');
-      window.localStorage.setItem('cur_drawing_data_hotu_v13', '{}');
     }catch (e) {
     }
   }
@@ -196,6 +180,10 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
 
   ModelDraw.prototype.addPt = function (pt) { //点：储存相对于屏幕的比例
     var frameW = this.frameW;
+    var x = (pt[0] / frameW).toFixed(6);
+    var y = (pt[1] / frameW).toFixed(6);
+    var t = pt[2].toFixed(3);
+    pt = [x, y, t];
     this.curCurve.c.push(pt);
     this.curPt = pt;
   };
@@ -333,21 +321,15 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
   };
 
   ModelDraw.prototype.saveStorage = function () { //从localStorage寻找数据
-    if (typeof (Storage) == 'undefined') return console.log('不能自动保存');
+    if (typeof (Storage) == "undefined") return console.log('不能自动保存');
     var curDrawData = this.curDrawData;
     if (!curDrawData) return console.log('no curDrawData');
-    var localStorageLength = JSON.stringify(localStorage).length / 1000000;
-    localStorageLength = localStorageLength.toFixed(3);
-    $('#test-container').text(localStorageLength + 'M');
     var data = {'drawing': curDrawData};
-    if (data.drawing.c && data.drawing.c.length > 0){
-      var saveData = JSON.stringify(data);
-      window.localStorage.setItem(tmpStorageKey, saveData);
-    } 
+    if (data.drawing.c && data.drawing.c.length > 0) window.localStorage.setItem(tmpStorageKey, JSON.stringify(data));
   };
 
   ModelDraw.prototype.clear = function () {
-    // if(this.curDrawData) this.delData = JSON.parse(JSON.stringify(this.curDrawData));////为了防止误删除而设计 容易出问题 不用
+    if(this.curDrawData) this.delData = JSON.parse(JSON.stringify(this.curDrawData));////?????
     var list = ['data', 'scene', 'frame', 'curve'];
     for (var k in list) {
       var name = list[k];

@@ -13,6 +13,7 @@ define(['./../../utils/utils'], function (Utils) {
       'globalCompositeOperation': 'source-over',
       'lineJoin': 'miter',
       'lineCap': 'butt',
+      'distLimit': 5,
       'smooth': {
         'x': {
           'f': 'Sinusoidal.In',

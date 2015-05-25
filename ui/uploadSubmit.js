@@ -1,8 +1,9 @@
 'use strict';
 
-define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
+define(['zepto', './../utils/utils', './../model/upload' ,'anim'], function ($, Utils, Upload) {
   var prevent = Utils.prevent;
   var animateSeries = Utils.animateSeries;
+  
   function UploadSubmit(container, opt) {
     this.opt = opt || {};
     var config = this.config = opt.config;
@@ -20,7 +21,7 @@ define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
     this.container = container;
     this.init();
     this.autoFillInputs();
-    this.done();
+    // this.done();
     
     this.status = 'disable';
     this.events();

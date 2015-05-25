@@ -89,8 +89,8 @@ define(['zepto', 'anim', './../../utils/utils'], function ($, a, Utils) {
       self.isDown = true;
     })
     .on('touchend mouseup touchleave mouseout', function (e) {
-      prevent(e);
       self.isDown = false;
+      prevent(e);
     })
     .on('touchstart mousedown touchmove mousemove', function (e) {
       prevent(e);

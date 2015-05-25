@@ -131,13 +131,27 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
     });
   };
 
+  Displayer.prototype.show = function () {
+    this.container
+    .css({
+          'display':'block'
+        })
+    .keyAnim('fadeInLeft',{
+      'time': 1,
+      'cb': function(){
+        $(this).clearKeyAnim();
+      }
+    });
+  };
+
   Displayer.prototype.hide = function () {
-    this.displayContainer.keyAnim('fadeOut',{
+    console.log(this)
+    this.container.keyAnim('fadeOut',{
       'time': 1,
       'cb': function(){
         $(this).css({
           'display':'none'
-        });
+        }).clearKeyAnim();
       }
     });
   };
@@ -145,6 +159,7 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
   ///////////////////////////////////////////////交互事件///////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   Displayer.prototype.events = function () {
+    console.log(this.cancelNode)
     var self = this;
     this.displaySlider.onBegin(this.start.bind(this));
     this.loveNode.on('click', function () {
@@ -155,7 +170,7 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
         node.addClass('iconfont-selected');
       }
     });
-    this.cancelNode.on('click', function(){
+    this.cancelNode.on('touchstart mousedown', function(){
       self.hide();
     })
   };

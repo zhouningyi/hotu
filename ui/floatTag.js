@@ -50,7 +50,7 @@ define(['zepto', 'anim'], function ($) {
         'bottom': h + offset,
         'width': width,
         'height': 'auto',
-        'top': 'auto'
+        'top': 'auto',
       };
     },
     left: function (w, l, h, t) {
@@ -61,7 +61,7 @@ define(['zepto', 'anim'], function ($) {
         'top': t - offset - 3,
         'bottom': 'auto',
         'width': width,
-        'height': 'auto'
+        'height': 'auto',
       };
     }
   };
@@ -84,13 +84,19 @@ define(['zepto', 'anim'], function ($) {
       var floatTagAddNode = this.floatTagAddNode;
       floatTagAddNode.empty();
       cb = cb || function () {};
-      floatTagNode.css(css).keyAnim('fadeIn', {
+      floatTagNode
+      .off('click')
+      .css(css).keyAnim('fadeIn', {
         time: 0.5,
         cb: function () {
           self.isOut = false;
           cb();
         }
       });
+
+      if(obj.click){
+        floatTagNode.on('click', obj.click);
+      }
       //背景色
       if (obj.bgImg) {
         obj.bgImg.addClass('float-tag-img').appendTo(floatTagAddNode);
