@@ -1,5 +1,6 @@
 'use strict';
-define(['./animator', 'async', ''], function (Animator, async) {
+define(['./animator', 'async', './../utils/utils'], function (Animator, async, Utils) {
+  var obj2hsla = Utils.obj2hsla;
 
   function Renderer(brushes, opt) {
     if (brushes) {
@@ -18,27 +19,37 @@ define(['./animator', 'async', ''], function (Animator, async) {
   function empty() {}
 
   Renderer.prototype.ptTransform = function (opt, data) {
-    var ptTransformStr = opt.ptTransform || 'normal'; //
-    var bbox = {};
-    if (ptTransformStr === 'center_x') {
-      if (data.info) {
-        bbox = data.info.bbox;
-        var xMin = bbox.xMin;
-        var yMin = bbox.yMin;
-        var xMax = bbox.xMax;
-        var yMax = bbox.yMax;
-        var dx = xMax - xMin;
-        var dy = yMax - yMin;
-        this.py = (0.5 - dy / 2) * this.frameH;
-      }
-      return;
-    } else if (ptTransformStr === 'normal') {
-      this.ph = this.frameW;
-    }
+    // if(!opt.ptTransform) return;
+    // var ptTransformStr = opt.ptTransform; //center_x
+    // var bbox = {};
+    // var frameH = this.frameH;
+    // var frameW = this.frameW;
+    // var dataFrameH = this.dataFrameH;
+    // var dataFrameW = this.dataFrameW;
+
+    // if (frameW == 0 || dataFrameW == 0) return;
+    // if(Math.abs(dataFrameH/dataFrameW - frameH/frameW)<0.4) return;
+
+    // if(dataFrameH/dataFrameW > frameH/frameW){
+    //   var width = frameH * dataFrameW / dataFrameH;
+    //   var left = (frameW - width) / 2;
+    //   var kx = width / dataFrameW;
+    //   var ky = frameH / dataFrameH;
+    //   this._ptTransform = function(pt){
+    //     return [left + pt[0] * kx + this.px, pt[1] *  ky, pt[2]];
+    //   };
+    // }else{
+    //   var height = frameW * dataFrameH / dataFrameW;
+    //   var top = (frameH - height) / 2;
+    //   var ky = height / dataFrameH;
+    //   var kx = frameW / dataFrameW;
+    //   this._ptTransform = function(pt){
+    //     return [pt[0] *  kx, top + pt[1] *  ky, pt[2]];
+    //   };
+    // }
   };
 
   Renderer.prototype._ptTransform = function (pt) { //绘制的面板可能和看到的不一致
-    // pt = [pt[0] + this.px, pt[1] * this.ph + this.py, pt[2]];
     return pt;
   };
 
@@ -51,6 +62,18 @@ define(['./animator', 'async', ''], function (Animator, async) {
         async: 1
       }
     };
+
+    if(opt.isClear){
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
+
+    if(opt.isBg&&data.bg&&data.bg.color){
+      var color = data.bg.color;
+      var width = data.frameW || ctx.canvas.width;
+      var height = data.frameH || ctx.canvas.height;
+      ctx.fillStyle = (data.bg&&data.bg.color && data.bg.color)?obj2hsla(data.bg.color):'#fff';
+      ctx.fillRect(0, 0, width, height);
+    }
 
     this.dataFrameH = data.frameH;
     this.dataFrameW = data.frameW;
@@ -66,7 +89,6 @@ define(['./animator', 'async', ''], function (Animator, async) {
       return;
     }
   };
-
 
   function dispatch(funcs, done, opt) { //对于一组执行队列 区别是异步还是同步的方式
     var asyncBol = true;
@@ -168,6 +190,7 @@ define(['./animator', 'async', ''], function (Animator, async) {
   function drawPt(pt, brush, ctx, index, ptN, _ptTransform, style) { //绘制一个点的过程
     if (!brush) return;
     pt = _ptTransform(pt);
+    console.log(pt);
     if (index === '0' || index === 0) {
       brush.setCurveStyles(style);
       brush.begin(ctx, pt);

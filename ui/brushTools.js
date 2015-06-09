@@ -148,6 +148,7 @@ var brushToolsNode, colorNode, shapeNode, toolsListNode, previewNode, curBrushNo
           self.uiStatus = 'out';
         }
       });
+      body.trigger('left-tools-out');
     }
   };
 
@@ -204,6 +205,7 @@ var brushToolsNode, colorNode, shapeNode, toolsListNode, previewNode, curBrushNo
 
       //提示
       // if(obj.helpText) this.floatTagHelp(obj.helpText);
+      body.trigger('left-tools-in');
     }
   };
 

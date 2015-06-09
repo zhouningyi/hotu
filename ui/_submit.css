@@ -96,7 +96,6 @@ input:-moz-placeholder {
 }
 
 
-
 .submit-tag-group{
   text-align: left;
 }
@@ -164,6 +163,11 @@ input:-moz-placeholder {
  width: 40%;
  opacity: 1;
 }
+.submit-submit-loading{
+  pointer-events:none;
+  color: rgba(250,250,250,0.6);
+  background: hsl(160,10%,40%);
+}
 .submit-line-group.selected{
   opacity: 0.1;
   -moz-opacity: 0.1;
@@ -202,8 +206,10 @@ input:-moz-placeholder {
 }
 .to-gallary{
   background:  hsl(160,100%,30%);
+  pointer-events:auto;
 }
 .to-drawing{
   background: #222;
+  pointer-events:auto;
 }
 

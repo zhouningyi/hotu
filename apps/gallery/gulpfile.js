@@ -30,7 +30,7 @@ gulp.task('requirejsBuild', function() {
           }
         },
       })
-      .pipe(uglify())
+      // .pipe(uglify())
       .on('error', handleError)
       .pipe(gulp.dest('./dest')); // pipe it to the output DIR
   } catch (e) {
@@ -70,7 +70,7 @@ gulp.task('uploadCss', function() {
       'host': '121.40.68.211',
       'user': 'kupai',
       'pass': '9c383c42',
-      'remotePath': '/home/kupai/minjin/static/gallery/dest/'
+      'remotePath': '/home/kupai/minjin/static/gallery_test/dest/'
     }));
 });
 
@@ -80,7 +80,7 @@ gulp.task('uploadJs', function() {
       'host': '121.40.68.211',
       'user': 'kupai',
       'pass': '9c383c42',
-      'remotePath': '/home/kupai/minjin/static/gallery/dest/'
+      'remotePath': '/home/kupai/minjin/static/gallery_test/dest/'
     }));
 });
 
@@ -90,10 +90,10 @@ gulp.task('uploadHTML', function() {
       'host': '121.40.68.211',
       'user': 'kupai',
       'pass': '9c383c42',
-      'remotePath': '/home/kupai/minjin/static/gallery/'
+      'remotePath': '/home/kupai/minjin/static/gallery_test/'
     }));
 });
-// // 默认任务
+// 默认任务
 gulp.task('default', function() {
   // gulp.run('scripts');
   gulp.run('requirejsBuild');
@@ -122,7 +122,8 @@ gulp.task('default', function() {
   });
 
   gulp.watch('./index.html', function(file) {
-    gulp.run('uploadHTML');
+    // gulp.run('uploadHTML');
   });
+  
   gulp.run('webserver');
 });

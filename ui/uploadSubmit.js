@@ -1,15 +1,16 @@
 'use strict';
 
-define(['zepto', './../utils/utils', './../model/upload' ,'anim'], function ($, Utils, Upload) {
+define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
   var prevent = Utils.prevent;
   var animateSeries = Utils.animateSeries;
-  
+
   function UploadSubmit(container, opt) {
     this.opt = opt || {};
     var config = this.config = opt.config;
     config.drawData = this.drawData = config.drawData || {};
     this.modelDraw = opt.modelDraw;
     this.isLogin = opt.isLogin;
+    // this.isLogin = true;
     
     this.tagData = [{
       'text': '默认相册',
@@ -133,6 +134,8 @@ define(['zepto', './../utils/utils', './../model/upload' ,'anim'], function ($, 
   };
 
   UploadSubmit.prototype.in = function () {
+    var self = this;
+    setTimeout(this.modelDraw.saveImage.bind(this.modelDraw), 1000);
     var config = this.config;
     var userid = config.login.userid;
     if (this.status !== 'in') {
@@ -238,7 +241,6 @@ define(['zepto', './../utils/utils', './../model/upload' ,'anim'], function ($, 
 
     $('.submit-button')
     .on('touchstart mousedown', function(){
-      console.log('starrrrr')
       $(this).addClass('selected');
     })
     .on('touchend mouseleave', function(){
@@ -253,11 +255,12 @@ define(['zepto', './../utils/utils', './../model/upload' ,'anim'], function ($, 
     buttonSubmitNode.on('click', function (e) {
       var status = self.checkInputs();
       if(status === 'ok'){
+        buttonSubmitNode.addClass('submit-submit-loading').text('上传中..');
         self.modelDraw.save(function(bol){
           if(bol){
             self.done();
           }else{
-            $(this).text('请重新上传');
+            buttonSubmitNode.removeClass('submit-submit-loading').text('重传');
           }
         });
       }
@@ -292,11 +295,11 @@ define(['zepto', './../utils/utils', './../model/upload' ,'anim'], function ($, 
     buttonGroup.empty();
     var toAblumNode = $('<div class="submit-line-group to-gallary big-button">上传成功，去相册看看</div>').appendTo(titleGroup);
     var toDrawingNode = $('<div class="submit-line-group to-drawing big-button">不去，继续画画</div>').appendTo(titleGroup);
-    toAblumNode.on('click', function (e) {
+    toAblumNode.on('touchstart mousedown', function (e) {
       window.location.href = self.config.galleryURL;
       prevent(e);
     });
-    toDrawingNode.on('click', function (e) {
+    toDrawingNode.on('touchstart mousedown', function (e) {
       self.out();
       prevent(e);
     });

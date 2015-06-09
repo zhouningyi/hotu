@@ -52,34 +52,29 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       'url': url,
       'config': config
     });
-    
+
     user.login({
       success: function (openid) {
         user.setUserInfo({
           userid: openid,
           register: 'weixin'
         });
+        config.login.userid = openid;
         modelDraw.saveConfig();
         self.isLogin = 1;
         next();
       },
       fail: function () {
-        // self.loading = new Loading(firstContainer, {
-        //   'config': config
-        // });
-        // self.isLogin = 0;
+        self.loading = new Loading(firstContainer, {
+          'config': config
+        });
+        self.isLogin = 0;
         next();
       }
     });
   };
 
   Controller.prototype.init = function () {
-    uploadSubmit = new UploadSubmit(firstContainer, {
-      'config': config,
-      'modelDraw': modelDraw,
-      'isLogin': this.isLogin
-    });
-
     this.animInUI();
     floatTag = new FloatTag(uiContainer); //底部子菜单
     brushTools = new BrushTools({ //工具子菜单
@@ -114,6 +109,13 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     });
 
     exports = new Exports(floatTagNode, bg, painter);
+    modelDraw.exports = exports;
+
+    uploadSubmit = new UploadSubmit(firstContainer, {
+      'config': config,
+      'modelDraw': modelDraw,
+      'isLogin': this.isLogin,
+    });
 
     gui = new Gui();
 
@@ -121,7 +123,6 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     painter.beginRecord(); //开始记录
     this.loadLast();
   };
-
 
   Controller.prototype.loadLast = function () { //是否要载入banner提示
     var modelDraw = this.modelDraw;
@@ -291,10 +292,17 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     });
 
     //挂在body上的一些事件
-    body.on('blur', function () {
+    body
+    .on('left-tools-in', function(){
+      importantToolsNode.find('i').css('opacity', 0.2);
+    })
+    .on('left-tools-out', function(){
+      importantToolsNode.find('i').css('opacity', 1);
+    })
+    .on('blur', function () {
       painter.blur();
-    });
-    body.on('unblur', function () {
+    })
+    .on('unblur', function () {
       gui.in();
       painter.unblur();
     });

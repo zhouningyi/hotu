@@ -15,19 +15,29 @@ define(['zepto', './../utils/jpeg_encoder_basic'],function($, JPEGEncoder){
     var canvasH = this.canvasH = painter.containerH * quality;
     var canvas = this.canvas = $('<canvas width="' + canvasW + '" height="' + canvasH + '"></canvas>');
     this.ctx = canvas[0].getContext('2d');
+
+    var canvasSmall = this.canvasSmall = $('<canvas width="300" height="300"></canvas>');
+    this.ctxSmall = canvasSmall[0].getContext('2d');
   };
 
-  Exports.prototype.toImage = function(){
+  Exports.prototype.toImage = function(type){
     var imgBg = this.bg.toImage();
     var imgPainterLayers = this.painter.toImage();
-    var ctx = this.ctx;
-    var canvas = this.canvas[0];
-    ctx.drawImage(imgBg, 0, 0, this.canvasW, this.canvasH);
+    var ctx, canvas;
+    if(type==='small'){
+      ctx = this.ctxSmall;
+      canvas = this.canvasSmall[0];
+    }else{
+      ctx = this.ctx;
+      canvas = this.canvas[0];
+    }
+
+    ctx.drawImage(imgBg, 0, 0, canvas.width, canvas.height);
     for(var i in imgPainterLayers){
       var imgPainterLayer = imgPainterLayers[i];
-      ctx.drawImage(imgPainterLayer, 0, 0, this.canvasW, this.canvasH);
+      ctx.drawImage(imgPainterLayer, 0, 0, canvas.width, canvas.height);
     }
-    
+
     var dataURL;
     var encoder = new JPEGEncoder();
     if(!canvas.toDataURL){
@@ -52,7 +62,8 @@ define(['zepto', './../utils/jpeg_encoder_basic'],function($, JPEGEncoder){
 
     return {
       'img': img,
-      'downLoadURL': dataURLDownload
+      'downLoadURL': dataURLDownload,
+      'dataURL': dataURL
     };
   };
 

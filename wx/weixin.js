@@ -9,7 +9,7 @@
       this.sign();
       this.genShare();
       this.events();
-      this.getFollowers();
+      // this.getFollowers();
     }
 
     Weixin.prototype.sign = function () {
@@ -48,7 +48,10 @@
           'code': url.getCode()
         },
         success: function (d) {
-          if (d && d.openid) {return obj.success(d.openid);}
+          if (d && d.openid) {
+            $('body').trigger('openid', d.openid);
+            return obj.success(d.openid);
+          }
           return obj.fail(d);
         },
         error: function (e) {

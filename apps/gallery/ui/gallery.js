@@ -5,7 +5,9 @@ define(['zepto', 'anim', './../../../utils/utils'], function ($, a, Utils) {
   var isNone = Utils.isNone;
   var prevent = Utils.prevent;
 
-  function Gallery(container) {
+  function Gallery(container, opt) {
+    opt = opt || {};
+    this.modelDraw = opt.modelDraw;
     this.container = container;
     container.css({display: 'block'});
     container.removeClass('out-left');
@@ -17,30 +19,31 @@ define(['zepto', 'anim', './../../../utils/utils'], function ($, a, Utils) {
 
     this.init();
     this.events();
-
-    this.getData();
   }
 
-  Gallery.prototype.getData = function () {
-    this.ds = [
-    {'title': '是大'},
-    {'title': '是对的大'},
-    {'title': '是是大'},
-    {'title': '是啊大'},
-    {'title': '是是大'},
-    {'title': '是大'},
-    {'title': '是大'},
-    {'title': '是萨达大'},
-    {'title': '是事实上大'},
-    {'title': '是啊啊大'},
-    {'title': '是大'},
-    {'title': '是大'},
-    {'title': '是萨达大'},
-    {'title': '是事实上大'},
-    {'title': '是啊啊大'},
-    ];
+  Gallery.prototype.data = function (datas) {
+     this.ds = datas;
+    for (var k in datas) {
+      this.getDrawData(datas[k]);
+    }
     this.render();
   };
+
+Gallery.prototype.getDrawData = function (d) {
+  var ds = this.ds;
+  var container = this.container;
+  this.modelDraw.getDrawingDataJSONP({
+    drawid: d.drawid,
+    dataUrl: d.dataUrl
+  }, function(drawData){
+    d.drawData = JSON.parse(drawData);
+    var drawid = d.drawid;
+    container.find('#' + drawid).removeClass('gray');
+    if(d.drawData && d.drawData.userName&&d.imgUrl){
+      $('body').trigger('update-share-username', {userName:d.drawData.userName, imgUrl:d.imgUrl + '?imageView2/2/w/100'});
+    }
+  });
+};
 
 var gridSize;
   Gallery.prototype.computeSize = function () {
@@ -68,20 +71,29 @@ var gridSize;
     var galleryContainer = this.galleryContainer = $('\
       <div class="gallery-container container">\
         <div class="gallery" style="left:' + offset + 'px; width:' + this.galleryW + 'px;">\
-        <div class="gallery-scroll" style="padding-top:'+ (this.gridSize * 0.75 + offset) + 'px;"></div>\
+        <div class="gallery-scroll" style="padding-top:'+ (this.navH + offset) + 'px;"></div>\
         </div>\
         <div class="nav" style="height:' + this.navH + 'px; padding:0 ' + (2 * offset) + 'px;">\
         <div class="top-area">\
-          <div class="cancel icon-div icon-containter">\
+        \
+          <div class="icon-div icon-containter user">\
           <i class="iconfont iconfont-display transiton" style="display:inline-block">&#xe604;</i>\
-          <span class="iconfont-name-text">野狩</span>\
+          <span class="iconfont-name-text">画册</span>\
           </div>\
-        </div>\
+          \
+          <div class="icon-div my-icon-containter todraw" href="http://hotu.co/hua">\
+          <i class="iconfont iconfont-display transiton" style="display:inline-block;color:hsl(160,100%,35%);">&#xe606;</i>\
+          <span class="iconfont-name-text" style="color:hsl(160,100%,35%);">开始创作</span>\
+          </div>\
+          </div>\
         </div>\
       </div>\
       ').appendTo(this.container);
     this.galleryNode = galleryContainer.find('.gallery-scroll');
-    this.navNode = galleryContainer.find('nav');
+    this.navNode = galleryContainer.find('.nav');
+    this.galleryNode.css({
+      paddingTop: this.navNode.height() + offset/2
+    });
   };
 
   Gallery.prototype.render = function () {
@@ -90,37 +102,52 @@ var gridSize;
     var html = '';
     var offset = this.offset;
     var index = 0;
-    var d, url, bgColor, title, id;
+    var d, imgUrl, bgColor, title, drawid, dataUrl, img;
     for (var k in ds) {
       d = ds[k];
       title = d.title;
-      id = d.id;
+      drawid = d.drawid;
+      dataUrl = d.dataUrl;
       index++;
-      url = 'http://hotu.co/hotu/others/test/' + (index%10 + 1) + '.jpg';
+      imgUrl = d.imgUrl + '?imageView2/2/w/200';
       html += 
       '<div class="grid" style="width:' + gridSize + 'px; height:' + gridSize + 'px;">\
         <div class="image-container" style="left:' + offset + 'px;top:' + offset + 'px;width:' + (gridSize - 2 * offset) + 'px;height:' + (gridSize - 2 * offset) + 'px;">\
-          <img class="image transition" src="' + url + '" id="' + id + '"></img>\
+          <img class="image transition gray" src="' + imgUrl + '" id="' + drawid + '" dataUrl="'+dataUrl+'"></img>\
         \
         </div>\
       </div>';
     }
-    //<div class="image-title">' + title + '</div>\
+
     this.galleryNode.html(html);
-    console.log(this.galleryNode.find('img'))
-    this.galleryNode.find('img').on('load', function(){
+    img = this.galleryNode.find('img');
+    img.attr('dataUrl', dataUrl);
+    img.on('load', function(){
       $(this).parent().keyAnim('bounceIn', {
         'time': 1,
-        'delay':Math.random()*0.5
+        'delay': Math.random()*0.5
       });
+    });
+  };
+
+  Gallery.prototype.addMyGalleryNode = function(){
+    var toMyGalleryNode = $('<div class="icon-div my-icon-containter toMyGallery" href="http://hotu.co/hua">\
+      <i class="iconfont iconfont-display transiton" style="display:inline-block;color:hsl(160,100%,35%);">&#xe600;</i>\
+      <span class="iconfont-name-text" style="color:hsl(160,100%,35%);">我的相册</span>\
+      </div>');
+    toMyGalleryNode.insertbefore(this.galleryContainer.find('.todraw'));
+    toMyGalleryNode.on('touchstart mousedown', function(){
     });
   };
 
   Gallery.prototype.events = function () {
     var container = this.container;
     var self = this;
-    this.galleryContainer.delegate('img', 'touchstart mousedown', function (e) {
+    this.galleryContainer.find('.todraw').on('touchstart mousedown', function(){
+      window.location.href = 'http://hotu.co';
     });
+    // this.galleryContainer.delegate('img', 'touchstart mousedown', function (e) {
+    // });
   };
 
   return Gallery;

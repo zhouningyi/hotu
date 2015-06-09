@@ -9,7 +9,6 @@
       this.sign();
       this.genShare();
       this.events();
-      this.getFollowers();
     }
 
     Weixin.prototype.sign = function () {
@@ -23,18 +22,6 @@
           wx.config(config);
           self.genShare();
         });
-    };
-
-    Weixin.prototype.getFollowers = function() {
-      $.ajax({
-        url: 'http://hotu.co/hotu-api/api/weixin/getfollowers',
-        dataType: 'json',
-        type: 'get',
-        success: function (d) {
-        },
-        error: function (e) {
-        }
-      });
     };
 
     Weixin.prototype.getOpenid = function(obj) {
@@ -60,25 +47,29 @@
     Weixin.prototype.events = function() {
       var self = this;
       $('body')
+      .on('update-share-username', function(e, obj){
+        self.genShare(obj);
+      })
         .on('drawid', function(e, drawid) {
           self.drawid = drawid;
           self.genShare();
         });
     };
 
-    Weixin.prototype.genShare = function() {
+    Weixin.prototype.genShare = function(opt) {
+      opt = opt || {};
       var self = this;
       var url = this.url;
       wx.ready(function() {
-        var title = '糊涂.画册';
-        var picUrl = 'http://open-wedding.qiniudn.com/tu.shu.png';
+        var title = (opt.userName)? opt.userName + '的画册': '糊涂.画册';
+        var picUrl = opt.imgUrl || 'http://open-wedding.qiniudn.com/tu.shu.png';
         var desc = '云上画册|记录创造的瞬间';
         var state = url.genState({
           fromid: self.userid || 'open_id_err',
           drawid: self.drawid || 'draw_id_err'
         });
-
-        var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://hotu.co/gallery?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
+        var shareUrl = 'http://hotu.co/gallery?drawUserId=' + (window.drawUserId || window.openid);
+        // var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://hotu.co/gallery?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
         var shareObj = {
           title: title,
           link: shareUrl,

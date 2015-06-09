@@ -2,8 +2,8 @@
 
 define(function() {
   return {
-    'galleryURL': 'http:hotu.co/gallery/',
-    'helpLink': 'http://www.baidu.com',
+    'galleryURL': 'http://hotu.co/gallery/',
+    'helpLink': 'http://mp.weixin.qq.com/s?__biz=MzA4OTQwNTM3Mw==&mid=205008644&idx=1&sn=db2f8d92a196fadb23ca466517d8057e#rd',
     'isConfigFromStorage': 1,
     'login': {//isFollower
       'key': 'login_info_hotu_painter',

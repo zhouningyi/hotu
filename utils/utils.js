@@ -94,6 +94,15 @@ define(['zepto', 'anim'], function ($) {
     };
   }
 
+  function setRgbaAlpha(rgba, alpha){
+    if(!rgba) return 'rgba(255,255,255,1)';
+    alpha = alpha || 0;
+    var rgbas = rgba.split(',');
+    rgbas[3] = alpha + ')';
+    rgba = rgbas.join(',')
+    return rgba;
+  }
+
   function hsla2obj(hsla) {
     var strs = hsla.split(')')[0].split(',');
     return {
@@ -102,6 +111,14 @@ define(['zepto', 'anim'], function ($) {
       'light': parseInt(strs[2].split('%')[0]),
       'opacity': parseFloat(strs[3])
     };
+  }
+
+  function obj2hsla(obj){
+    if(!obj || !typeof(obj) === 'object') return 'hsla(255,255,255,1)';
+    var hue = parseInt(obj.hue*360);
+    var sat = parseInt(obj.lightSat.sat*100);
+    var light = parseInt(obj.lightSat.light*100);
+    return 'hsla(' + hue + ',' + sat + '%,' +  light + '%,1)';
   }
 
   function getPt(e) { //获取点相对于容器的位置
@@ -152,6 +169,8 @@ define(['zepto', 'anim'], function ($) {
     'animateSeries': animateSeries,
     'rgbToHsl': rgbToHsl,
     'hsla2obj': hsla2obj,
+    'obj2hsla': obj2hsla,
+    'setRgbaAlpha': setRgbaAlpha,
     'upper': upper,
     'keys': keys,
     'prevent': prevent,

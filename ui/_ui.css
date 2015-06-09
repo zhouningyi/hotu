@@ -236,6 +236,7 @@ html, body {
   vertical-align: bottom;
   font-size: 30px;
   pointer-events:auto;
+  cursor: pointer;
 }
 
 .red-bg {

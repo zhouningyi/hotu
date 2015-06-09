@@ -2,17 +2,36 @@
 .displayer-container{
   z-index: 6;
   background: #222;
-  pointer-events: auto;
+  pointer-events: none;
+}
+
+.displayer-transition-normal{
+  transition: width 0.5s cubic-bezier(0.165, 0.84, 0.44, 1), height 0.7s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+  -webkit-transition: width 0.5s cubic-bezier(0.165, 0.84, 0.44, 1), height 0.7s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1), background-color 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  pointer-events:auto;
+}
+
+.displayer-transition-fast{
+  transition: none;
+  -webkit-transition: none;
+  pointer-events:none;
 }
 
 .displayer-container .info-area{
+  padding-top: 20px;
   z-index: 3;
   position: absolute;
   max-height: 150px;
   width: 100%;
-  height: 25%;
+  height: 15%;
   bottom: 0;
   text-align: left;
+  pointer-events:auto;
+  background-color: rgba(0,0,0,0.1);
+}
+
+.displayer-container .info-area:hover{
+  background-color: rgba(0,0,0,0.5);
 }
 
 .displayer-container .display-area{
@@ -20,6 +39,8 @@
   background-size: 100% 100%;
   width: 100%;
   height: 100%;
+  z-index: 0;
+  pointer-events:none;
 }
 
 .info-area .text-area{
@@ -99,10 +120,12 @@
 
 .control .broadcast{}
 .iconfont-display{
+  cursor: pointer;
   font-family: iconfont!important;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -webkit-text-stroke-width: .2px;
+  pointer-events:auto;
 }
 
 .iconfont-broadcast{

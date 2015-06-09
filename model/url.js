@@ -13,9 +13,8 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
       var weixinUrl = weixin.url;
       this.keysWeixinInStates = weixinUrl.keysWeixinInStates;
       this.and = weixinUrl.and;
-      this.equalto = weixinUrl.equalto;
-      var states = getQueryStringByName('state');
-      var info = this.info = this.getInfo(states);
+      this.equalto = weixinUrl.equals;
+      var info = this.info = this.getInfo();
       if (info.fromid) {// && info.fromtype === 'openid'
         config.sns.fromid = info.fromid;
       }
@@ -44,6 +43,14 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     return getQueryStringByName('code');
   };
 
+  Url.prototype.getState = function () {
+    return getQueryStringByName('state');
+  };
+
+  Url.prototype.get = function (name) {
+    return getQueryStringByName(name);
+  };
+
   Url.prototype.genState = function (obj) { //生成url的state参数
     if (this.browser !== 'weixin') {
       return console.log('必须微信登录');
@@ -64,7 +71,8 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     var state = this.genState(obj);
   };
   /////////////////////从url中获取
-  Url.prototype.getInfo = function (states) {
+  Url.prototype.getInfo = function () {
+    var states = getQueryStringByName('state');
     var arr = states.split(this.and);
     var str, splits, key, value, result = {};
     for (var k in arr) {
@@ -75,6 +83,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
       result[key] = value;
     }
     return result;
-  }
+  };
+
   return Url;
 });

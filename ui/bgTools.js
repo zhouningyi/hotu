@@ -129,6 +129,7 @@ var actionToolsNode, colorNode, commonNode, toolsListNode, curActionNode;
           self.uiStatus = 'out';
         }
       });
+      body.trigger('left-tools-out');
     }
   };
 
@@ -184,6 +185,8 @@ var actionToolsNode, colorNode, commonNode, toolsListNode, curActionNode;
       });
       //背景色
       if (obj.bgImg) obj.bgImg.addClass('float-tag-img').appendTo(floatTagAddNode);
+
+      body.trigger('left-tools-in');
 
       //提示
       // if(obj.helpText) this.floatTagHelp(obj.helpText);

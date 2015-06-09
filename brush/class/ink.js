@@ -146,6 +146,8 @@ define(['zepto'], function ($) {
       var sinPrev = this.sinPrev || sin;
       var cosPrev = this.cosPrev || cos;
 
+      // console.log(xp);
+
       // var directPhi = Math.atan(dy/dx);
       if (this.ptIndex > 0) {
         if (this.secondBol) {

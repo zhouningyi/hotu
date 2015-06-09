@@ -55,7 +55,7 @@ define(['./../utils/zepto_cookie'], function () {
 
   User.prototype.getUserInfoCookie = function (obj) {
     var userInfo = $.fn.cookie(this.loginKey);
-    if (!userInfo) {
+    if (!userInfo && obj.fail) {
       return obj.fail();
     }
     return obj.success(JSON.parse(userInfo));

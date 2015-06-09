@@ -42,7 +42,6 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
   function ModelDraw(obj) {
     obj = obj || {};
     var config = this.config = obj.config;
-    this.config = config;
     storage = config.storage;
     tmpStorageKey = storage.tmpKey;
 
@@ -274,6 +273,12 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
     window.clearTimeout(this.submitID);
   };
 
+  ModelDraw.prototype.saveImage = function () {
+    if(this.exports){
+      this.imageBase64 = this.exports.toImage('small').dataURL;
+    }
+  };
+
   ModelDraw.prototype.save = function (cb) { //取回数据库已经存的内容
     var curDrawData = this.curDrawData;
     curDrawData.timeEnd = this.getTimeRelative();
@@ -286,11 +291,14 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
     
     cb = cb || function () {};
     var saveData = {
-      'userid': this.userid || 'first',
+      'userid': this.userid || this.config.login.userid,
       'userName': userName,
       'title': drawName,
       'drawid': drawid,
-      'data': JSON.stringify(this.curDrawData)
+      'data': JSON.stringify(this.curDrawData),
+      'imgBase64': this.imageBase64,
+      'imgName': drawid + '_' + parseInt(Math.random() * 100000000) + '.png',
+      'dataName': drawid + '_' + parseInt(Math.random() * 100000000) + '.js'
     };
 
     $.ajax({
@@ -299,10 +307,30 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
       'dataType': 'json',
       'data': saveData,
       'success': function (d) {
-        cb(1);
+        cb(1, d);
       },
       'error': function (e) {
         console.log(e, 'save-err');
+        cb(0);
+      }
+    });
+  };
+
+  ModelDraw.prototype.deleteDrawing = function (query, cb) { //删除某幅图
+    cb = cb || function(){};
+    query = {
+      // userid: query.userid,
+      drawid: query.drawid
+    };
+    $.ajax({
+      'url': 'http://hotu.co/hotu-api/api/hotu/drawing',
+      'type': 'DELETE',
+      'dataType': 'json',
+      'data': query,
+      'success': function (d) {
+        cb(1, d);
+      },
+      'error': function (e) {
         cb(0);
       }
     });
@@ -360,18 +388,39 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
     var self = this;
   };
 
-  ModelDraw.prototype.getLast = function (query, cb) { //取回数据库已经存的内容
+  ModelDraw.prototype.getDrawingDataJSONP = function (opt, cb) { //取回数据库已经存的内容
+    var drawid = opt.drawid;
+    var dataUrl = opt.dataUrl;
+    if(!drawid || !dataUrl) return;
+    $.ajax({
+      'url' : dataUrl,
+      'type': 'get',
+      'jsonpCallback': 'cb_' + drawid,
+      'dataType': 'jsonp',
+      'success': function(d){
+        cb(d);
+      },
+      'error': function(e){
+        console.log(e);
+      }
+    });
+  }
+
+  ModelDraw.prototype.getLast = function (q, cb) { //取回数据库已经存的内容
+    if(!q.userid) return cb('没有userid');
     query = {
-      'userid': query.userid || 'first1',
-      'drawid': query.drawid || 'draw'
+      'userid': q.userid,
     };
+    if(q.drawid){
+      query.drawid = q.drawid;
+    }
     $.ajax({
       'url': 'http://hotu.co/hotu-api/api/hotu/drawing',
       'type': 'GET',
       'data': query,
       'success': function (d) {
         if (d && d.data) {
-          // cb(d.data);
+          alert(JSON.stringify(d));
           cb(null);
         } else {
           cb(null);
@@ -386,18 +435,37 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
 
   ModelDraw.prototype.getData = function () { //获取当前的数据
     var curDrawData = this.curDrawData;
-    // console.log(JSON.stringify(curDrawData));
     curDrawData.info = computeDrawInfo(curDrawData);
     return curDrawData;
   };
+
   ModelDraw.prototype.getFrame = function () {
     return this.curFrame;
   };
+
   ModelDraw.prototype.getCurve = function () {
     return this.curCurve;
   };
+
   ModelDraw.prototype.getPt = function () {
     return this.curPt;
+  };
+
+  ModelDraw.prototype.getAllDrawingsById = function (openid, cb) {
+    if(!openid) return;
+    $.ajax({
+      'url': 'http://hotu.co/hotu-api/api/hotu/drawing',
+      'type': 'GET',
+      'dataType': 'json',
+      'data': {'userid': openid},
+      'success': function (d) {
+        cb(d);
+      },
+      'error': function (e) {
+        console.log(e, 'save-err');
+        cb(false);
+      }
+    });
   };
   return ModelDraw;
 });
