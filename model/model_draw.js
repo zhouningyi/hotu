@@ -58,7 +58,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
     }catch (e) {
     }
   }
-
+  
   ModelDraw.prototype.events = function () {
     var self = this;
     body
@@ -290,6 +290,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
     curDrawData.info = computeDrawInfo(curDrawData);
     
     cb = cb || function () {};
+    var random = parseInt(Math.random() * 100000000);
     var saveData = {
       'userid': this.userid || this.config.login.userid,
       'userName': userName,
@@ -297,8 +298,8 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
       'drawid': drawid,
       'data': JSON.stringify(this.curDrawData),
       'imgBase64': this.imageBase64,
-      'imgName': drawid + '_' + parseInt(Math.random() * 100000000) + '.png',
-      'dataName': drawid + '_' + parseInt(Math.random() * 100000000) + '.js'
+      'imgName': drawid + '_' + random + '.png',
+      'dataName': drawid + '_' + random + '.js'
     };
 
     $.ajax({
@@ -353,7 +354,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
   };
 
   ModelDraw.prototype.getLastStorage = function (obj) { //从localStorage寻找数据
-    if (typeof (Storage) == "undefined") return alert('无localstorage,sorry,希望您能告知公众号或微信zhouningyi1');
+    if (typeof (Storage) == "undefined") return alert('无localstorage,sorry,希望您能告知公众号hotuco');
     var data = window.localStorage.getItem(tmpStorageKey);
     if (data) obj.success(data);
     return;
@@ -364,14 +365,14 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
     if (typeof (Storage) == 'undefined') return console.log('不能自动保存');
     var curDrawData = this.curDrawData;
     if (!curDrawData) return console.log('no curDrawData');
-    var localStorageLength = JSON.stringify(localStorage).length / 1000000;
-    localStorageLength = localStorageLength.toFixed(3);
-    $('#test-container').text(localStorageLength + 'M');
+    // var localStorageLength = JSON.stringify(localStorage).length / 1000000;
+    // localStorageLength = localStorageLength.toFixed(3);
+    // $('#test-container').text(localStorageLength + 'M');
     var data = {'drawing': curDrawData};
     if (data.drawing.c && data.drawing.c.length > 0){
       var saveData = JSON.stringify(data);
       window.localStorage.setItem(tmpStorageKey, saveData);
-    } 
+    }
   };
 
   ModelDraw.prototype.clear = function () {

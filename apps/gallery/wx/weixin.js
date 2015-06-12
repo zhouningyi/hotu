@@ -50,8 +50,8 @@
       .on('update-share-username', function(e, obj){
         self.genShare(obj);
       })
-        .on('drawid', function(e, drawid) {
-          self.drawid = drawid;
+        .on('drawUserId', function(e, drawUserId) {
+          self.drawUserId = drawUserId;
           self.genShare();
         });
     };
@@ -65,10 +65,10 @@
         var picUrl = opt.imgUrl || 'http://open-wedding.qiniudn.com/tu.shu.png';
         var desc = '云上画册|记录创造的瞬间';
         var state = url.genState({
-          fromid: self.userid || 'open_id_err',
-          drawid: self.drawid || 'draw_id_err'
+          fromid: self.userid || 'null',
+          drawUserId: self.drawUserId || window.drawUserId || 'null'
         });
-        var shareUrl = 'http://hotu.co/gallery?drawUserId=' + (window.drawUserId || window.openid);
+        var shareUrl = 'http://hotu.co/gallery?drawUserId=' + (window.drawUserId || 'null');
         // var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://hotu.co/gallery?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
         var shareObj = {
           title: title,

@@ -33,6 +33,13 @@ define(['./../utils/zepto_cookie'], function () {
       }
     });
   };
+  User.prototype.getUserInfoCookie = function (obj) {
+    var userInfo = $.fn.cookie(this.loginKey);
+    if (!userInfo && obj.fail) {
+      return obj.fail();
+    }
+    return obj.success(JSON.parse(userInfo));
+  };
 
   /**
    {userInfo:{
@@ -53,13 +60,7 @@ define(['./../utils/zepto_cookie'], function () {
     $.fn.cookie(this.loginKey, userInfo);
   };
 
-  User.prototype.getUserInfoCookie = function (obj) {
-    var userInfo = $.fn.cookie(this.loginKey);
-    if (!userInfo && obj.fail) {
-      return obj.fail();
-    }
-    return obj.success(JSON.parse(userInfo));
-  };
+
 
   User.prototype.clean = function () { //抹除信息
     this.setUserInfoCookie(null);

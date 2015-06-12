@@ -122,7 +122,7 @@ gulp.task('default', function() {
   });
 
   gulp.watch('./index.html', function(file) {
-    // gulp.run('uploadHTML');
+    gulp.run('uploadHTML');
   });
   
   gulp.run('webserver');

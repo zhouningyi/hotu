@@ -1,31 +1,50 @@
 'use strict';
 
 define(['zepto', 'anim', './ui/displayer', './ui/gallery', './../../model/user','./../../model/url','./../../model/browser','./../../model/model_draw', './../../utils/utils', './../../app_config', './wx/weixin'], function($, k, Displayer, Gallery, User, Url, browser, ModelDraw, Utils, config,  Weixin) {
-  var displayer, gallery, weixin, user, modelDraw;
+  var displayer, gallery, weixin, user, modelDraw, url;
   var displayerContainer = $('.displayer-container'),
     ablumContainer = $('.ablum-container');
 
   var getQueryString = Utils.getQueryString;
+
+  function checkId(id){
+    return id !== null && id !== 'null' && id !== undefined && id.length && id.length > 2;
+  }
   
   function Controller() {
+    this.isRequested = false;
     this.init();
     var self = this;
-
-    if(window.drawUserId && window.drawUserId!=='null'){
-      this.getDrawingsById(window.drawUserId);
+    
+    if (!browser.weixin) { //浏览器的情况 浏览器中只有短网址
+      if (checkId(window.drawUserId)) { //drawUserId存在
+        this.getDrawingsById(window.drawUserId);
+      }else{
+        this.caseNoDrawUserId();
+      }
+    } else {//在微信的情况
+      window.drawUserId = url.getInfo().drawUserId;
+      if (checkId(window.drawUserId)) { 
+        this.getDrawingsById(window.drawUserId);
+      }
     }
 
     this.dispatch(function(openid) {
       window.openid = openid;
-      if(window.drawUserId === null || window.drawUserId === 'null' || window.drawUserId === undefined){
-        self.getDrawingsById(openid);
+      if(!self.isRequested && openid){
+        window.drawUserId = openid;
+        self.getDrawingsById(drawUserId);
+        body.trigger('drawUserId', drawUserId);
       } else if (window.openid === window.drawUserId){
        return;
-      }else{
+      } else {
        return gallery.addMyGalleryNode();
       }
     });
   }
+  
+  Controller.prototype.caseNoDrawUserId = function() {//没有id的情况
+  };
 
   Controller.prototype.init = function() {
     var frameOpt = {
@@ -41,13 +60,9 @@ define(['zepto', 'anim', './ui/displayer', './ui/gallery', './../../model/user',
     displayer = new Displayer(displayerContainer, {
       modelDraw: modelDraw
     });
-
-    gallery = new Gallery(ablumContainer, {
-      modelDraw: modelDraw
-    });
     
     config.browser = browser;
-    var url = new Url(config);
+    url = new Url(config);
     weixin = new Weixin(url); //微信的分享机制
     user = new User({
       'weixin': weixin,
@@ -55,7 +70,10 @@ define(['zepto', 'anim', './ui/displayer', './ui/gallery', './../../model/user',
       'config': config
     });
 
-    window.drawUserId = getQueryString('drawUserId') || url.getInfo().drawUserId;
+    gallery = new Gallery(ablumContainer, {
+      'modelDraw': modelDraw,
+      'weixin': weixin
+    });
   };
 
   Controller.prototype.dispatch = function(next, fail){
@@ -75,6 +93,7 @@ define(['zepto', 'anim', './ui/displayer', './ui/gallery', './../../model/user',
   };
 
   Controller.prototype.getDrawingsById = function(id) {
+    this.isRequested = true;
     if (!id) return console.log('没有openid');
     var self = this;
     weixin && weixin.genShare();

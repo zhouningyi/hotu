@@ -3,7 +3,7 @@
 .nav{
   max-height: 120px;
   width: 100%;
-  background-color: rgba(0,0,0,0.3);
+  background-color: rgba(0,0,0,0.8);
 }
 .nav .user-name{
   color: #fff;

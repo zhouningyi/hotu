@@ -1,5 +1,4 @@
 'use strict';
-
 define(['zepto', 'anim'], function ($) {
   function upper(str) { //首字母大写
     return str[0].toUpperCase() + str.slice(1);
@@ -164,6 +163,20 @@ define(['zepto', 'anim'], function ($) {
     }
   }
 
+  var requestAnimFrame =
+    window.requestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    function(callback) {
+      return window.setTimeout(callback, 1000 / 60);
+    };
+
+  var cancelAnimFrame =
+    window.cancelAnimationFrame ||
+    window.cancelRequestAnimationFrame ||
+    window.mozCancelAnimationFrame ||
+    function(id) {
+      window.clearTimeout(id);
+    };
   return {
     'getQueryStringByName': getQueryStringByName,
     'animateSeries': animateSeries,
@@ -178,7 +191,9 @@ define(['zepto', 'anim'], function ($) {
     'values': values,
     'getQueryString': getQueryString,
     'genCanvas': genCanvas,
-    'getPt': getPt
+    'getPt': getPt,
+    'requestAnimFrame': requestAnimFrame,
+    'cancelAnimFrame': cancelAnimFrame
   };
 
 });

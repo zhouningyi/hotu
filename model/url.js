@@ -15,10 +15,10 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
       this.and = weixinUrl.and;
       this.equalto = weixinUrl.equals;
       var info = this.info = this.getInfo();
-      if (info.fromid) {// && info.fromtype === 'openid'
+      if (info.fromid && info.fromid!=='open_id_err'&&config.sns) {// && info.fromtype === 'openid'
         config.sns.fromid = info.fromid;
       }
-      if (info.drawid) {
+      if (info.drawid && info.drawid!=='draw_id_err'&&config.draw) {
         config.draw.previd = info.drawid;
       }
     }

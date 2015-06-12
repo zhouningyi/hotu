@@ -63,6 +63,10 @@
     Weixin.prototype.events = function() {
       var self = this;
       $('body')
+      .on('openid', function(e, openid) {
+          self.userid = openid;
+          self.genShare();
+        })
         .on('drawid', function(e, drawid) {
           self.drawid = drawid;
           self.genShare();
@@ -72,16 +76,16 @@
     Weixin.prototype.genShare = function() {
       var self = this;
       var url = this.url;
+
       wx.ready(function() {
         var title = '糊涂';
         var picUrl = 'http://open-wedding.qiniudn.com/tu.shu.png';
         var desc = '涂鸦神器|记录创造的瞬间';
         var state = url.genState({
-          fromid: self.userid || 'open_id_err',
-          drawid: self.drawid || 'draw_id_err'
+          fromid: self.userid || 'null',
+          // drawid: self.drawid || 'null'
         });
-
-        var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx05125e8c1635642f&redirect_uri=http://hotu.co/hua?response_type=code&scope=snsapi_base&state=' + state + '&connect_redirect=1&from=timeline&isappinstalled=0#wechat_redirect';
+        var shareUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2b66f49eb82d70de&redirect_uri=http%3A%2F%2Fhotu.co%2Fhua%2F&response_type=code&scope=snsapi_base&state='+state+'#wechat_redirect';
         var shareObj = {
           title: title,
           link: shareUrl,

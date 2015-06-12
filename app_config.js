@@ -3,13 +3,13 @@
 define(function() {
   return {
     'galleryURL': 'http://hotu.co/gallery/',
-    'helpLink': 'http://mp.weixin.qq.com/s?__biz=MzA4OTQwNTM3Mw==&mid=205008644&idx=1&sn=db2f8d92a196fadb23ca466517d8057e#rd',
+    'helpLink': 'http://mp.weixin.qq.com/s?__biz=MzA4OTQwNTM3Mw==&mid=206212650&idx=1&sn=190c819cf887d870045462f691311d61#rd',
     'isConfigFromStorage': 1,
     'login': {//isFollower
       'key': 'login_info_hotu_painter',
       'userid': 0,
       'saveKey': 'app_config',
-      'userName': '野兽'
+      'userName': '某大师'
     },
 
     'cookie': { //cookie相关的设置

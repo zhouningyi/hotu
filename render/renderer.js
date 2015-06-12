@@ -1,5 +1,5 @@
 'use strict';
-define(['./animator', 'async', './../utils/utils'], function (Animator, async, Utils) {
+define(['async', './../utils/utils'], function (async, Utils) {
   var obj2hsla = Utils.obj2hsla;
 
   function Renderer(brushes, opt) {
@@ -190,7 +190,6 @@ define(['./animator', 'async', './../utils/utils'], function (Animator, async, U
   function drawPt(pt, brush, ctx, index, ptN, _ptTransform, style) { //绘制一个点的过程
     if (!brush) return;
     pt = _ptTransform(pt);
-    console.log(pt);
     if (index === '0' || index === 0) {
       brush.setCurveStyles(style);
       brush.begin(ctx, pt);

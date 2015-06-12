@@ -8,6 +8,7 @@ define(['zepto', 'anim', './../../../utils/utils'], function ($, a, Utils) {
   function Gallery(container, opt) {
     opt = opt || {};
     this.modelDraw = opt.modelDraw;
+    this.weixin = opt.weixin;
     this.container = container;
     container.css({display: 'block'});
     container.removeClass('out-left');
@@ -30,6 +31,7 @@ define(['zepto', 'anim', './../../../utils/utils'], function ($, a, Utils) {
   };
 
 Gallery.prototype.getDrawData = function (d) {
+  var weixin = this.weixin;
   var ds = this.ds;
   var container = this.container;
   this.modelDraw.getDrawingDataJSONP({

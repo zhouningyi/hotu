@@ -133,11 +133,13 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
     this.starting = true;
     var renderIndex = 0;
     var self = this;
+    var background = 'rgba(255,255,255,1)';
     if(drawData.bg){
-      $(this.canvasDisplay).css({
-        'background': obj2hsla(drawData.bg.color)
-      });
+      background = obj2hsla(drawData.bg.color)
     }
+    $(this.canvasDisplay).css({
+      'background': background
+    });
     this.renderer.drawDatas(this.ctxDisplay, drawData, {
       'isClear':1,
       'curve': {
@@ -161,7 +163,7 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
     if (data) this.data(data);
     data = this._data;
     var drawData = data.drawData;
-    var bgColor = (drawData.bg)?obj2hsla(drawData.bg.color):'rgba(10,10,10,1)';
+    var bgColor = (drawData.bg)?obj2hsla(drawData.bg.color):'rgba(255,255,255,1)';
     var bgDivColor = setRgbaAlpha(bgColor, 0.05);
     this.displayContainer.css({
       'background': bgDivColor
@@ -198,6 +200,15 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
     }, 1000);
     
     this.container.find('.title').text(data.title);
+
+    // var background = 'rgba(255,255,255,1)';
+    // if(drawData.bg){
+    //   background = obj2hsla(drawData.bg.color)
+    // }
+    // $(this.canvasDisplay).css({
+    //   'background': background
+    // });
+
     $(this.canvasDisplay).css({
         'background': bgColor
       });

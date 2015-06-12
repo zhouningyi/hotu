@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-title" content="糊.涂">
+  <meta name="description" content="糊涂,追求极致的智能画板,在ipad、手机、电脑上记录灵感,发送到朋友圈。一次上传,多设备展现。">
+  <meta name="keywords" content="涂鸦,绘画,手机绘画,pad绘画,笔刷,微信画板,HOTU,hotu,hotuco"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
@@ -15,15 +18,22 @@
   <link rel="apple-touch-startup-image" href="/img/startup.png" />
   <title id="title">糊涂.画册</title>
   <script>
+
 var ua = navigator.userAgent.toLowerCase();
 var href = window.location.href;
+
 function getQueryString(name) {
   var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
   var r = window.location.search.substr(1).match(reg);
   if (r != null) return unescape(r[2]);
   return null;
 }
+
 var drawUserId = window.drawUserId = getQueryString('drawUserId');
+if(drawUserId && drawUserId.length<8 && drawUserId!=='all'){
+  drawUserId = window.drawUserId = 'null'; //非法的drawUserId
+} 
+
 if (ua.indexOf('micromessenger') !== -1 && (href.indexOf('code') === -1)) {//微信中打开 且短网址 如不是从长网址回退
   window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2b66f49eb82d70de&redirect_uri=http%3A%2F%2Fhotu.co%2Fgallery%2F&response_type=code&scope=snsapi_base&state=drawUserIdequuualsto' + drawUserId + '#wechat_redirect';
 } 

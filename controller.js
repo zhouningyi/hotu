@@ -53,6 +53,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       'config': config
     });
 
+
     user.login({
       success: function (openid) {
         user.setUserInfo({
@@ -159,7 +160,19 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
   Controller.prototype.processingDrawData = function (d) {
     var self = this;
     setTimeout(function () {
-      d = JSON.parse(d);
+      if(typeof(d)==='string'){
+        d = JSON.parse(d);
+      }
+      
+      if(d){
+        var drawing = d.drawing;
+        if(drawing){
+          var drawid = drawing.drawid || drawing.id;
+        }
+      }
+
+      var drawing = d.drawing;
+      body.trigger('drawid', drawid);
       self.painter.reload(d.drawing);
       self.bg.reload(d.drawing);
     });
@@ -245,7 +258,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
           floatTag.in({
             node: node,
             type: 'bottom',
-            helpText: '确认全部删除?',
+            helpText: '删除并新建画作?',
             click: function(){
               painter.restart();
               floatTag.out();
