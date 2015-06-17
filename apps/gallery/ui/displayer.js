@@ -1,6 +1,6 @@
 'use strict';
 //播放作品的面板
-define(['zepto', './../../../utils/utils', './display_slider', './../../../render/renderer', './../../../brush/brushes'], function ($, Utils, DisplaySlider, Renderer, Brushes) {
+define(['zepto', './../../../utils/utils', './display_slider', './../../../render/animator', './../../../brush/brushes'], function ($, Utils, DisplaySlider, Animator, Brushes) {
   var body = $('body');
   var upper = Utils.upper;
   var prevent = Utils.prevent;
@@ -24,17 +24,11 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
     var containerH = this.containerH = container.height();
     var quality = this.quality = opt.quality || 2;
 
-    if (opt.renderer) {
-      this.renderer = opt.renderer;
-    } else {
-      var brushes = new Brushes();
-      var brushObj = brushes.brushObj;
-      var frameOpt = {
-        frameW: containerW,
-        frameH: containerH
-      };
-      this.renderer = new Renderer(brushObj, frameOpt); //动画播放等
-    }
+    var brushes = new Brushes();
+    var brushObj = this.brushObj = brushes.brushObj;
+    // this.animation = new Animator({
+    //   brushes: brushObj,
+    // });
 
     this.modelDraw = opt.modelDraw;
 
@@ -65,7 +59,7 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
       ')
       .appendTo(this.container);//<div class="desc">阿达荒原的心荒心</div>\
     var controlNode = this.controlNode = displayContainer.find('.control');
-    this.displaySlider = new DisplaySlider(controlNode);
+    this.slider = new DisplaySlider(controlNode);
     this.deleteNode = displayContainer.find('.delete').find('.iconfont');
     this.cancelNode = displayContainer.find('.cancel').find('.iconfont');
   };
@@ -128,7 +122,7 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
     if(!drawData) return;
     var dataLength;
     if(drawData.c) dataLength = drawData.c.length;
-    var displaySlider = this.displaySlider;
+    var slider = this.slider;
     if (this.starting) return;
     this.starting = true;
     var renderIndex = 0;
@@ -139,22 +133,6 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
     }
     $(this.canvasDisplay).css({
       'background': background
-    });
-    this.renderer.drawDatas(this.ctxDisplay, drawData, {
-      'isClear':1,
-      'curve': {
-        async: 1
-      },
-      'frame': {
-        async: 1
-      },
-      'doneCurve': function () {
-        displaySlider.setValue(renderIndex++ / dataLength);
-      },
-      'done': function () {
-        displaySlider.setValue(1);
-        self.starting = false;
-      }
     });
   };
 
@@ -168,6 +146,11 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
     this.displayContainer.css({
       'background': bgDivColor
     });
+
+    this.animation = new Animator({
+      brushes: this.brushObj,
+    });
+    this.addHooks();
 
     var offset = this.curOffset = node.offset();
     var container = this.container;
@@ -183,6 +166,11 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
     .addClass('displayer-transition-normal');
 
     this.checkCanvas(drawData.frameW, drawData.frameH);
+
+    var animation = this.animation;
+    animation.ctx(this.ctxDisplay);
+    animation.step('fast');
+    animation.data(drawData);
 
     setTimeout(function() {
       container.css({
@@ -212,19 +200,10 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
     $(this.canvasDisplay).css({
         'background': bgColor
       });
-    this.renderer.drawDatas(this.ctxDisplay, drawData, {
-      'isBg': 1,
-      'isClear': 1,
-      'curve': {
-        async: 0
-      },
-      'frame': {
-        async: 1
-      }
-    }); //把出栈的线绘制到后面去
   };
 
   Displayer.prototype.hide = function () {
+    var animation = this.animation;
     if(this.isLock) return;
     var self = this;
     this.ctxDisplay.clearRect(0,0,this.ctxDisplay.canvas.width,this.ctxDisplay.canvas.height);
@@ -239,10 +218,10 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
       'pointerEvents':'none'
     });
      this.isLock = true;
-    
+    animation.destory();
     setTimeout(function(){
       container.removeClass('displayer-transition-normal').addClass('displayer-transition-fast');
-    }, 500);
+    }, 100);
   };
   /////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////交互事件///////////////////////////////////////////
@@ -250,7 +229,7 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
   Displayer.prototype.events = function () {
     var self = this;
     var modelDraw = this.modelDraw;
-    this.displaySlider.onBegin(this.start.bind(this));
+
     this.deleteNode.on('click', function () {
       if(!self._data) return;
       modelDraw.deleteDrawing({
@@ -278,5 +257,19 @@ define(['zepto', './../../../utils/utils', './display_slider', './../../../rende
     });
   };
 
+  Displayer.prototype.addHooks = function(){
+    var animation = this.animation;
+    var slider = this.slider;
+    slider.onBegin(animation.switch.bind(animation));
+    slider.onSlider(animation.to.bind(animation));
+    animation
+    .on('step', function (percent) {
+      slider.setValue(percent);
+    })
+    .on('loop-statu', function(bool){
+      if(bool) return slider.stopButton();
+      slider.loopButton();
+    });
+  }
   return Displayer;
 });

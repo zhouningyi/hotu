@@ -93,7 +93,7 @@ define(['zepto', 'anim'], function ($) {
     };
   }
 
-  function setRgbaAlpha(rgba, alpha){
+  function setRgbaAlpha(rgba, alpha) {
     if(!rgba) return 'rgba(255,255,255,1)';
     alpha = alpha || 0;
     var rgbas = rgba.split(',');
@@ -112,11 +112,11 @@ define(['zepto', 'anim'], function ($) {
     };
   }
 
-  function obj2hsla(obj){
+  function obj2hsla(obj) {
     if(!obj || !typeof(obj) === 'object') return 'hsla(255,255,255,1)';
-    var hue = parseInt(obj.hue*360);
-    var sat = parseInt(obj.lightSat.sat*100);
-    var light = parseInt(obj.lightSat.light*100);
+    var hue = parseInt(obj.hue * 360);
+    var sat = parseInt(obj.lightSat.sat * 100);
+    var light = parseInt(obj.lightSat.light * 100);
     return 'hsla(' + hue + ',' + sat + '%,' +  light + '%,1)';
   }
 

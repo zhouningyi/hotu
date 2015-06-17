@@ -7,53 +7,119 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
   function Animator(opt) {
     opt = opt || {};
     this._brushes = opt.brushes;
-    this.ctx = opt.ctx;
+    this._ctx = opt.ctx;
 
     //事件
     var self = this;
     this
-    // .on('curve-end', this.onNextCurve.bind(this))
     .on('step', function () {
+      if(!this.isLooping) return;
       self.loopId = requestAnimFrame(this.loop.bind(this));
     });
     //开始动画
     if (opt.data) this.data(opt.data);
   }
-
+//我们并不以画一个点或画一条线作为最基本的播放单元 而是画若干个点。
   event.extend(Animator, {
-    stepPtN: 12,
+    stepPtN: 6,
+    maxStepPtN: 1000,
     ptInCurveIndex: 0,
+    isLooping: true,
     curveIndex: 0,
-    data: function (data) { //传入数据 
+    checkData: function (data) {//检查数据是否有问题
+      return data && data.frameW && data.frameH && data.c && data.c.length;
+    },
+    getPtsN: function (data) {
+      var curves = this._curves;
+      var ptsN = 0;
+      for (var k in curves) {
+        var curve = curves[k];
+        if (curve && curve.c) {
+          ptsN += curve.c.length;
+        }
+      }
+      this.ptsN = ptsN;
+    },
+    ctx: function(ctx){
+      this._ctx = ctx;
+    },
+    data: function (data) { //传入数据
+      if (!this.checkData(data)) alert('数据有点问题哦');
       this._data = data;
       this._curves = data.c;
-      this.reset();
-      this.loop();
+      this.getPtsN(data);
+      this.stopPtIndex = null;
+      this.redraw();
     },
-    reset: function () {
+    reset: function () {//参数全部更新
       this.curveIndex = 0;
       this.ptInCurveIndex = 0;
+      this.ptIndex = 0;
       this.stepIndex = 0;
-      this._dataCurrent = {}; //播放到这个位置的数据
+      this.isLooping = true;
     },
-    stop: function () {
+    broadcast: function(){
+      if(this.ptIndex === this.ptsN){
+        // this.stopPtIndex = null;
+        this.redraw();
+      }else{
+        this.resume();
+      }
+    },
+    redraw: function () {//从头开始绘制
+      this.reset();
+      this.clean();
+      this.resume();
+    },
+    redrawAll: function () {//清除 stopPtIndex, 即从头播放到尾, 并开始绘制
+      this.step('slow');
+      this.stopPtIndex = null;
+      this.redraw();
+    },
+    setLoopStatus: function(bool){
+      this.emit('loop-statu', bool);
+      this.isLooping = bool;
+    },
+    stop: function () {//停止播放
+      this.setLoopStatus(false);
       cancelAnimFrame(this.loopId);
       this.stepIndex = 0;
     },
-    to: function (index) { //到某个位置
+    resume: function () {//恢复播放
+      var stopPtIndex = this.stopPtIndex || this.ptsN;
+      if (this.ptIndex > stopPtIndex) return;
+      this.setLoopStatus(true);
+      this.loop();
     },
-    step: function(stepPtN){
-      if(!stepPtN) return;
-      this._stepPtN = stepPtN;
-      // this.removeListener('setp').on('step')
-    },
-    resume: function () {
-      if (this.curveIndex < this._curves.length) {
-        this.loop();
+    switch: function () {//如果停止就播放 如果开始就停止
+      if (this.isLooping) {
+        this.stop();
+      } else {
+        this.stopPtIndex = this.ptsN;
+        this.step('slow');
+        this.broadcast();
       }
     },
     loop: function () {
       this.drawStep();
+    },
+    to: function (stopPtIndex) {//到第N个点停下
+      if (stopPtIndex === null || stopPtIndex === undefined) return;
+      if (stopPtIndex <= 1) {//为百分比的情况
+        stopPtIndex = Math.floor(stopPtIndex * this.ptsN);
+      }
+      if(Math.abs(stopPtIndex - (this.stopPtIndex || this.ptsN)) < 10) return;//阈值，太小
+      this.step('fast');
+      this.stopPtIndex = stopPtIndex;
+      if (stopPtIndex >= this.ptIndex) {
+        this.resume();
+      } else {
+        this.redraw();
+      }
+    },
+    step: function (stepPtN) {
+      if (!stepPtN) return;
+      this.stepPtN = {'slow': 5, 'nomarl': 50, 'fast': 1000}[stepPtN] || stepPtN;
     },
     onNextCurve: function () {
       var curves = this._curves;
@@ -76,13 +142,13 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
       //数字更新
       this.curveIndex++;
       this.ptInCurveIndex = 0;
-      this.curCurvePtN = curCurve.length || 0;
       return true;
     },
     drawStep: function () {
       if (!this._curCurve) this.onNextCurve();
       var stepIndex = 0, isNextPt = true, isNextCurve = true, curveN = this._curves.length || 0, stepPtN = this.stepPtN;
       while (stepIndex < stepPtN) {
+        if(!this.isLooping) return;
         isNextPt = this.drawPt();
         this.ptInCurveIndex++;
         if (!isNextPt) {
@@ -91,28 +157,52 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
             return;
           }
         }
+        if (this.stopPtIndex && this.stopPtIndex <= this.ptIndex) {
+          this.setLoopStatus(false);
+          this.emit('step', this.ptIndex / this.ptsN);
+          return this.stop();
+        }
+        if (this.ptsN <= this.ptIndex) {
+          this.setLoopStatus(false);
+          this.emit('step', 1);
+          return this.stop();
+        }
         stepIndex++;
       }
-      this.emit('step');
+      this.emit('step', this.ptIndex / this.ptsN);
     },
-    drawPt: function () {
+    drawPt: function () {//每一个点 判断位于画笔的什么位置 该执行什么
+      if(!this.isLooping) return;
       var index = this.ptInCurveIndex;
       var curCurvePts = this.curCurvePts;
       var pt = curCurvePts[index];
       var ptN = curCurvePts.length;
       if (index === '0' || index === 0) {
-        this.curBrush.begin(this.ctx, pt);
-      } else {
-        this.curBrush.draw(this.ctx, pt);
-      }
-      if (index >= ptN - 1) { //目前暂时没想到要做什么
-        this.curBrush.end(this.ctx);
+        this.curBrush.begin(this._ctx, pt);
+        this.ptIndex++;
+      } else if (index < ptN) {
+        this.curBrush.draw(this._ctx, pt);
+        this.ptIndex++;
+      }else {
+        this.curBrush.end(this._ctx);
         return false;
       }
       return true;
     },
     dataCurrent: function (index) { //获得当前播放动画的数据
       return this._dataCurrent;
+    },
+    clean: function () {
+      var ctx = this._ctx;
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    },
+    destory: function(){
+      this.off('step');
+      this.stop();
+      this._curves = null;
+      this._data = null;
+      this.ptsN = 0;
+      this.clean();
     }
   });
   return Animator;
