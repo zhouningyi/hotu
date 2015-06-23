@@ -213,7 +213,6 @@ EventEmitter.prototype.removeAllListeners = function(type) {
   return this;
 };
 
-EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
 
 EventEmitter.prototype.listeners = function(type) {
   if (!this._events) this._events = {};

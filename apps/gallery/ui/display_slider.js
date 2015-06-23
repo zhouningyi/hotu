@@ -53,7 +53,7 @@ define(['zepto', './../../../utils/utils'], function ($, Utils) {
     });
 
     this.broadcastNode
-    .on('click', function (e) {
+    .on('mousedown touchstart', function (e) {
       if(self._begin) self._begin();
     });
   };

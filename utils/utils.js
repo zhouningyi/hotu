@@ -1,5 +1,6 @@
 'use strict';
-define(['zepto', 'anim'], function ($) {
+define(['zepto', 'anim'], function($) {
+  var cos = Math.cos, sin = Math.sin, sqrt = Math.sqrt, abs = Math.abs;
   function upper(str) { //首字母大写
     return str[0].toUpperCase() + str.slice(1);
   }
@@ -94,7 +95,7 @@ define(['zepto', 'anim'], function ($) {
   }
 
   function setRgbaAlpha(rgba, alpha) {
-    if(!rgba) return 'rgba(255,255,255,1)';
+    if (!rgba) return 'rgba(255,255,255,1)';
     alpha = alpha || 0;
     var rgbas = rgba.split(',');
     rgbas[3] = alpha + ')';
@@ -113,11 +114,11 @@ define(['zepto', 'anim'], function ($) {
   }
 
   function obj2hsla(obj) {
-    if(!obj || !typeof(obj) === 'object') return 'hsla(255,255,255,1)';
+    if (!obj || !typeof(obj) === 'object') return 'hsla(255,255,255,1)';
     var hue = parseInt(obj.hue * 360);
     var sat = parseInt(obj.lightSat.sat * 100);
     var light = parseInt(obj.lightSat.light * 100);
-    return 'hsla(' + hue + ',' + sat + '%,' +  light + '%,1)';
+    return 'hsla(' + hue + ',' + sat + '%,' + light + '%,1)';
   }
 
   function getPt(e) { //获取点相对于容器的位置
@@ -153,7 +154,8 @@ define(['zepto', 'anim'], function ($) {
   }
 
   function animateSeries(nodeList, aniName, opt) {
-    var timeFunc = opt.time, delayFunc = opt.delay;
+    var timeFunc = opt.time,
+      delayFunc = opt.delay;
     for (var k in nodeList) {
       k = parseInt(k);
       nodeList[k].keyAnim(aniName, {
@@ -166,7 +168,7 @@ define(['zepto', 'anim'], function ($) {
   var requestAnimFrame =
     window.requestAnimationFrame ||
     window.mozRequestAnimationFrame ||
-    function(callback) {
+    function (callback) {
       return window.setTimeout(callback, 1000 / 60);
     };
 
@@ -174,10 +176,33 @@ define(['zepto', 'anim'], function ($) {
     window.cancelAnimationFrame ||
     window.cancelRequestAnimationFrame ||
     window.mozCancelAnimationFrame ||
-    function(id) {
+    function (id) {
       window.clearTimeout(id);
     };
+
+  function getCurvatureBy3Pt(x1, y1, x2, y2, x3, y3) {//3点计算曲率
+    var dx21 = x2 - x1, dy21 = y2 - y1, dy31 = y3 - y1, dx31 = x3 - x1, dx32 = x3 - x2, dy32 = y3 - y2;
+    var value = sqrt((dx21 * dx21 + dy21 * dy21) * (dx31 * dx31 + dy31 * dy31) * (dx32 * dx32 + dy32 * dy32));
+    return (value === 0) ? 1000000000 : 2 * abs(dx21 * dy31 - dx31 * dy21) / value;
+  }
+
+  function extend(dest) { // (Object[, Object, ...]) ->
+    var sources = Array.prototype.slice.call(arguments, 1),
+      i, j, len, src;
+
+    for (j = 0, len = sources.length; j < len; j++) {
+      src = sources[j] || {};
+      for (i in src) {
+        if (src.hasOwnProperty(i)) {
+          dest[i] = src[i];
+        }
+      }
+    }
+    return dest;
+  }
+
   return {
+    'getCurvatureBy3Pt': getCurvatureBy3Pt,
     'getQueryStringByName': getQueryStringByName,
     'animateSeries': animateSeries,
     'rgbToHsl': rgbToHsl,
@@ -193,7 +218,8 @@ define(['zepto', 'anim'], function ($) {
     'genCanvas': genCanvas,
     'getPt': getPt,
     'requestAnimFrame': requestAnimFrame,
-    'cancelAnimFrame': cancelAnimFrame
+    'cancelAnimFrame': cancelAnimFrame,
+    'extend': extend
   };
 
 });

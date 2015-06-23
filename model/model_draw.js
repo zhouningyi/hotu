@@ -99,7 +99,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function ($, Utils, Draw
       if(!curDrawData.id) {
         curDrawData.id = getId(curDrawData.type || 'frame');
       }
-      this['cur' + upper(type)] = curDrawData;
+      this['cur' + dper(type)] = curDrawData;
     } else { //需要自己新建一份数据
       type = opt.type;
       this.timePrev = 0;

@@ -11,8 +11,8 @@ define(['./../../utils/utils'], function (Utils) {
       'name': '马克笔',
       'desc': '马克笔',
       'globalCompositeOperation': 'source-over',
-      'lineJoin': 'miter',
-      'lineCap': 'butt',
+      'lineJoin': 'butt',
+      'lineCap': 'square',
       'distLimit': 5,
       'smooth': {
         'x': {
@@ -103,6 +103,7 @@ define(['./../../utils/utils'], function (Utils) {
     draw: function (opt) {
       var controls = this.controls;
       var ctx = this.ctx = opt.ctx || this.ctx;
+      ctx.lineWidth = 0.01;
       var color = this.color;
       if (!color) return console.log('normal brush 没有颜色');
       var Easing = this.Easing;
@@ -155,8 +156,24 @@ define(['./../../utils/utils'], function (Utils) {
           var p3y = y - width * sin;
           var p4x = x + width * cos;
           var p4y = y + width * sin;
+          
+          //这似乎是canvas画线的一个bug
+          // xp = Math.round(xp) + 0.5;
+          // yp = Math.round(yp) + 0.5;
+          // p1x = Math.round(p1x) + 0.5;
+          // p2x = Math.round(p2x) + 0.5;
+          // p3x = Math.round(p3x) + 0.5;
+          // p4x = Math.round(p4x) + 0.5;
+          // p1y = Math.round(p1y) + 0.5;
+          // p2y = Math.round(p2y) + 0.5;
+          // p3y = Math.round(p3y) + 0.5;
+          // p4y = Math.round(p4y) + 0.5;
+
+          // ctx.lineWidth = 1;
+
           ctx.beginPath();
           ctx.fillStyle = color;
+          ctx.fillStyle = 'rgba(0,0,0,' + (record.kCurve * 2) + ')';
           ctx.strokeStyle = color;
           ctx.moveTo(xp, yp);
           ctx.lineTo(p1x, p1y);
@@ -165,6 +182,7 @@ define(['./../../utils/utils'], function (Utils) {
           ctx.lineTo(p2x, p2y);
           ctx.lineTo(xp, yp);
           ctx.fill();
+          // ctx.stroke();
           ctx.closePath();
         }
         this.cosp = cos;

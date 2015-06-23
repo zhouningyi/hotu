@@ -16,7 +16,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     this.top = offset.top;
 
     //数据
-    this.modelDraw = opt.modelDraw; //数据
+    this.modelDraw = opt.modelDraw;
     this.containerW = container.width();
     this.containerH = container.height();
 
@@ -33,7 +33,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
 
     //步骤相关
     this.tmpCurves = []; //临时存储的
-    this.backN = opt.backN || 15; //可回退的次数
+    this.backN = opt.backN || 2; //可回退的次数
 
     //其他
     this.renderer = opt.renderer;
@@ -87,7 +87,12 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     if (isNone(appendBol) || appendBol) canvas.appendTo(container); //默认是加入dom的;
 
     canvas = this['canvas' + upper(name)] = canvas[0];
+    canvas.quality = quality;
+
     var ctx = this['ctx' + upper(name)] = canvas.getContext('2d');
+    ctx.lineWidth = 0;
+    ctx.imageSmoothingEnabled = true;
+    ctx.webkitImageSmoothingEnabled = true;
     ctx.scale(quality, quality);
     // var bol = false;
     // ctx.mozImageSmoothingEnabled = bol;
@@ -161,7 +166,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     modelDraw.addCurve();
     modelDraw.addPt(pt);
     var ctx = (curBrush.redraw) ? this.ctxMainTmp : this.ctxMainFront;
-    curBrush.begin(ctx, pt);
+    curBrush.begin(pt, ctx);
 
     var curCurve = this.curCurve = modelDraw.getCurve();
     this.tmpCurves.push({
@@ -181,7 +186,7 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
     if (this.isAfterDown) {
       container.trigger('painter-moving');
       this.mvPt = pt;
-      pt = brush.draw(ctx, pt);
+      pt = brush.draw(pt, ctx);
       if(pt) modelDraw.addPt(pt);
     }
   };
@@ -350,7 +355,6 @@ define(['zepto', './../utils/utils'], function ($, Utils) {
   };
 
   Painter.prototype.reload = function (d) {
-    console.log(d);
     if (!d) return console.log('no reload data');
     var c = d.c;
     if(!c || !c.length) return;

@@ -117,6 +117,17 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
         this.redraw();
       }
     },
+    toCurveIndex: function(index, type){//按照曲线编号来前进
+      var curves = this._curves;
+      var curvesN = curves.length;
+      var stopPtIndex = 0;
+      index = Math.min(curves.length, index);
+      if(type === 'reverse') index = curvesN - index;
+      for(var k = 0; k < index; k++){
+        stopPtIndex+= curves[k].c.length;
+      }
+      this.to(stopPtIndex);
+    },
     step: function (stepPtN) {
       if (!stepPtN) return;
       this.stepPtN = {'slow': 5, 'nomarl': 50, 'fast': 1000}[stepPtN] || stepPtN;
@@ -130,6 +141,7 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
       //设置笔刷
       var brushType = curCurve.brushType;
       var brushes = this._brushes;
+      // console.log(brushType, brushes[brushType])
       if (brushType && brushes[brushType]) {
         this.curBrush = brushes[brushType];
       }
@@ -197,7 +209,7 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     },
     destory: function(){
-      this.off('step');
+      this.removeAllListeners();
       this.stop();
       this._curves = null;
       this._data = null;

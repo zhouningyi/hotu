@@ -192,9 +192,9 @@ define(['async', './../utils/utils'], function (async, Utils) {
     pt = _ptTransform(pt);
     if (index === '0' || index === 0) {
       brush.setCurveStyles(style);
-      brush.begin(ctx, pt);
+      brush.begin(pt, ctx);
     } else {
-      brush.draw(ctx, pt);
+      brush.draw(pt, ctx);
     }
     if (index == ptN - 1) { //目前暂时没想到要做什么
       brush.end(ctx);

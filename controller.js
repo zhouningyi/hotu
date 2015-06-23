@@ -66,9 +66,9 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
         next();
       },
       fail: function () {
-        self.loading = new Loading(firstContainer, {
-          'config': config
-        });
+        // self.loading = new Loading(firstContainer, {
+        //   'config': config
+        // });
         self.isLogin = 0;
         next();
       }
