@@ -5,6 +5,7 @@ define(['./easing', './../libs/event', './../utils/utils'], function (Easing, Ev
 var max = Math.max, cos = Math.cos, sin = Math.sin, atan2 = Math.atan2, min = Math.min, pow = Math.pow, sqrt = Math.sqrt;
   function Smooth(opt) {
     Util.extend(this, opt);
+    this.values = [];
     this.setSmoothN();
     this.setEasing();
   }
@@ -14,10 +15,9 @@ var max = Math.max, cos = Math.cos, sin = Math.sin, atan2 = Math.atan2, min = Ma
     smoothN: 9,
     Easing: Easing, //easing函数库
     easing: 'Sinusoidal.In',
-    values: [],
-    smooth: null,
-    smoothP: null,
-    smoothPP: null,
+    value: null,
+    valueP: null,
+    valuePP: null,
     setSmoothN: function (smoothN) {
       smoothN = smoothN || this.smoothN;
       this.smoothN = smoothN;
@@ -42,39 +42,37 @@ var max = Math.max, cos = Math.cos, sin = Math.sin, atan2 = Math.atan2, min = Ma
     },
     add: function (value) {
       if (typeof(value = parseFloat(value)) !== 'number') return console.log('smooth的内容须为数字');
-      var values = this.values,
-        valuesN = values.length;
+      var values = this.values;
       values.push(value);
-      if (valuesN === this.maxSmoothN && !this.isFirstReady) {
+      if (values.length === this.maxSmoothN && !this.isFirstReady) {
         this.isFirstReady = true;
         this.emit('smooth-ready');
       }
-
-      if (valuesN > this.maxSmoothN) values.splice(0, 1);
+      if (values.length > this.maxSmoothN) values.splice(0, 1);
       
-      var N = min(valuesN, this.smoothN);
+      var N = min(values.length, this.smoothN);
       var map = this['map_' + N] || this.genMap(N);
-      var smooth = 0, mapN = map.length;
-      for (var k = 0; k < map.length; k++) {
-        smooth += map[mapN - 1 - k] * values[valuesN - 1 - k];
+      var smooth = 0;
+      for (var k = 0; k < N; k++) {
+        smooth += map[N - 1 - k] * values[values.length - 1 - k];
       }
       //更新暂存
       this.updatePrev(smooth);
-      return smooth;
+      return this;
     },
-    updatePrev: function (smooth) {
+    updatePrev: function (value) {
       this.valuePP = this.valueP;
       this.valueP = this.value;
-      this.value = smooth;
+      this.value = value;
     },
     get: function (smoothN, easing) {
       return this.smooth;
     },
     reset: function () { //从新开始新的smooth
       this.values = [];
-      this.smoothPP = null;
-      this.smoothP = null;
-      this.smooth = null;
+      this.valuePP = null;
+      this.valueP = null;
+      this.value = null;
       this.isFirstReady = false;
     }
   });

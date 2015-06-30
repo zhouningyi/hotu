@@ -1,11 +1,12 @@
 'use strict';
 //对UI的总体控制
-define(['./../utils/utils', 'zepto', './../render/renderer', 'anim', './components/lightSatSelector', './components/hueSlider', './components/slider', './data_preview'], function (Utils, $, Renderer, keyAnim, LightSatSelector, HueSlider, Slider, previewData) {
+define(['./../utils/utils', 'zepto', './../render/painter_renderer', 'anim', './components/lightSatSelector', './components/hueSlider', './components/slider', './data_preview'], function (Utils, $, PainterRenderer, keyAnim, LightSatSelector, HueSlider, Slider, previewData) {
   var values = Utils.values;
   var genCanvas = Utils.genCanvas;
   var hsla2obj = Utils.hsla2obj;
   var body = $('body');
   var prevent = Utils.prevent;
+  var previewCurve = previewData.c[0];
   function BrushTools(opt) {
     this.container = opt.container;
     this.brushes = opt.brushes;
@@ -105,9 +106,8 @@ var brushToolsNode, colorNode, shapeNode, toolsListNode, previewNode, curBrushNo
   
   BrushTools.prototype.initPreview = function (brushes) {
     previewNode = brushToolsNode.find('.sub-tools-preview');
-    this.rendererPreview = new Renderer(brushes, {
-      frameW: previewNode.width(),
-      frameH: previewNode.height()
+    this.rendererPreview = new PainterRenderer({
+      brushes: brushes
     });
     this.ctxPreview = genCanvas({
       'container': previewNode,
@@ -118,17 +118,12 @@ var brushToolsNode, colorNode, shapeNode, toolsListNode, previewNode, curBrushNo
   BrushTools.prototype.preview = function (brush) {
     brush = brush || this.curBrush;
     var brushType = brush.id;
-    if (previewData.c[0].brushType !== brushType) {
-      previewData.c[0].brushType = brushType;
+    if (previewCurve.brushType !== brushType) {
+      previewCurve.brushType = brushType;
     }
     var ctx = this.ctxPreview;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    this.rendererPreview.drawDatas(ctx, previewData, {
-      curve: {
-        async: 0
-      },
-      ptTransform: 'center_x'
-    });
+    this.rendererPreview.renderCurve(previewCurve, ctx);
     ctx.name = brushType;
   };
 

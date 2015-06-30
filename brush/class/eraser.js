@@ -5,7 +5,6 @@
 define(['./../../utils/utils'], function (Utils) {
   return {
     initOpt: {
-      'redraw': false,
       'id': 'eraser',
       'name': '橡皮',
       'desc': '橡皮',
@@ -37,7 +36,7 @@ define(['./../../utils/utils'], function (Utils) {
         },
         'opacity': {
           'range': [0, 1],
-          'value': 0.4,
+          'value': 1,
           'constructorUI': 'Slider',
           'descUI': '透明',
           'containerName': 'shape'
@@ -51,7 +50,7 @@ define(['./../../utils/utils'], function (Utils) {
       this.hsla2color();//更新颜色
     },
     second: function (opt) { //补上一个点
-      var color = this.color;
+      var color = this.getValue('color');
       if (!color) return console.log('normal brush 没有颜色');
       var ctx = this.ctx;
       this.secondBol = false;
@@ -80,7 +79,7 @@ define(['./../../utils/utils'], function (Utils) {
     draw: function (opt) {
       var controls = this.controls;
       var ctx = this.ctx = opt.ctx || this.ctx;
-      var color = this.color;
+      var color = this.getValue('color');
       if (!color) return console.log('normal brush 没有颜色');
       var Easing = this.Easing;
       var record = opt.record || {};

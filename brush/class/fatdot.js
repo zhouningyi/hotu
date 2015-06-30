@@ -15,14 +15,14 @@ define(function() {
     },
     dot: function(ctx, pt, dt) {
       if (pt && dt) {
-        ctx.closePath();
-        ctx.beginPath();
-        var x = pt[0];
-        var y = pt[1];
-        var r = dt * 10;
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+        // ctx.closePath();
+        // ctx.beginPath();
+        // var x = pt[0];
+        // var y = pt[1];
+        // var r = dt * 10;
+        // ctx.arc(x, y, r, 0, Math.PI * 2);
+        // ctx.fill();
+        // ctx.stroke();
       }
     },
     draw: function(opt) {
@@ -37,11 +37,11 @@ define(function() {
         var maxSize = self.maxSize;
         if (maxSize) r = (r > maxSize) ? maxSize : r;
         var ctx = opt.ctx;
-        ctx.closePath();
+        ctx.beginPath();
         x1 = pt[0] * 0.5 + ptPrev[0] * 0.5;
         y1 = pt[1] * 0.5 + ptPrev[1] * 0.5;
-        ctx.beginPath();
         ctx.arc(x1, y1, r * 4, 0, Math.PI * 2);
+        ctx.closePath();
         ctx.fill();
         ctx.stroke();
       }

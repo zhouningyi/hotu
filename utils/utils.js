@@ -201,10 +201,45 @@ define(['zepto', 'anim'], function($) {
     return dest;
   }
 
+
+  function checkDrawData(data) {
+    return data && data.frameW && data.frameH && data.c && data.c.length;
+  }
+
+
+  var ctxOpts = {
+    'globalCompositeOperation': 'source-over',
+    'lineCap': 'round',
+    'lineJoin': 'round',
+    'strokeStyle': '#000',
+    'fillStyle': '#fff',
+    'lineWidth': 0.01,
+    'shadowColor': '#fff',
+    'shadowBlur': 0,
+    'shadowOffsetY': 0,
+    'shadowOffsetX': 0
+  };
+
+  function resetCtx(ctx, opt) {
+    var opt = opt || {};
+    for (var key in ctxOpts) {
+      ctx[key] = (opt[key] !== undefined && opt[key] !== null) ? opt[key] : ctxOpts[key];
+    }
+  }
+
+  function getId(type) {
+    var num = Math.floor(Math.random() * 10000000);
+    var d = new Date();
+    var dateStr = [d.getFullYear(), (d.getMonth() + 1), d.getDate(), d.getHours(), d.getMinutes()].join('');
+    return type + '_' + dateStr + '_' + num;
+  }
+
   return {
+    'resetCtx': resetCtx,
     'getCurvatureBy3Pt': getCurvatureBy3Pt,
     'getQueryStringByName': getQueryStringByName,
     'animateSeries': animateSeries,
+    'checkDrawData': checkDrawData,
     'rgbToHsl': rgbToHsl,
     'hsla2obj': hsla2obj,
     'obj2hsla': obj2hsla,
@@ -219,7 +254,8 @@ define(['zepto', 'anim'], function($) {
     'getPt': getPt,
     'requestAnimFrame': requestAnimFrame,
     'cancelAnimFrame': cancelAnimFrame,
-    'extend': extend
+    'extend': extend,
+    'getId': getId
   };
 
 });

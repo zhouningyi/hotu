@@ -2,7 +2,7 @@
 //发光笔触
 // 'lineCap': 'round',
 // 'lineJoin': 'miter',
-define(function () {
+define(function() {
   return {
     initOpt: {
       'id': 'light',
@@ -43,8 +43,122 @@ define(function () {
         }
       }
     },
+    addHooks: function() {
+      var controls = this.controls;
+      var Easing = this.Easing;
+      var widthMax = this.widthMax || controls.widthMax.value;
+      var ctx = this.ctx;
+      this
+        .on('begin', function() {
+          ctx = this.ctx;
+          this.initScaleList();
+        })
+        .on('second', function(record) {
+          if(!record) return;
+          var widthP = this.widthP;
+          var scaleList = this.scaleList;
+          var xp = record.xp;
+          var yp = record.yp;
+          var dx = record.dx;
+          var dy = record.dy;
+          var reverseBol = 0;
+          var e = 0.00000001;
+          if (dx >= e) {
+            reverseBol = 1;
+          } else if (Math.abs(dx) < e && dy < 0) {
+            reverseBol = 1;
+          }
+          var phiHori = Math.atan2(this.sinp, this.cosp);
+          if (phiHori >= 0) {
+            phiHori = phiHori - Math.PI;
+          }
+          for (var k in scaleList) {
+            var obj = scaleList[k];
+            ctx.beginPath();
+            ctx.fillStyle = obj.fillStyle;
+            ctx.arc(xp, yp, widthP * obj.widthPhi, phiHori, phiHori + Math.PI, reverseBol);
+            ctx.fill();
+            ctx.closePath();
+          }
+        })
+        .on('draw', function(record) {
+          var drawN = this.drawN; //要描边几次
+          var controls = this.controls;
+          var widthMax = controls.widthMax.value;
+          var Easing = this.Easing;
+          var record = opt.record || {};
+          var pt = opt.pt || {};
+          var ctx = opt.ctx;
+          var speed = record.speed || 3; //速度
 
-    begin: function () {
+          var speedK = record.speedK;
+          var ki = Easing.Sinusoidal.In(1 - speedK);
+          ki = Math.pow(ki, 2);
+          var kFinal = this.getSmooth('width', ki);
+          kFinal = (kFinal < 0) ? 0 : kFinal;
+
+          var width = widthMax * kFinal;
+          width = (width < 1) ? 1 : width;
+          var widthP = this.widthP || width;
+
+          var x = pt[0];
+          x = this.getSmooth('x', x);
+          var y = pt[1];
+          y = this.getSmooth('y', y);
+
+          var xp = this.xp;
+          var yp = this.yp;
+          if (xp !== null && xp !== undefined && yp !== null && yp !== undefined) {
+            var dx = this.dx = x - xp;
+            var dy = this.dy = y - yp;
+            var l = Math.sqrt(dy * dy + dx * dx);
+            var cos, sin;
+
+            if (l) {
+              cos = this.cos = dy / l;
+              sin = this.sin = -dx / l;
+            }
+            var cosp = this.cosp;
+            var sinp = this.sinp;
+
+            if (cosp !== undefined && cosp !== null && sinp !== undefined && sinp !== null) {
+              if (this.secondBol) {
+                this.second(opt);
+              }
+              var scaleList = this.scaleList;
+              ctx.beginPath();
+              for (var i = 1; i < drawN; i++) {
+                var obj = scaleList[i];
+                var widthPhi = obj.widthPhi;
+                var p1x = xp + widthP * cosp * widthPhi;
+                var p1y = yp + widthP * sinp * widthPhi;
+                var p2x = xp - widthP * cosp * widthPhi;
+                var p2y = yp - widthP * sinp * widthPhi;
+                var p3x = x - width * cos * widthPhi;
+                var p3y = y - width * sin * widthPhi;
+                var p4x = x + width * cos * widthPhi;
+                var p4y = y + width * sin * widthPhi;
+                ctx.fillStyle = obj.fillStyle;
+                ctx.moveTo(xp, yp);
+                ctx.lineTo(p1x, p1y);
+                ctx.lineTo(p4x, p4y);
+                ctx.lineTo(p3x, p3y);
+                ctx.lineTo(p2x, p2y);
+                ctx.lineTo(xp, yp);
+                ctx.fill();
+              }
+              ctx.closePath();
+            }
+            this.cosp = cos;
+            this.sinp = sin;
+          }
+
+          this.widthP = width;
+          this.yp = y;
+          this.xp = x;
+        });
+    },
+    initScaleList: function() {
       var controls = this.controls;
       var widthMax = controls.widthMax.value;
       var hue = Math.floor(controls.hue.value * 360);
@@ -65,116 +179,10 @@ define(function () {
       }
     },
 
-    second: function (opt) { //补上一个点
-      var ctx = this.ctx = opt.ctx;
-      this.secondBol = false;
-      var widthPrev = this.widthPrev;
-      var scaleList = this.scaleList;
-      var xp = this.xp;
-      var yp = this.yp;
-      var dx = this.dx;
-      var dy = this.dy;
-      var reverseBol = 0;
-      var e = 0.00000001;
-      if (dx >= e) {
-        reverseBol = 1;
-      } else if (Math.abs(dx) < e && dy < 0) {
-        reverseBol = 1;
-      }
-      var phiHori = Math.atan2(this.sinp, this.cosp);
-      if (phiHori >= 0) {
-        phiHori = phiHori - Math.PI;
-      }
-      for (var k in scaleList) {
-        var obj = scaleList[k];
-        ctx.beginPath();
-        ctx.fillStyle = obj.fillStyle;
-        ctx.arc(xp, yp, widthPrev * obj.widthPhi, phiHori, phiHori + Math.PI, reverseBol);
-        ctx.fill();
-        ctx.closePath();
-      }
-    },
-    draw: function (opt) {
-      var drawN = this.drawN; //要描边几次
-      var controls = this.controls;
-      var widthMax = controls.widthMax.value;
-      var Easing = this.Easing;
-      var record = opt.record || {};
-      var pt = opt.pt || {};
-      var ctx = opt.ctx;
-      var speed = record.speed || 3; //速度
-
-      var speedPhi = speed / 6000;
-      speedPhi = (speedPhi < 1) ? speedPhi : 1;
-      var ki = Easing.Sinusoidal.In(1 - speedPhi);
-      ki = Math.pow(ki, 2);
-      var kFinal = this.getSmooth('width', ki);
-      kFinal = (kFinal < 0) ? 0 : kFinal;
-
-      var width = widthMax * kFinal;
-      width = (width < 1) ? 1 : width;
-      var widthPrev = this.widthPrev || width;
-
-      var x = pt[0];
-      x = this.getSmooth('x', x);
-      var y = pt[1];
-      y = this.getSmooth('y', y);
-
-      var xp = this.xp;
-      var yp = this.yp;
-      if (xp !== null && xp !== undefined && yp !== null && yp !== undefined) {
-        var dx = this.dx = x - xp;
-        var dy = this.dy = y - yp;
-        var l = Math.sqrt(dy * dy + dx * dx);
-        var cos, sin;
-
-        if (l) {
-          cos = this.cos = dy / l;
-          sin = this.sin = -dx / l;
-        }
-        var cosp = this.cosp;
-        var sinp = this.sinp;
-
-        if (cosp !== undefined && cosp !== null && sinp !== undefined && sinp !== null) {
-          if (this.secondBol) {
-            this.second(opt);
-          }
-          var scaleList = this.scaleList;
-          ctx.beginPath();
-          for (var i = 1; i < drawN; i++) {
-            var obj = scaleList[i];
-            var widthPhi = obj.widthPhi;
-            var p1x = xp + widthPrev * cosp * widthPhi;
-            var p1y = yp + widthPrev * sinp * widthPhi;
-            var p2x = xp - widthPrev * cosp * widthPhi;
-            var p2y = yp - widthPrev * sinp * widthPhi;
-            var p3x = x - width * cos * widthPhi;
-            var p3y = y - width * sin * widthPhi;
-            var p4x = x + width * cos * widthPhi;
-            var p4y = y + width * sin * widthPhi;
-            ctx.fillStyle = obj.fillStyle;
-            ctx.moveTo(xp, yp);
-            ctx.lineTo(p1x, p1y);
-            ctx.lineTo(p4x, p4y);
-            ctx.lineTo(p3x, p3y);
-            ctx.lineTo(p2x, p2y);
-            ctx.lineTo(xp, yp);
-            ctx.fill();
-          }
-          ctx.closePath();
-        }
-        this.cosp = cos;
-        this.sinp = sin;
-      }
-
-      this.widthPrev = width;
-      this.yp = y;
-      this.xp = x;
-    },
-    end: function () {
+    end: function() {
       var ctx = this.ctx;
       this.secondBol = false;
-      var widthPrev = this.widthPrev;
+      var widthP = this.widthP;
       var scaleList = this.scaleList;
       var x = this.xp;
       var y = this.yp;
@@ -196,19 +204,19 @@ define(function () {
       for (var k in scaleList) {
         var obj = scaleList[k];
         ctx.fillStyle = obj.fillStyle;
-        ctx.arc(x, y, widthPrev * obj.widthPhi, phiHori, phiHori + Math.PI, reverseBol);
+        ctx.arc(x, y, widthP * obj.widthPhi, phiHori, phiHori + Math.PI, reverseBol);
         ctx.fill();
       }
       ctx.closePath();
 
-      this.widthPrev = null;
+      this.widthP = null;
       this.yp = null;
       this.xp = null;
       this.cosp = null;
       this.sinp = null;
 
     },
-    buttonStyle: function (node) {
+    buttonStyle: function(node) {
       node.css({
         'textShadow': '0 0 9px #707',
         'color': '#f9f'

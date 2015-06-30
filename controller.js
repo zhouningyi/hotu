@@ -1,10 +1,10 @@
 'use strict';
 
-define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'render/renderer', 'ui/loading', './model/user', './app_config', './model/browser', './ui/uploadSubmit', './action/actions'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Renderer, Loading, User, config, browser, UploadSubmit, Actions) {
+define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'ui/loading', './model/user', './app_config', './model/browser', './ui/uploadSubmit', './action/actions'], function ($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, Brushes, Url, Weixin, ModelDraw, Loading, User, config, browser, UploadSubmit, Actions) {
   var clickEvent = 'touchstart mousedown';
 
   //绘图相关组件
-  var painter, bg, exports, gui, floatTag, brushTools, bgTools, brushes, actions, layers, uploadSubmit, modelDraw, renderer, brushObj;
+  var painter, bg, exports, gui, floatTag, brushTools, bgTools, brushes, actions, layers, uploadSubmit, modelDraw, brushObj;
 
   //组件相关的node
   var body = $('body'), drawToolsNode = $('#draw-tools'), endToolsNode = $('.end-tools'),
@@ -17,7 +17,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     this.dispatch(this.init.bind(this));
     // this.test();
   }
-  
+
   Controller.prototype.test = function () {
   };
 
@@ -37,9 +37,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     if (config.isConfigFromStorage) {
       modelDraw.getConfig();
     }
-    renderer = this.renderer = new Renderer(brushObj, frameOpt); //动画播放等
   };
-
 
   var isLoadLast = true;
   var url, weixin, user;
@@ -82,7 +80,6 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       container: uiContainer,
       bind: drawToolsNode,
       brushes: brushObj,
-      renderer: this.renderer
     });
 
     var painterOpt = config.painter;
@@ -91,7 +88,6 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     painter = this.painter = new Painter(drawContainer, {
       'brushes': brushes,
       'modelDraw': modelDraw,
-      'renderer': renderer,
       'quality': quality,
       'backN': backN
     });
@@ -240,7 +236,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
         'layers': function () {
           layers.switch();
         },
-        'broadcast': painter.broadcast.bind(painter),
+        // 'broadcast': painter.broadcast.bind(painter),
         'refresh': window.location.reload.bind(window.location)
       };
       if (cbs[id]) {

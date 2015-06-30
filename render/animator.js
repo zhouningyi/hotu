@@ -1,5 +1,5 @@
 'use strict';
-define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, event) {
+define(['zepto', './../utils/utils', './../libs/event', './renderer'], function ($, Utils, event, Renderer) {
   var requestAnimFrame = Utils.requestAnimFrame;
   var cancelAnimFrame = Utils.cancelAnimFrame;
   var body = $('body');
@@ -8,6 +8,10 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
     opt = opt || {};
     this._brushes = opt.brushes;
     this._ctx = opt.ctx;
+
+    this.renderer = new Renderer({
+      brushes: this._brushes
+    });
 
     //事件
     var self = this;
@@ -26,29 +30,32 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
     ptInCurveIndex: 0,
     isLooping: true,
     curveIndex: 0,
+    isClean: true,
     checkData: function (data) {//检查数据是否有问题
-      return data && data.frameW && data.frameH && data.c && data.c.length;
+      return Utils.checkDrawData(data);
     },
-    getPtsN: function (data) {
+    getPtsN: function (index) {
       var curves = this._curves;
+      index = index || curves.length;
+      index = (index < curves.length) ? index : curves.length;
       var ptsN = 0;
-      for (var k in curves) {
+      for (var k = 0; k < index; k++) {
         var curve = curves[k];
         if (curve && curve.c) {
           ptsN += curve.c.length;
         }
       }
-      this.ptsN = ptsN;
+      return ptsN;
     },
     ctx: function(ctx){
       this._ctx = ctx;
     },
     data: function (data) { //传入数据
-      if (!this.checkData(data)) alert('数据有点问题哦');
+      // if (!this.checkData(data)) alert('数据有点问题哦');
       this._data = data;
       this._curves = data.c;
-      this.getPtsN(data);
-      this.stopPtIndex = null;
+      this.ptsN = this.getPtsN(data);
+      this.stopPtIndex = this.ptsN;
       this.redraw();
     },
     reset: function () {//参数全部更新
@@ -68,7 +75,7 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
     },
     redraw: function () {//从头开始绘制
       this.reset();
-      this.clean();
+      if (this.isClean) this.clean();
       this.resume();
     },
     redrawAll: function () {//清除 stopPtIndex, 即从头播放到尾, 并开始绘制
@@ -103,7 +110,21 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
     loop: function () {
       this.drawStep();
     },
-    to: function (stopPtIndex) {//到第N个点停下
+    to: function (index, type) {
+      type = type || 'ptIndex';
+      if (type === 'ptIndex') return this.toPtIndex(index);
+      if (type === 'curveIndex') return this.curveIndex(index);
+    },
+    toCurveIndex: function (index) {
+      var curves = this._curves;
+      if (index > curves.length) return;//大小越界
+      var stopPtIndex = 0;
+      for (var k in curves) {
+        var curve = curves[k];
+        var pts = curves.length;
+      }
+    },
+    toPtIndex: function (stopPtIndex) {//到第N个点停下
       if (stopPtIndex === null || stopPtIndex === undefined) return;
       if (stopPtIndex <= 1) {//为百分比的情况
         stopPtIndex = Math.floor(stopPtIndex * this.ptsN);
@@ -117,15 +138,8 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
         this.redraw();
       }
     },
-    toCurveIndex: function(index, type){//按照曲线编号来前进
-      var curves = this._curves;
-      var curvesN = curves.length;
-      var stopPtIndex = 0;
-      index = Math.min(curves.length, index);
-      if(type === 'reverse') index = curvesN - index;
-      for(var k = 0; k < index; k++){
-        stopPtIndex+= curves[k].c.length;
-      }
+    toCurveIndex: function (index, type){//按照曲线编号来前进
+      var stopPtIndex = this.getPtsN(index);
       this.to(stopPtIndex);
     },
     step: function (stepPtN) {
@@ -134,6 +148,7 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
     },
     onNextCurve: function () {
       var curves = this._curves;
+      // console.log(curves,'curvescurvescurvescurvescurves')
       var curveIndex = this.curveIndex;
       if (curveIndex >= curves.length) return false;
       var curCurve = this._curCurve = curves[curveIndex];
@@ -162,21 +177,25 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
       while (stepIndex < stepPtN) {
         if(!this.isLooping) return;
         isNextPt = this.drawPt();
-        this.ptInCurveIndex++;
         if (!isNextPt) {
           isNextCurve = this.onNextCurve();
           if (!isNextCurve) {
-            return;
+            return this.emit('end');
           }
+        }else{
+          this.ptIndex++;
+          this.ptInCurveIndex++;
         }
         if (this.stopPtIndex && this.stopPtIndex <= this.ptIndex) {
           this.setLoopStatus(false);
           this.emit('step', this.ptIndex / this.ptsN);
+          this.emit('end');
           return this.stop();
         }
         if (this.ptsN <= this.ptIndex) {
           this.setLoopStatus(false);
           this.emit('step', 1);
+          this.emit('end');
           return this.stop();
         }
         stepIndex++;
@@ -189,17 +208,7 @@ define(['zepto', './../utils/utils', './../libs/event'], function ($, Utils, eve
       var curCurvePts = this.curCurvePts;
       var pt = curCurvePts[index];
       var ptN = curCurvePts.length;
-      if (index === '0' || index === 0) {
-        this.curBrush.begin(this._ctx, pt);
-        this.ptIndex++;
-      } else if (index < ptN) {
-        this.curBrush.draw(this._ctx, pt);
-        this.ptIndex++;
-      }else {
-        this.curBrush.end(this._ctx);
-        return false;
-      }
-      return true;
+      return this.renderer.drawPt(pt, index, ptN, this._ctx, this.curBrush);
     },
     dataCurrent: function (index) { //获得当前播放动画的数据
       return this._dataCurrent;
