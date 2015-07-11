@@ -96,8 +96,7 @@ var actionToolsNode, colorNode, commonNode, toolsListNode, curActionNode;
     var obj, uiName, descUI, ConstructorUI, containerName, constructorUI, container, ki;
     for (var key in controls) {
       obj = controls[key];
-      constructorUI = obj.constructorUI;
-      ConstructorUI = mapUI[constructorUI];
+      ConstructorUI = mapUI[obj.constructorUI];
       containerName = obj.containerName;
       container = mapContainer[containerName];
 

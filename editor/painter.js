@@ -10,6 +10,7 @@ define(['zepto', './../utils/utils', './../render/painter_renderer'], function (
   function Painter(container, opt) {
     opt = opt || {};
     container = container || $('.container');
+    this.mainContainer = container.parent();
     this.container = container;
     var offset = container.offset();
     this.left = offset.left;
@@ -23,22 +24,20 @@ define(['zepto', './../utils/utils', './../render/painter_renderer'], function (
     //画板
     this.quality = opt.quality || 2;
     this.addLayers();
+    this.maxZoom = 4;
+    this.minZoom = 1;
 
     //画笔相关
     var brushes = this.brushes = opt.brushes;
-    var brushObj = this.brushObj = brushes.brushObj;
-    var brushTypeList = this.brushTypeList = brushes.brushTypeList; //'lines',
-    this.brushIndex = 0;
-    this.setBrush(brushTypeList[0]);
 
     //步骤相关
     this.cacheCurves = []; //临时存储的
-    var backN = this.backN = 2//opt.backN || 2; //可回退的次数
+    var backN = this.backN = opt.backN || 20; //可回退的次数
 
     //其他
     this.renderer = new PainterRenderer({
       backN: backN,
-      brushes: brushObj,
+      brushes: brushes,
       ctxFront: this.ctxMainFront,
       ctxBack: this.ctxMainBack
     });
@@ -47,9 +46,115 @@ define(['zepto', './../utils/utils', './../render/painter_renderer'], function (
     this.clickDistance = 4; //判断是否是点击事件
     this.clickTime = 0.15;
 
+    this.touchEvents();
     this.editEvents();
     this.uiEvents();
     this.painteWorkEvents();
+  }
+
+  var testNode = $('#test-container')
+  Painter.prototype.touchEvents = function(){
+    var mainContainer = this.mainContainer[0];
+    var hammer = this.hammer = new Hammer(mainContainer, {});
+    hammer.get('pinch').set({enable: true });
+    hammer.get('rotate').set({ enable: true });
+    this.pinch();
+  };
+
+  Painter.prototype.pinch = function(){
+    var self = this;
+    this.pinchedScale = this.pinchScale = 1;
+    this.pinchedX = this.pinchX = 0;
+    this.pinchedY = this.pinchY = 0;
+    this.cx = this.mainContainer.width() / 2;
+    this.cy = this.mainContainer.height() / 2;
+    this.isFirstPinch = true;
+    this.hammer
+    .on('pinchstart', function(e){
+      if(self.isFirstPinch){
+        self.cxFirst = e.center.x;
+        self.cyFirst = e.center.y;
+        // self.disFirst = getHammerDistance(e);
+        self.isFirstPinch = false;
+      }
+      self.isPinch = true;
+      if(self.isAfterDown){
+        self.isAfterDown = false;
+        self.redraw();
+        self.mvPt = null;
+      }
+      self.cxS = e.center.x;
+      self.cyS = e.center.y;
+      self.disS = getHammerDistance(e);
+    })
+    .on('pinchmove', function(e) {
+      if(!self.isPinch) return;
+      var scale = self.pinchScale = getHammerDistance(e) / self.disS * self.pinchedScale;
+      testNode.text('dx' + '|' + 'dy' + '|' + scale);
+       // * self.pinchedScale;
+      var center = e.center;
+      self.cx = center.x, self.cy = center.y;
+      self.pinchX = center.x - self.cxFirst;// + self.pinchedX;
+      self.pinchY = center.y - self.cyFirst;// + self.pinchedY;
+      self.updateZoom();
+    })
+    .on('pinchend', function(){
+      self.pinchedX = self.pinchX;
+      self.pinchedY = self.pinchY;
+
+      self.checkIsOutOfBound();
+
+      self.pinchedScale = self.pinchScale;
+      self.isPinch = false;
+      self.disS = null;
+    });
+  };
+
+  Painter.prototype.checkIsOutOfBound = function() {
+    if (this.pinchScale > this.maxZoom) {
+      this.pinchScale = this.maxZoom;
+      this.updateZoom();
+    } else if (this.pinchScale < this.minZoom) {
+      this.pinchScale = this.minZoom;
+      this.pinchX = 0;
+      this.pinchY = 0;
+      this.pinchedX = 0;
+      this.pinchedY = 0;
+      this.pinchedScale = 1;
+      this.updateZoom();
+      this.cx = this.mainContainer.width() / 2;
+      this.cy = this.mainContainer.height() / 2;
+    }
+    var scale = this.pinchedScale;
+    var leftTop = (this.pinchX - this.cx) * scale + this.cx;
+    // testNode.text(leftTop);
+    // // var lt = 
+    // // if()
+  };
+
+  Painter.prototype.updateZoom = function() {
+    var dx = this.pinchX, dy = this.pinchY, scale = this.pinchScale;
+    var translate = 'translate3d(' + dx + 'px,' + dy + 'px,' + 0 + 'px) scale(' + scale + ',' + scale + ')';
+    
+    var origin = this.cx + 'px ' + this.cy + 'px';
+    this.mainContainer.css({
+      'transformOrigin': origin,
+      '-webkitTransformOrigin': origin,
+      'transform': translate,
+      '-webkitTransform': translate
+    });
+  };
+
+  function getHammerDistance(e){
+    if(!e) return;
+      var pointers = e.pointers;
+      var pointer1 = pointers[0];
+      var pointer2 = pointers[1];
+      var screenX1 = pointer1.screenX;
+      var screenY1 = pointer1.screenY;
+      var screenX2 = pointer2.screenX;
+      var screenY2 = pointer2.screenY;
+      return Utils.distance(screenX1, screenY1, screenX2, screenY2);
   }
 
   Painter.prototype.beginRecord = function () { //开始数据记录
@@ -94,19 +199,13 @@ define(['zepto', './../utils/utils', './../render/painter_renderer'], function (
   /////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////绘图设置///////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  Painter.prototype.setBrush = function (brushType) {
-    if(!brushType) return console.log('没有brushType');
-    var brush = this.brushObj[brushType];
-    if (!brush) return;
-    this.curBrushType = brushType;
-    this.curBrush = brush;
-  };
+  ///
   /////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////交互事件///////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
   Painter.prototype.editEvents = function () {
     this.isAfterDown = false;
-    this.container
+    this.mainContainer
       .on('touchstart mousedown', this.touchstart.bind(this))
       .on('touchmove mousemove', this.touchmove.bind(this))
       .on('touchend mouseup touchleave mouseout', this.touchleave.bind(this));
@@ -132,12 +231,6 @@ define(['zepto', './../utils/utils', './../render/painter_renderer'], function (
   };
 
   Painter.prototype.uiEvents = function () {
-    var self = this;
-    body.on('brush-change', function (e, brush) {
-      var brushType = brush.id;
-      self.curBrush = brush;
-      self.curBrushType = brushType;
-    });
   };
 
   //////////////////////////start的阶段//////////////////////////
@@ -147,6 +240,7 @@ define(['zepto', './../utils/utils', './../render/painter_renderer'], function (
     this.mvPt = null;
     this.isAfterDown = true; //主要解决pc、mac的问题。
     this.touchStartTime = getTimeAbsolute();
+    this.curBrush = this.brushes.current();
     this.curBrush.begin(pt, this.ctxMainFront);
     prevent(e);
   };
@@ -178,7 +272,7 @@ define(['zepto', './../utils/utils', './../render/painter_renderer'], function (
   Painter.prototype.leaveEvents = function () {
     var dt = getTimeAbsolute() - this.touchStartTime;
     var mvPt = this.mvPt;
-    if (mvPt) { //具有touch事件
+    if (mvPt) {//具有touch事件
       var distance = Math.sqrt(Math.pow(mvPt[0] - this.startPt[0], 2) + Math.pow(mvPt[1] - this.startPt[1], 2));
       if (distance < this.clickDistance) {
         this.container.trigger('painter-click');
@@ -204,34 +298,28 @@ define(['zepto', './../utils/utils', './../render/painter_renderer'], function (
 
   Painter.prototype.redraw = function () { //前端canvas重绘
     this.clean('MainFront'); //清除画面
-    var cacheCurves = this.cacheCurves;
-    var ctxMainFront = this.ctxMainFront;
-    var renderer = this.renderer;
-    // console.log(cacheCurves);
-    renderer.redrawCurves(cacheCurves);
-    // var globalCompositeOperation = ctxMainFront.globalCompositeOperation;
-    // ctxMainFront.globalCompositeOperation = 'source-over';
-    // ctxMainFront.drawImage(this.canvasMainBack, 0, 0, this.containerW, this.containerH);//画图的一瞬间 修改globalCompositeOperation 为正常叠加模式！
-    // ctxMainFront.globalCompositeOperation = globalCompositeOperation;
-    // for (var k in cacheCurves) {
-    //   var obj = cacheCurves[k];
-    //   renderer.renderCurve(obj.curve, ctxMainFront);
-    // }
+    this.renderer.redrawCurves(this.cacheCurves);
   };
 
   Painter.prototype.displayEvents = function () {};
+
   Painter.prototype.getPt = function (e) { //获取点
-    var left = this.left;
-    var top = this.top;
-    var t = this.getTimeRelative();
-    t = t.toFixed(4);
+    var left = this.left, top = this.top;
+    var x, y, t = this.getTimeRelative().toFixed(4);
     if (e.type.indexOf('mouse') !== -1) {
-      var x = e.x || e.pageX;
-      var y = e.y || e.pageY;
-      return [x - left, y - top, t];
+      x = (e.x || e.pageX) - left;
+      y = (e.y || e.pageY) - top;
+    }else{
+      var touch = window.event.touches[0];
+      x = touch.pageX - left;
+      y = touch.pageY - top;
     }
-    var touch = window.event.touches[0];
-    return [touch.pageX - left, touch.pageY - top, t];
+    var pinchScale = this.pinchScale;
+    var originX = this.cx * (1 - pinchScale) + this.pinchX;
+    x = (x - originX) / pinchScale;
+    var originY = this.cy * (1 - pinchScale) + this.pinchY;
+    y = (y - originY) / pinchScale;
+    return [x, y, t];
   };
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -293,11 +381,7 @@ define(['zepto', './../utils/utils', './../render/painter_renderer'], function (
       this.redraw(); //绘制刷新
       this.modelDraw.back();
     } else {
-      if (this.modelDraw.delData){
-        // this.reload(this.modelDraw.delData); //容易出问题 不用
-      }else{
-        console.log('no-more-back');
-      }
+      console.log('no-more-back');
     }
   };
 
@@ -323,6 +407,7 @@ define(['zepto', './../utils/utils', './../render/painter_renderer'], function (
       if(!c.length) return;
       lastCurve = c[c.length - 1];
     }
+    this.brushes.current(lastCurve.brushType);
 
     this.modelDraw.oldData(d); //存储上次的数据
     var datas = this.renderer.reload(d);

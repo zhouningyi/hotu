@@ -10,7 +10,7 @@ define(['./brush_base_round'], function(Mark) {
     init: function(obj) {
       Mark.prototype.init.call(this, obj);
     },
-    'id': 'eraser',
+    'id': 'eraser_v1',
     'name': '橡皮',
     'desc': '橡皮工具',
     'color': '#fff',

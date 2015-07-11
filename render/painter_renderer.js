@@ -1,5 +1,5 @@
 'use strict';
-define(['./../utils/utils', './animator', './../libs/event', './renderer'], function (Utils, Animator, EventsEmiter, Renderer) {
+define(['./../utils/utils', './animation', './../libs/event', './renderer'], function (Utils, Animator, EventsEmiter, Renderer) {
   var obj2hsla = Utils.obj2hsla;
   var merge = Utils.extend;
 
@@ -10,7 +10,7 @@ define(['./../utils/utils', './animator', './../libs/event', './renderer'], func
 
   EventsEmiter.extend(PaintRenderer, {
     backN: 15,
-    maxStepPtN: 620,
+    stepPtN: 200,
     brushes: null,
     ctxFront: null,
     ctxBack: null,
@@ -30,30 +30,23 @@ define(['./../utils/utils', './animator', './../libs/event', './renderer'], func
       var cache = datas.cache;
       if (base) {
         this.renderBase(base, function () {
-          self.renderCache(cache, cb);
+          self.redrawCurves(cache, cb);
         });
       } else {
-        this.renderCache(cache, cb);
+        this.redrawCurves(cache, cb);
       }
       return datas;
     },
+    
     renderBase: function (base, cb) {
       var animator = new Animator({
-        maxStepPtN: this.maxStepPtN,
+        stepPtN: this.stepPtN,
         brushes: this.brushes,
         ctx: this.ctxBack
       });
       animator.data({c: base});
+      animator.on('step', this.renderBackFront.bind(this));//为了进入的时候 可以看到动画
       if(cb) animator.on('end', cb);
-    },
-
-    renderCache: function (cache) {
-      this.renderBackFront();
-      var curve;
-      for (var i in cache) {
-        curve = cache[i];
-        this.renderCurve(curve, this.ctxFront);
-      }
     },
 
     renderBackFront: function () {
@@ -69,9 +62,8 @@ define(['./../utils/utils', './animator', './../libs/event', './renderer'], func
       ctxFront.globalCompositeOperation = globalCompositeOperation;
     },
 
-    redrawCurves: function (cache) {
+    redrawCurves: function (cache) {//直接绘制一组线
       this.renderBackFront();
-
       //绘制笔
       for (var k in cache) {
         var curve = cache[k];

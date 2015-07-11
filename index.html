@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-<meta name="baidu-site-verification" content="p7k81XAfJs" />
+<!-- <meta name="baidu-site-verification" content="p7k81XAfJs" /> -->
 <title id="title">糊涂|智能画板</title>
   <meta http-equiv='Content-Type' content='Type=text/html; charset=utf-8'>
   <meta name="apple-mobile-web-app-title" content="糊.涂">
@@ -34,11 +34,11 @@
           rel="apple-touch-icon-precomposed">
   <link rel="apple-touch-startup-image" href="/img/startup.png" />
   <script>
-var ua = navigator.userAgent.toLowerCase();
-var href = window.location.href;
-if (ua.indexOf('micromessenger') !== -1 && (href.indexOf('code') === -1)) {//微信中打开 且短网址 如不是从长网址回退
-  // window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2b66f49eb82d70de&redirect_uri=http%3A%2F%2Fhotu.co%2Fhua%2F&response_type=code&scope=snsapi_base&state=fromidequuualstodirectannndfromTypeequuualstoname#wechat_redirect';
-}
+// var ua = navigator.userAgent.toLowerCase();
+// var href = window.location.href;
+// if (ua.indexOf('micromessenger') !== -1 && (href.indexOf('code') === -1)) {//微信中打开 且短网址 如不是从长网址回退
+//   window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2b66f49eb82d70de&redirect_uri=http%3A%2F%2Fhotu.co%2Fhotu%2F&response_type=code&scope=snsapi_base&state=fromidequuualstodirectannndfromTypeequuualstoname#wechat_redirect';
+// }
 var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
@@ -47,17 +47,16 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>
-  <!-- <link rel="stylesheet" href="http://at.alicdn.com/t/font_1428865194_383283.css"> -->
   <link rel="stylesheet" href="./dest/app.min.css">
 </head>
 <body>
 
   <div class="container main-container">
      <div class="layers-container container">
-       <div class="bg-container container">
+       <div class="bg-container container" style="pointer-events:none;">
            <div class="bg-image-container container"></div>
        </div>
-       <div class="draw-container container"></div>
+       <div class="draw-container container" style="pointer-events:none;"></div>
     </div>
 
     <div class="ui-container container">
@@ -99,9 +98,10 @@ var _hmt = _hmt || [];
   </div>
 
   <div class="container first-container" style="z-index:14"></div>
-  <!-- <div id="test-container" style="z-index:15;"></div> -->
+  <div id="test-container" style="z-index:15;"></div>
   </div>
+      <script src="./libs/hammer.js"></script>
       <script data-main="./app.js" src="./bower_components/requirejs/require.min.js"></script>
-    <!-- <script data-main="./dest/app.min.js" src="./bower_components/requirejs/require.min.js"></script> -->
+    <!-- <script data-main="./dest/app.min" src="./bower_components/requirejs/require.min.js"></script> -->
 </body>
 </html>

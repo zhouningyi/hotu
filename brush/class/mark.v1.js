@@ -19,7 +19,7 @@ define(['./brush_base_round'], function(BrushBase) {
     init: function(obj) {
       BrushBase.prototype.init.call(this, obj);
     },
-    'id': 'mark.v1',
+    'id': 'mark_v1',
     'name': '马克笔',
     'desc': '常用笔 圆头 可选择透明度',
     'globalCompositeOperation': 'source-over',
@@ -72,12 +72,14 @@ define(['./brush_base_round'], function(BrushBase) {
     addHooks: function() {
       var controls = this.controls;
       var Easing = this.Easing;
-      var widthMax = this.widthMax || controls.widthMax.value;
+      var widthMax;
+
       var ctx = this.ctx;
       this
         .on('begin', function () {
           this.resetValues();
           ctx = this.ctx;
+          widthMax = controls.widthMax.value;
         })
         .on('draw', function(record) {
           if (!record) return console.log('record不存在');
@@ -97,8 +99,6 @@ define(['./brush_base_round'], function(BrushBase) {
           var dx = smoothes.dx;
           var dy = smoothes.dy;
           var dPhi = smoothes.dPhi;
-
-          // console.log(kCurve,x,xp)
 
           var ki = Easing.Sinusoidal.In(1 - speedK);
           ki = pow(ki, 2);
@@ -145,7 +145,7 @@ define(['./brush_base_round'], function(BrushBase) {
             }
           }
         })
-        .on('second', function(record) {
+        .on('second', function (record) {
           var smoothes = record.smoothes;
           var color = this.getValue('color');
           if (!color) return console.log('normal brush 没有颜色');

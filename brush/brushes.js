@@ -1,36 +1,45 @@
 'use strict';
 //这个模块和业务关系比较大 负责选择调用哪些模块
-define(['./class/mark.v1', './class/pen.v1', './class/fatdot.v1', './class/ink', './class/fatTest', './class/eraser.v1'], function(mark, pen, fatdot, ink, FatTest,  eraser) { //加载brush基类
-
-
-  // var urlBase = './brush/class/';
-  // var arr = ['fatdot', 'ink', 'light', 'marknew', 'pen', 'eraser'];
-  // for(var k in arr){
-  //   arr[k] = urlBase + arr[k];
-  // }
-  // require(arr, function(){
-  //   for(var k in arguments){
-  //     var Brush = arguments[k];
-  //     var brush = new Brush();
-  //     console.log(brush.id);
-  //   }
-  // })
+define(['./../libs/event', './class/mark.v1', './class/pen.v1', './class/fatdot.v1', './class/ink', './class/fatTest', './class/eraser.v1', './class/fatLines.v1',  './class/caojian'], function(EventsEmitter, mark, pen, fatdot, ink, FatTest, eraser, FatLines, Caojian) { //加载brush基类
 
   function Brushes() {
-    var brushList = this.brushList = [mark, pen, fatdot, FatTest];//pen, light, ink, , eraser
-    this.creates(brushList);
+    this.creates([mark, fatdot, FatTest, FatLines, Caojian]);//pen Pencil
   }
-
-  Brushes.prototype.creates = function(brushList) {
-    var brushTypeList = this.brushTypeList = [];
-    var brushObj = this.brushObj = {};
-    for (var i in brushList) {
-      var Brush = brushList[i];
-      var brush = new Brush();
-      var id = brush.id;
-      brushObj[id] = brush;
-      brushTypeList.push(id);
+  EventsEmitter.extend(Brushes, {
+    curBrushid: null,
+    creates: function(brushConstruList) {
+      var brushTypeList = this.brushTypeList = [];
+      var brushObj = this.brushObj = {};
+      var brushList = this.brushList = [];
+      for (var i in brushConstruList) {
+        var Brush = brushConstruList[i];
+        var brush = new Brush();
+        brushObj[brush.id] = brush;
+        brushList.push(brush);
+        brushTypeList.push(brush.id);
+      }
+      this._curBrush = brushList[0];
+    },
+    get: function(key) {
+      if (typeof(key) === 'number') return this.brushList[key];
+      return this.brushObj[key];
+    },
+    each: function(cb) {
+      var brushObj = this.brushObj;
+      for (var id in brushObj) {
+        cb(id, brushObj[id]);
+      }
+    },
+    current: function(brushid) {
+      if(!this._curBrush) this._curBrush = this.brushList[0];
+      if (brushid === undefined || brushid === null) return this._curBrush;
+      if(brushid === this.curBrushid) return;
+      var curBrush = this._curBrush = this.get(brushid);
+      this.curBrushid = brushid; 
+      this.emit('curBrush', curBrush);
+      return curBrush;
     }
-  };
-  return Brushes;
+  });
+
+  return new Brushes();
 });

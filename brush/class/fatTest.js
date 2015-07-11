@@ -8,11 +8,11 @@ define(['./../brush'], function(Brush) {
 
   Brush.extend(Fatdot, {
     'desc': '可爱 画点笔触',
-    'name': '漫画风格',
+    'name': '漫画',
     'id': 'fatTest',
     // 'fillStyle': 'rgba(0,200,200,1)',
     'rPhi': 5,
-    'shadowPhi': 0.5, //阴影和半径的比例
+    'shadowPhi': 0.6, //阴影和半径的比例
     'lineWidth': 1,
     'strokeStyle': '#000',
     'globalCompositeOperation': 'source-over',
@@ -31,10 +31,17 @@ define(['./../brush'], function(Brush) {
     'controls': {
       'widthMax': {
         'range': [1, 100],
-        'value': 8,
+        'value': 30,
         'constructorUI': 'Slider',
         'descUI': '粗细',
         'containerName': 'shape'
+      },
+      'contrast': {
+        'range': [0, 1],
+        'value': 0.6,
+        'constructorUI': 'Slider',
+        'descUI': '对比',
+        'containerName': 'color'
       },
       'hue': {
         'range': [0, 1],
@@ -66,14 +73,16 @@ define(['./../brush'], function(Brush) {
       this
         .on('begin', function() {
           ctx = this.ctx;
-          ctx.shadowColor = '#033';
-          ctx.shadowBlur = 3;
+          ctx.shadowColor = 'rgba(40,40,40,1)';
+          ctx.shadowBlur = 1;
         })
         .on('draw', function(record) {
           var color = this.getValue('color');
+          var contrast = this.getValue('contrast');
           if (!record || !color) return;
           var smoothes = record.smoothes;
           var speedK = smoothes.speedK;
+          if(speedK>1) alert(speedK);
           ctx = this.ctx;
           ctx.beginPath();
           var x = smoothes.x,
@@ -86,6 +95,7 @@ define(['./../brush'], function(Brush) {
             r = speedK * widthMax * this.rPhi;
             ctx.shadowOffsetX = r * this.shadowPhi;
             ctx.shadowOffsetY = r * this.shadowPhi;
+            ctx.shadowColor = this.offsetColor(color, contrast);
             x1 = x * 0.5 + xP * 0.5, y1 = y * 0.5 + yP * 0.5;
             ctx.fillStyle = color;
             ctx.arc(x1, y1, r, 0, Math.PI * 2, 1);

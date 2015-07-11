@@ -19,7 +19,10 @@ define(['zepto', './../utils/utils', './../libs/event'], function($, Utils, even
       var pt, pts = curve.c,
         index, ptN = pts.length,
         ctx = ctx || this.ctx,
-        brush = this.brushes[curve.brushType];
+        brushes = this.brushes,
+        brush = (curve.brushType)? brushes.get(curve.brushType) :brushes.current(),
+        style = curve.style;
+        brush.setCurveStyles(style);
       for (index in pts) {
         pt = pts[index];
         this.drawPt(pt, index, ptN, ctx, brush);
@@ -35,7 +38,7 @@ define(['zepto', './../utils/utils', './../libs/event'], function($, Utils, even
         return false;
       }
       return true;
-    },
+    }
   });
   return Renderer;
 });

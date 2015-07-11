@@ -37,6 +37,12 @@ define(['zepto', 'anim'], function($) {
     return null;
   }
 
+  function clean(canvas){
+    if(!canvas) return;
+    var ctx = (canvas.getContext)?canvas.getContext('2d'):canvas;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
+
   function genCanvas(opt) { //添加一个和node等大的canvas
     var id = opt.id;
     var container = opt.container;
@@ -234,7 +240,20 @@ define(['zepto', 'anim'], function($) {
     return type + '_' + dateStr + '_' + num;
   }
 
+  function distance(sx, sy, tx, ty) {
+    var dx = tx - sx;
+    var dy = ty - sy;
+    return sqrt(dx * dx + dy * dy);
+  }
+
+  function getNormalNumber(a, min, max){
+    if(a > max) return max;
+    if(a < min) return min;
+    return a;
+  }
+
   return {
+    'getNormalNumber': getNormalNumber,
     'resetCtx': resetCtx,
     'getCurvatureBy3Pt': getCurvatureBy3Pt,
     'getQueryStringByName': getQueryStringByName,
@@ -242,6 +261,7 @@ define(['zepto', 'anim'], function($) {
     'checkDrawData': checkDrawData,
     'rgbToHsl': rgbToHsl,
     'hsla2obj': hsla2obj,
+    'distance': distance,
     'obj2hsla': obj2hsla,
     'setRgbaAlpha': setRgbaAlpha,
     'upper': upper,
@@ -255,7 +275,9 @@ define(['zepto', 'anim'], function($) {
     'requestAnimFrame': requestAnimFrame,
     'cancelAnimFrame': cancelAnimFrame,
     'extend': extend,
-    'getId': getId
+    'merge': extend,
+    'getId': getId,
+    'clean': clean
   };
 
 });

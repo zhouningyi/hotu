@@ -17,7 +17,6 @@ define(['zepto', 'anim', './../../utils/utils'], function ($, a, Utils) {
     this.updateByTarget();
   }
 
-
   Slider.prototype.init = function () {
     var descUI = this.control.descUI;
     var node = this.node = $(

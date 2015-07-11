@@ -45,7 +45,6 @@ define(['./easing', './../utils/utils', './../libs/event', './smooth'], function
       this.dataArray = [pt];//数据
       this.setCtx(ctx);
       this.setBrushStyles(); //是否ctx的绘图参数是否正确 属于本brush
-      this.setCurveStyles();
       this.reset();
       this.ptP = this.firstPt = pt;//记录第一个点
       this.emit('begin', {
@@ -160,7 +159,7 @@ define(['./easing', './../utils/utils', './../libs/event', './smooth'], function
         speedPP: sspeed.valuePP,
         speedP:  sspeed.valueP,
         speed:   sspeed.value,
-        speedK: sspeed.value/ 6000,
+        speedK: Math.min(sspeed.value / 6000, 1),
         kCurve: Utils.getCurvatureBy3Pt(sx.valuePP, sy.valuePP, sx.valueP, sy.valueP, sx.value, sy.value) || 0//曲率更新
       };
       record.smoothes = smoothes;
@@ -238,12 +237,13 @@ define(['./easing', './../utils/utils', './../libs/event', './smooth'], function
     'onStyleChange': function (){},
     'setBrushStyles': function () { //设置笔刷相关的基本参数
       var ctx = this.ctx;
-      if(!ctx) return;
+      if(!ctx || ctx.brushid === this.id) return;
+      ctx.brushid = this.id
       Utils.resetCtx(ctx, this);
     },
-    getValue: function (key){
-      if(key === 'color'){
-        if(this.controls.lightSat){
+    getValue: function (key) {
+      if(key === 'color') {
+        if(this.controls.lightSat) {
           this.hsla2color();
         }  
       }
@@ -251,6 +251,7 @@ define(['./easing', './../utils/utils', './../libs/event', './smooth'], function
       return this[key];
     },
     'setCurveStyles': function (style, ctx) { //设置风格相关的基本参数
+      if(!style) return;
       ctx = this.ctx = ctx || this.ctx;
       var controls = this.controls;
       if (!ctx || !style || !controls) return;
@@ -259,7 +260,6 @@ define(['./easing', './../utils/utils', './../libs/event', './smooth'], function
         controls[key].value = style[key];
       }
       Utils.resetCtx(ctx, controls);
-      
       this.emit('style-change', controls);
       return;
     },
@@ -273,6 +273,19 @@ define(['./easing', './../utils/utils', './../libs/event', './smooth'], function
     'setCtx': function (ctx) {
       if (!ctx) return;
       return this.ctx = ctx;
+    },
+    'setControl': function(key, value){
+      var controls = this.controls;
+      if(!key || value === undefined || value === null || !controls || !controls[key]) return;
+      controls[key].value = value;
+      this.emit('style-change', {key:key,value:value});
+    },
+    offsetColor: function(hsla, percent){
+      var cs = hsla.split(',');
+      cs[1] = Math.floor(Math.min(cs[1].split('%')[0] * ( 1 + percent), 100)) + '%';
+      cs[2] = Math.floor(Math.min(cs[2].split('%')[0] * ( 1 - percent), 100)) + '%';
+      hsla = cs.join(',');
+      return hsla;
     },
     'hsla2color': function () { //默认的hsla转换
       var controls = this.controls;

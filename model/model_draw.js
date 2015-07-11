@@ -94,7 +94,7 @@ define(['zepto', './../utils/utils', './drawDataInfo'], function($, Utils, DrawD
    ModelDraw.prototype.addFrame = function (obj) {
     return this.curFrame = {
       c: [],
-      id: getId('frame'),
+      id: Utils.getId('frame'),
       type: 'frame',
       frameW: obj.frameW, //////////////////////////////////////////////////////////////////////////,//////////////////////////////////////////////////////////////////////////
       frameH: obj.frameH

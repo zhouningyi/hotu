@@ -1,0 +1,62 @@
+/**
+ * 全局层
+ */
+html, body, form, fieldset, p, div, h1, h2, h3, h4, h5, h6 {/*防止字体旋转大小变化*/
+  -webkit-text-size-adjust:none;
+}
+
+div, body, html {
+  overflow: hidden;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);/*点击后不会闪一下*/
+  translateZ(0);/*据说写一句开启硬件加速*/
+}
+
+.transiton {
+  -webkit-transition: all 0.1s ease-in-out;
+  -moz-transition: all 0.1s ease-in-out;
+  -o-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
+}
+
+.iconfont{
+  position: relative;
+  color:  hsl(0,0%,50%);
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
+  line-height: 40px;
+  text-align: center;
+  vertical-align: middle;
+  display: inline-block;
+  border-radius: 25px;
+  /*box-shadow: 1px 1px 4px #ccc;*/
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  padding: 0;
+  margin: 0;
+}
+.node-clicked{
+  opacity: 0.5;
+}
+.image-clicked{
+  opacity: 0.8;
+}
+.container {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  vertical-align: middle;
+}

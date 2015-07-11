@@ -9,13 +9,13 @@ var max = Math.max, cos = Math.cos, sin = Math.sin, atan2 = Math.atan2, min = Ma
   }
 
   Brush.extend(Pen, {
-    'id': 'pen.v1',
+    'id': 'pen_v1',
     'name': '钢笔',
     'desc': '钢笔',
     'globalCompositeOperation': 'source-over',
     'lineJoin': 'butt',
     'lineCap': 'square',
-    'color': 'hsla(0,0,0,0.8)',
+    'color': 'rgba(0,0,0,1)',
     'smooth':{
       'width': {
         'easing': 'Sinusoidal.Out',
@@ -41,15 +41,16 @@ var max = Math.max, cos = Math.cos, sin = Math.sin, atan2 = Math.atan2, min = Ma
     addHooks: function () {
       var controls = this.controls;
       var Easing = this.Easing;
-      var widthMax = this.widthMax || controls.widthMax.value;
       var ctx = this.ctx;
+      var widthMax;
       this
         .on('begin', function() {
+           widthMax = controls.widthMax.value;
           ctx = this.ctx;
         })
         .on('draw', function(record) {
           if (!record) return console.log('record不存在');
-          var color = this.color;
+          var color = this.getValue('color');
           if (!color) return console.log('normal brush 没有颜色');
           //原始的变量
           var pt =        record.pt;
@@ -96,7 +97,6 @@ var max = Math.max, cos = Math.cos, sin = Math.sin, atan2 = Math.atan2, min = Ma
               ctx.beginPath();
               ctx.fillStyle = color;
               ctx.strokeStyle = color;
-              // ctx.fillStyle = 'rgba(0,0,0,'+dPhi+')';
               ctx.moveTo(x, y);
               ctx.lineTo(p1x, p1y);
               ctx.lineTo(p1xP, p1yP);

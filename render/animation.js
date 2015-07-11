@@ -1,36 +1,45 @@
 'use strict';
-define(['zepto', './../utils/utils', './../libs/event', './renderer'], function ($, Utils, event, Renderer) {
+define(['zepto', './../utils/utils', './../libs/event', './renderer'], function ($, Utils, EventEmitter, Renderer) {
   var requestAnimFrame = Utils.requestAnimFrame;
   var cancelAnimFrame = Utils.cancelAnimFrame;
   var body = $('body');
 
-  function Animator(opt) {
+  /**
+   * Animation 动画插件
+   * @param {[type]} opt [description]
+   */
+  function Animation(opt) {
     opt = opt || {};
-    this._brushes = opt.brushes;
-    this._ctx = opt.ctx;
-
-    this.renderer = new Renderer({
-      brushes: this._brushes
-    });
-
-    //事件
-    var self = this;
-    this
-    .on('step', function () {
-      if(!this.isLooping) return;
-      self.loopId = requestAnimFrame(this.loop.bind(this));
-    });
-    //开始动画
-    if (opt.data) this.data(opt.data);
+    Utils.merge(this, opt);
+    this.initialize();
   }
-//我们并不以画一个点或画一条线作为最基本的播放单元 而是画若干个点。
-  event.extend(Animator, {
+  /**
+   * 我们并不以画一个点或画一条线作为最基本的播放单元 而是以点的个数作为step的步长
+   */
+  EventEmitter.extend(Animation, {
     stepPtN: 6,
     maxStepPtN: 1000,
     ptInCurveIndex: 0,
     isLooping: true,
     curveIndex: 0,
     isClean: true,
+    brushes: null,
+    ctx: null,
+    initialize: function(){
+      this.renderer = new Renderer({
+        brushes: this.brushes
+      });
+      this.addEvents();
+    },
+    addEvents: function(){
+     //事件
+     var self = this;
+     this
+     .on('step', function () {
+       if(!this.isLooping) return;
+       self.loopId = requestAnimFrame(this.loop.bind(this));
+     });
+    },
     checkData: function (data) {//检查数据是否有问题
       return Utils.checkDrawData(data);
     },
@@ -47,16 +56,13 @@ define(['zepto', './../utils/utils', './../libs/event', './renderer'], function 
       }
       return ptsN;
     },
-    ctx: function(ctx){
-      this._ctx = ctx;
-    },
     data: function (data) { //传入数据
       // if (!this.checkData(data)) alert('数据有点问题哦');
       this._data = data;
       this._curves = data.c;
       this.ptsN = this.getPtsN(data);
       this.stopPtIndex = this.ptsN;
-      this.redraw();
+      requestAnimFrame(this.redraw.bind(this));//有时候 播放只有一帧 end事件提前就触发了。
     },
     reset: function () {//参数全部更新
       this.curveIndex = 0;
@@ -138,29 +144,18 @@ define(['zepto', './../utils/utils', './../libs/event', './renderer'], function 
         this.redraw();
       }
     },
-    toCurveIndex: function (index, type){//按照曲线编号来前进
-      var stopPtIndex = this.getPtsN(index);
-      this.to(stopPtIndex);
-    },
     step: function (stepPtN) {
       if (!stepPtN) return;
       this.stepPtN = {'slow': 5, 'nomarl': 50, 'fast': 1000}[stepPtN] || stepPtN;
     },
     onNextCurve: function () {
       var curves = this._curves;
-      // console.log(curves,'curvescurvescurvescurvescurves')
       var curveIndex = this.curveIndex;
       if (curveIndex >= curves.length) return false;
       var curCurve = this._curCurve = curves[curveIndex];
       this.curCurvePts = curCurve.c;
       //设置笔刷
-      var brushType = curCurve.brushType;
-      var brushes = this._brushes;
-      // console.log(brushType, brushes[brushType])
-      if (brushType && brushes[brushType]) {
-        this.curBrush = brushes[brushType];
-      }
-      var curBrush = this.curBrush;
+      var curBrush = this.curBrush = this.brushes.get(curCurve.brushType);
       //设置风格
       var style = curCurve.style;
       if (style) {
@@ -171,6 +166,7 @@ define(['zepto', './../utils/utils', './../libs/event', './renderer'], function 
       this.ptInCurveIndex = 0;
       return true;
     },
+    
     drawStep: function () {
       if (!this._curCurve) this.onNextCurve();
       var stepIndex = 0, isNextPt = true, isNextCurve = true, curveN = this._curves.length || 0, stepPtN = this.stepPtN;
@@ -208,13 +204,14 @@ define(['zepto', './../utils/utils', './../libs/event', './renderer'], function 
       var curCurvePts = this.curCurvePts;
       var pt = curCurvePts[index];
       var ptN = curCurvePts.length;
-      return this.renderer.drawPt(pt, index, ptN, this._ctx, this.curBrush);
+      // console.log(pt, index, ptN, this.ctx, this.curBrush);
+      return this.renderer.drawPt(pt, index, ptN, this.ctx, this.curBrush);
     },
     dataCurrent: function (index) { //获得当前播放动画的数据
       return this._dataCurrent;
     },
     clean: function () {
-      var ctx = this._ctx;
+      var ctx = this.ctx;
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     },
     destory: function(){
@@ -226,5 +223,5 @@ define(['zepto', './../utils/utils', './../libs/event', './renderer'], function 
       this.clean();
     }
   });
-  return Animator;
+  return Animation;
 });
