@@ -1,7 +1,7 @@
 // https://github.com/dcompute/Zepto-Cookie/blob/master/zepto.cookie.js
 //操作cookie
 'use strict';
-define(['zepto'], function($) {
+(function($) {
   $.extend($.fn, {
     cookie: function(key, value, options) {
       var days, time, result, decode
@@ -43,4 +43,4 @@ define(['zepto'], function($) {
     }
   });
 return $;
-});
+})($);

@@ -1,6 +1,6 @@
 'use strict';
 
-define(['zepto', './../utils/utils', 'anim'], function ($, Utils) {
+define(['./../utils/utils'], function (Utils) {
   var prevent = Utils.prevent;
   var animateSeries = Utils.animateSeries;
 

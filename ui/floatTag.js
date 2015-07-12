@@ -1,7 +1,7 @@
 "use strict";
 //对UI的总体控制
 
-define(['zepto', 'anim'], function ($) {
+define([], function () {
   var body = $('body');
 
   function FloatTag(container) {

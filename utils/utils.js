@@ -1,5 +1,5 @@
 'use strict';
-define(['zepto', 'anim'], function($) {
+define([], function() {
   var cos = Math.cos, sin = Math.sin, sqrt = Math.sqrt, abs = Math.abs;
   function upper(str) { //首字母大写
     return str[0].toUpperCase() + str.slice(1);

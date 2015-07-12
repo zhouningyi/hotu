@@ -1,10 +1,11 @@
 'use strict';
 
-define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'ui/loading', './model/user', './app_config', './model/browser', './ui/uploadSubmit', './action/actions'], function($, Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, brushes, Url, Weixin, ModelDraw, Loading, User, config, browser, UploadSubmit, Actions) {
+define(['./utils/utils','ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/brushTools', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', 'ui/loading', './model/user', './app_config', './model/browser', './ui/uploadSubmit', './action/actions', './ui/end_tools'], function(Utils ,Gui, Bg, Painter, FloatTag, BrushTools, BgTools, Exports, brushes, Url, Weixin, ModelDraw, Loading, User, config, browser, UploadSubmit, Actions, EndTools) {
+  var prevent = Utils.prevent;
   var clickEvent = 'touchstart mousedown';
 
   //绘图相关组件
-  var painter, bg, exports, gui, floatTag, brushTools, bgTools, actions, layers, uploadSubmit, modelDraw;
+  var painter, bg, exports, gui, floatTag, brushTools, bgTools, actions, layers, uploadSubmit, modelDraw, endTools;
 
   //组件相关的node
   var body = $('body'),
@@ -19,15 +20,15 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     layersContainer = $('.layers-container'),
     firstContainer = $('.first-container');
 
-  function Controller() {
-    this.preInit();
-    this.dispatch(this.init.bind(this));
-  }
-
   var hammer = new Hammer(drawContainer[0], {});
   hammer.on('tap', function(ev) {
     console.log(ev);
   });
+
+  function Controller() {
+    this.preInit();
+    this.dispatch(this.init.bind(this));
+  }
 
   Controller.prototype.test = function() {};
 
@@ -89,6 +90,8 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
       bind: drawToolsNode,
       brushes: brushes,
     });
+
+    // endTools = new EndTools(uiContainer, {});
 
     var painterOpt = config.painter;
     var quality = painterOpt.quality = painterOpt.quality(browser);
@@ -219,7 +222,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     var self = this;
     var drawToolNode = $('#draw-tools');
     drawToolNode.delegate('i', clickEvent, function(e) {
-      prevant(e);
+      prevent(e);
       var node = $(this);
       var id = node.attr('id');
       var cbs = {
@@ -253,7 +256,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
 
     //底部的工具
     endToolsNode.delegate('i', clickEvent, function(e) {
-      prevant(e);
+      prevent(e);
       var node = $(this);
       var id = node.attr('id');
       var cbs = {
@@ -298,7 +301,7 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
     });
     //上方的工具
     importantToolsNode.delegate('i', clickEvent, function(e) {
-      prevant(e);
+      prevent(e);
       var node = $(this);
       var id = node.attr('id');
       var cbs = {
@@ -323,18 +326,6 @@ define(['zepto', 'ui/gui', 'editor/bg', 'editor/painter', 'ui/floatTag', 'ui/bru
         painter.unblur();
       });
   };
-
-  function getQueryString(name) {
-    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-    var r = window.location.search.substr(1).match(reg);
-    if (r != null) return unescape(r[2]);
-    return null;
-  }
-
-  function prevant(e) { //清除默认事件
-    e.preventDefault();
-    e.stopPropagation();
-  }
 
   return Controller;
 });

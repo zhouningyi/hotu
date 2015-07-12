@@ -1,6 +1,6 @@
 'use strict';
 //'./../ui/util' 目前暂时不用
-define(['zepto', './../utils/utils', './../render/painter_renderer'], function ($, Utils, PainterRenderer) {
+define(['./../utils/utils', './../render/painter_renderer'], function (Utils, PainterRenderer) {
   var prevent = Utils.prevent; //清除默认事件
   var upper = Utils.upper; //首字母大写
   var isNone = Utils.isNone; //是否存在

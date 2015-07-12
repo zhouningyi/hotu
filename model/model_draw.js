@@ -14,7 +14,7 @@
 //color://对color的统计
 //length://对长度的统计
 
-define(['zepto', './../utils/utils', './drawDataInfo'], function($, Utils, DrawDataInfo) {
+define(['./../utils/utils', './drawDataInfo'], function(Utils, DrawDataInfo) {
   var upper = Utils.upper;
   var computeDrawInfo = DrawDataInfo.computeDrawInfo; //计算一副绘画中的统计信息
 

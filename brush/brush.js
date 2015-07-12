@@ -1,7 +1,7 @@
 'use strict';
 
 // brush 初始设置为this.style() 绘制有3个过程 开始画线 画线和 结束
-define(['./easing', './../utils/utils', './../libs/event', './smooth'], function (Easing, Utils, Event, Smooth) {
+define(['./../utils/utils', './../libs/event', './smooth'], function (Utils, Event, Smooth) {
   var isNone = Utils.isNone;
   var extend = Utils.extend;
 

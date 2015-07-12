@@ -1,6 +1,6 @@
 'use strict';
 //对UI的总体控制
-define(['zepto','anim','./../libs/event', './../utils/utils'], function ($, a, EventEmitter, Utils) {
+define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
 
   var body = $('body');
 
@@ -11,13 +11,18 @@ define(['zepto','anim','./../libs/event', './../utils/utils'], function ($, a, E
   EventEmitter.extend(EndTools, {
     initialize: function(container, opt){
       this.container = container;
-      Utils.merge(this, opt)
+      Utils.merge(this, opt);
+      this.initEvents();
     },
-    receiver: function () {
+    initEvents: function () {
       // body.on('');
     },
-    in: function(){},
-    out: function(){},
+    in: function(){
+
+    },
+    out: function(){
+
+    },
     setTargets: function(){
 
     },
@@ -36,6 +41,7 @@ define(['zepto','anim','./../libs/event', './../utils/utils'], function ($, a, E
       }
     },
     updateWidthSlider: function(){
+      if(this.widthSlider) this.widthSlider.setTarget(this.target);
     },
   });
 

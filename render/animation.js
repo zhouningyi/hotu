@@ -1,5 +1,5 @@
 'use strict';
-define(['zepto', './../utils/utils', './../libs/event', './renderer'], function ($, Utils, EventEmitter, Renderer) {
+define(['./../utils/utils', './../libs/event', './renderer'], function (Utils, EventEmitter, Renderer) {
   var requestAnimFrame = Utils.requestAnimFrame;
   var cancelAnimFrame = Utils.cancelAnimFrame;
   var body = $('body');

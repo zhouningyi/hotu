@@ -1,13 +1,12 @@
 'use strict';
 //对UI的总体控制
-define(['./../utils/utils', 'zepto', './../render/painter_renderer', 'anim', './components/lightSatSelector', './components/hueSlider', './components/slider', './data_preview', './components/width_slider',], function (Utils, $, PainterRenderer, keyAnim, LightSatSelector, HueSlider, Slider, previewData, WidthSlider) {
+define(['./../utils/utils', './../render/painter_renderer', './components/lightSatSelector', './components/hueSlider', './components/slider', './data_preview', './components/width_slider',], function (Utils, PainterRenderer, LightSatSelector, HueSlider, Slider, previewData, WidthSlider) {
   var values = Utils.values;
   var genCanvas = Utils.genCanvas;
   var hsla2obj = Utils.hsla2obj;
   var body = $('body');
   var prevent = Utils.prevent;
   var previewCurve = previewData.c[0];
-  var requestAnimFrame = Utils.requestAnimFrame;
   Slider = WidthSlider;
   function BrushTools(opt) {
     this.container = opt.container;
@@ -43,10 +42,9 @@ var brushToolsNode, colorNode, shapeNode, toolsListNode, previewNode;
     shapeNode = brushToolsNode.find('.shape-ui');
     this.renderControl();
     //结束的时候
-    
-    requestAnimFrame(function(){
+    setTimeout(function(){
       brushToolsNode.addClass('out-left');
-    });
+    }, 1000);
   };
 
   BrushTools.prototype.initPreview = function () {

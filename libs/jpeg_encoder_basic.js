@@ -1,4 +1,4 @@
-define(function() {
+(function(exports) {
 
   function JPEGEncoder(quality) {
     var self = this;
@@ -696,6 +696,6 @@ define(function() {
 
   };
 
-  return JPEGEncoder;
+  exports.JPEGEncoder = JPEGEncoder;
 
-});
+})(window);

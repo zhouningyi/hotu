@@ -1,7 +1,7 @@
 'use strict';
 
 //ink 毛笔的效果
-define(['zepto'], function ($) {
+define([], function () {
   function generateSprite(fillColor) { //根据ai+drawscript得到笔触
     fillColor = fillColor || 'rgba(0,0,0,1)';
     var width = 50;

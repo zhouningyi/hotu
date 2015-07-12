@@ -1,7 +1,7 @@
 'use strict';
 
 //对url的操作
-define(['./../utils/zepto_cookie'], function () {
+define(function () {
 
   function User(opt) {
     this.weixin = opt.weixin;

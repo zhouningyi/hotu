@@ -1,7 +1,7 @@
 'use strict';
 
 // 粗细变化
-define(function() {
+(function(exports) {
 
   var Easing = {};
   Easing = {
@@ -199,5 +199,5 @@ define(function() {
     }
 
   };
-  return Easing;
-});
+  exports.Easing = Easing;
+})(window);

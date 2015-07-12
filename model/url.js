@@ -1,7 +1,7 @@
 'use strict';
 
 //管理url相关的操作
-define(['zepto', './../utils/utils'], function ($, Utils) {
+define(['./../utils/utils'], function (Utils) {
   var getQueryStringByName = Utils.getQueryStringByName;
 
   function Url(config) {

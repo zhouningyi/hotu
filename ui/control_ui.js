@@ -1,7 +1,7 @@
 'use strict';
 //控制brush等的ui基类
 //
-define(['zepto', './../libs/event', './../utils/utils'], function ($, EventEmitter, Utils) {
+define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
   var body = $('body');
   var upper = Utils.upper;
   var getPt = Utils.getPt;

@@ -1,7 +1,7 @@
   //http://www.baidufe.com/item/f07a3be0b23b4c9606bb.html
   //https://github.com/zxlie/WeixinApi
   'use strict';
-  define(['./jweixin-1.0.0', 'zepto'], function(wx, $) {
+  define(['./jweixin-1.0.0'], function(wx) {
     var body = $('body');
 
     function Weixin(url) {

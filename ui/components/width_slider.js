@@ -1,6 +1,6 @@
 'use strict';
 //对UI的总体控制
-define(['zepto', 'anim', './../../utils/utils', './../../libs/event'], function($, a, Utils, EventEmitter) {
+define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitter) {
   var body = $('body');
   var isNone = Utils.isNone;
   var prevent = Utils.prevent;

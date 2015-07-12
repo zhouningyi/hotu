@@ -1,6 +1,6 @@
 'use strict';
 
-define(['zepto', 'anim'], function ($, l) { //'./../utils/qrcode' QRCode
+define([], function () { //'./../utils/qrcode' QRCode
   function Helper(container, opt) {
     this.container = container;
     this.config = opt.config;

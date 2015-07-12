@@ -1,5 +1,5 @@
 'use strict';
-define(['zepto', './../utils/jpeg_encoder_basic'],function($, JPEGEncoder){
+define([],function(){
 
   function Exports(container, bg, painter){
     this.container = container;

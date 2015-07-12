@@ -1,6 +1,6 @@
 'use strict';
 
-define(['zepto',  './../utils/exif', './../utils/binaryajax'], function ($, EXIF, Binary) {//'./../utils/exif'
+define(['./../utils/exif', './../utils/binaryajax'], function (EXIF, Binary) {//'./../utils/exif'
   var BinaryFile = Binary.BinaryFile;
   
   /**

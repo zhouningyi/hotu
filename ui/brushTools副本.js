@@ -1,6 +1,6 @@
 'use strict';
 //对UI的总体控制
-define(['./../utils/utils', 'zepto', './../render/painter_renderer', 'anim', './components/lightSatSelector', './components/hueSlider', './components/slider', './data_preview'], function (Utils, $, PainterRenderer, keyAnim, LightSatSelector, HueSlider, Slider, previewData) {
+define(['./../utils/utils','./../render/painter_renderer', './components/lightSatSelector', './components/hueSlider', './components/slider', './data_preview'], function (Utils, PainterRenderer, LightSatSelector, HueSlider, Slider, previewData) {
   var values = Utils.values;
   var genCanvas = Utils.genCanvas;
   var hsla2obj = Utils.hsla2obj;

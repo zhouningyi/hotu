@@ -1,5 +1,5 @@
 'use strict';
-define(['zepto'], function($){
+define([], function(){
   var body = $('body');
 
   function GroupAnimator(funcs, opt){

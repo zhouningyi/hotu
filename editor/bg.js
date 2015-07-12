@@ -1,6 +1,6 @@
 'use strict';
 
-define(['zepto'], function ($) {
+define([], function () {
   function Bg(container, opt) {
     opt = opt || {};
     var modelDraw = this.modelDraw = opt.modelDraw;

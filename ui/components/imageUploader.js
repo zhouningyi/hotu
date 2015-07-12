@@ -1,6 +1,6 @@
 'use strict';
 //播放作品的面板
-define(['zepto', './../../utils/utils'], function ($, Utils) {
+define(['./../../utils/utils'], function (Utils) {
   var body = $('body');
   var upper = Utils.upper;
   var getPt = Utils.getPt;

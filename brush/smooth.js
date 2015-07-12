@@ -1,7 +1,7 @@
 'use strict';
 
 // 粗细变化
-define(['./easing', './../libs/event', './../utils/utils'], function (Easing, Event, Util) {
+define(['./../libs/event', './../utils/utils'], function (Event, Util) {
 var max = Math.max, cos = Math.cos, sin = Math.sin, atan2 = Math.atan2, min = Math.min, pow = Math.pow, sqrt = Math.sqrt;
   function Smooth(opt) {
     Util.extend(this, opt);

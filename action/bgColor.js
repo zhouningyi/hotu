@@ -1,6 +1,6 @@
 'use strict';
 
-define(['zepto'], function ($) {//'./../utils/exif'
+define([], function () {//'./../utils/exif'
   
   /**
    * BgColor 改变底层背景的颜色
