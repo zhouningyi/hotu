@@ -99,7 +99,7 @@ define(function() {
 
           var width = widthMax * kFinal;
           width = (width < 1) ? 1 : width;
-          var widthP = this.widthP || width;
+          var widthP = this.drawN || width;
 
           var x = pt[0];
           x = this.getSmooth('x', x);

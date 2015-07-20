@@ -102,14 +102,12 @@ define([], function () {
         obj.bgImg.addClass('float-tag-img').appendTo(floatTagAddNode);
         // alert(obj.bgImg.width()+'|'+obj.bgImg.height()+'==');
       }
-
       //提示
       if (obj.helpText) this.floatTagHelp(obj.helpText);
 
       body.trigger('blur');
     }
   };
-
 
   FloatTag.prototype.events = function () {
     var self = this;

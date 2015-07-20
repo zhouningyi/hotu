@@ -82,7 +82,6 @@ define(['./../brush'], function(Brush) {
           if (!record || !color) return;
           var smoothes = record.smoothes;
           var speedK = smoothes.speedK;
-          if(speedK>1) alert(speedK);
           ctx = this.ctx;
           ctx.beginPath();
           var x = smoothes.x,
@@ -91,7 +90,7 @@ define(['./../brush'], function(Brush) {
             yP = smoothes.yP;
           var widthMax = this.getValue('widthMax');
           if (x && xP && y && yP) {
-            speedK = Easing.Sinusoidal.Out(speedK);
+            speedK = Math.min(Easing.Sinusoidal.Out(speedK), 1);
             r = speedK * widthMax * this.rPhi;
             ctx.shadowOffsetX = r * this.shadowPhi;
             ctx.shadowOffsetY = r * this.shadowPhi;

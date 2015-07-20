@@ -79,7 +79,7 @@ define(['./../brush'], function(Brush) {
           if (x && xP && y && yP) {
             speedK = Easing.Sinusoidal.Out(speedK);
             r = this.r = speedK * widthMax;
-            x1 = x * 0.5 + xP * 0.5, y1 = y * 0.5 + yP * 0.5;
+            var x1 = x * 0.5 + xP * 0.5, y1 = y * 0.5 + yP * 0.5;
             this.drawX = x1, this.drawY = y1;
             this.drawCircle(x1, y1, r);
           }

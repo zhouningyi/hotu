@@ -29,13 +29,6 @@ var max = Math.max, cos = Math.cos, sin = Math.sin, atan2 = Math.atan2, min = Ma
         'constructorUI': 'Slider',
         'descUI': '粗细',
         'containerName': 'shape'
-      },
-      'opacity': {
-        'range': [0, 1],
-        'value': 0.9,
-        'constructorUI': 'Slider',
-        'descUI': '透明',
-        'containerName': 'color'
       }
     },
     addHooks: function () {

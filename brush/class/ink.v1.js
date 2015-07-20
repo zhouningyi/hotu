@@ -39,6 +39,7 @@ define([], function () {
   function limit (d, limi) {
     return Math.floor(d / limi) * limi;
   }
+  
   return {
     initOpt: {
       'desc': '墨水画笔',

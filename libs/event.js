@@ -64,7 +64,6 @@ EventEmitter.prototype.emit = function() {
         handler.apply(this, args);
     }
     return true;
-
   } else if (isArray(handler)) {
     var l = arguments.length;
     var args = new Array(l - 1);
@@ -202,5 +201,7 @@ EventEmitter.prototype.listeners = function(type) {
   }
   return this._events[type];
 };
+
+EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
 return EventEmitter;
 });

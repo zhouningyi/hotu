@@ -98,16 +98,43 @@ html, body {
 /**
  * ui细节层
  */
-.important-tools {
-  position: absolute;
-  top: 20px;
-  left: 4px;
+.preview-node{
+  position: relative;
+  top: 30%;
+  margin-left: auto; 
+  margin-right: auto;
+  background-color: rgba(50,50,50,1);
+  border-radius: 5px;
+  width: 250px;
+  z-index: 120;
+  display: inline-block;
+  pointer-events:none;
   opacity: 0;
 }
-.top-tools {
+.info-node{
+  padding: 20px 30px;
+  text-align: center;
+  position: relative;
+  top: 40%;
+  margin-left: auto; 
+  margin-right: auto;
+  background-color: rgba(30,30,30,0.8);
+  border-radius: 5px;
+  z-index: 120;
+  display: inline-block;
+  pointer-events:auto;
+  opacity: 0;
+  color: #999;
+  font-size: 14px;
+}
+.info-node .text-main{
+
+}
+.important-tools {
   position: absolute;
-  top: 20px;
+  top: 60px;
   left: 4px;
+  opacity: 0;
 }
 .shrink-expand {
 /*  border: 6px dashed rgba(100, 100, 100, 0.3);*/
@@ -127,7 +154,7 @@ html, body {
 }
 .tools {
   position: absolute;
-  top: 80px;
+  top: 120px;
   left: 5px;
   width: auto;
   height: auto;
@@ -153,21 +180,6 @@ html, body {
   width:auto;
 }
 
-.end-tools {
-  position: absolute;
-  bottom: 0%;
-  right: 0px;
-  width: 100%;
-  height: auto;
-  pointer-events: auto;
-  padding: 0px 5px 5px 5px;
-  border-radius: 0px;
-  opacity: 0;end-
- /* transform: translateX(-100%);
-  -webkit-transform: translateX(-100%);*/
-  /*box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);*/
-  /*background-color: rgba(255,255,255,0.2);*/
-}
 
 .btn {
   position: relative;
@@ -194,7 +206,6 @@ html, body {
   vertical-align: middle;
 }
 
-
 .ui-grid{
   position:relative;
   display: block;
@@ -205,6 +216,8 @@ html, body {
   width: 100%;
   display: block;
   height: 25px;
+  font-size: 12px;
+  color: rgba(120,120,120,1);
 }
 .transparent {
   background-color: transparent;
@@ -271,9 +284,12 @@ html, body {
 .style-normal {
   color: rgba(130, 130, 130, 1);
 }
+.style-dark{
+  color: rgba(60, 60, 60, 1);
+}
 
 .gray-middle{
-  color: rgba(150, 150, 150, 1);
+  color: rgba(120, 120, 120, 1);
 }
 
 .gray-light{
@@ -335,7 +351,7 @@ html, body {
 
 .float-tag{
   position: absolute;
-  width: 200px;
+  width: 100%;
   opacity: 0;
   pointer-events:auto;
 }
@@ -375,6 +391,7 @@ html, body {
   margin: 0 auto;
   height: 8px;
 }
+
 .color-grid{
   position: relative;
   display:inline-block;
@@ -383,8 +400,9 @@ html, body {
 .light-sat-container{
   position: relative;
   width: 100%;
-  height: 50px;
-  margin-top: 10px;
+  height: 100%;
+  max-height: 120px;
+  /*margin-top: 10px;*/
 }
 
 .light-sat-pointer{
@@ -398,45 +416,6 @@ html, body {
   pointer-events:none;
 }
 
-
-.slider-container{/* 滚动条 */
-  pointer-events:auto;
-  position: relative;
-  height:20px;
-  width: 100%;
-}
-.slider-container-desc{
-  width: 100%;
-  position: relative;
-  font-size: 12px;
-  color: rgba(120,120,120,0.6);
-  text-align: left;
-  /*padding-left: 30px;*/
-}
-.slider-line-gradient{
-  position: absolute;
-  top: 50%;
-  width: 100%;
-  height: 3px;
-  background:-webkit-linear-gradient(left, #f11 0%, #1f1 33.33%, #11f 66.67%, #f11 100%);
-}
-.slider-line{
-  position: absolute;
-  top: 50%;
-  width: 100%;
-  height: 1px;
-  background:rgba(150,150,150,0.5);
-}
-.slider-pointer{/* 滚动条上的指示点 */
-  transition: background-color 0.2s ease;
-  position: absolute;
-  top: 2px;
-  width: 16px;
-  height: 16px;
-  background-color: rgba(200,200,200,1);
-  border-radius: 30px;
-  pointer-events:none;
-}
 
 .photo {
   /*position: relative;*/

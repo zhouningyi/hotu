@@ -11,39 +11,45 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
   }
 
   EventEmitter.extend(WidthSlider, {
-    lineRadius: 4,
-    initialize: function(container, opt) {
-      this.container = container;
-      Utils.merge(this, opt);
-      this.initDom();
-      this.initEvents();
-      this.updateByTarget();
+    isDisable: false,
+    options: {
+      lineRadius: 2,
     },
-    setTarget: function(target){
-      if(!brush) return;
-      this.target = target;
-      var controls = target.controls;
-      this.control = controls[this.key];
+    initialize: function(container, options) {
+      this.container = container;
+      Utils.merge(this.options, options);
+      this.targets = options.targets;
+      if(!this.targets) return console.log('widthslider 必须包含targets');
+      this.initDom();
+      this.on('dom-done', function(){
+        this.initEvents();
+        this.updateByTarget();
+      })
     },
     initDom: function() {
       var container = this.container;
+      var self = this;
       var node = this.node = $(
-      '<div class="slider-container-desc">' + this.control.descUI + '</div>\
-       <div class="slider-container">\
-       </div>').appendTo(container);
-      var sliderNode = container.find('.slider-container');
-      var w = this.sliderW = sliderNode.width(),
-        h = this.sliderH = sliderNode.height();
-      var ctx = this.ctx = Utils.genCanvas({
-        'container': sliderNode
-      });
+      '<div class="horizontal-selector-desc">' + '粗细' + '</div>\
+       <div class="horizontal-selector-container"></div>')
+      .appendTo(container);
+
+      var sliderNode = this.sliderNode = container.find('.horizontal-selector-container');
+      setTimeout(function(){
+        var w = self.sliderW = sliderNode.width(),
+        h = self.sliderH = sliderNode.height();
+        var ctx = self.ctx = Utils.genCanvas({'container': sliderNode});
+        self.emit('dom-done');
+      }, 400);
     },
     drawShape: function(percent, color) {
-      percent = percent || 1, color = color || 'rgb(220,220,220)';
+      percent = percent || 1, color = color || 'rgb(60,60,60)';
+      var options = this.options;
       var ctx = this.ctx,
-        lineRadius = this.lineRadius;
+        lineRadius = options.lineRadius;
       var w = this.sliderW,
         h = this.sliderH;
+
       var triW = w * percent - lineRadius;
       var triH = h * percent;
       ctx.fillStyle = color;
@@ -73,42 +79,53 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
       ctx.closePath();
     },
     initEvents: function() {
-      var node = this.node;
+      var sliderNode = this.sliderNode;
       var self = this;
-      node.on('touchstart mousedown', function(e) {
-          prevent(e)
+      sliderNode.on('touchstart mousedown', function(e) {
+          prevent(e);
+          if(self.isDisable) return window.infoPanel && infoPanel.alert('这支笔不能调宽度哦');
           self.isDown = true;
-        })
-        .on('touchend mouseup touchleave', function(e) {
-          prevent(e)
-          self.isDown = false;
+          window.global && global.trigger('select-start');
         })
         .on('touchstart mousedown touchmove mousemove', function(e) {
-          prevent(e)
+          prevent(e);
+          if(self.isDisable) return;
           if (self.isDown) {
             var pt = getPt(e);
             var x = pt[0];
-            var width = node.width();
+            var width = sliderNode.width();
             var value = x / width;
             if (!isNone(value)) {
               self.ui2Target(value);
             }
           }
+        })
+        .on('touchend mouseup touchleave', function(e) {
+          prevent(e);
+          if(self.isDisable) return;
+          self.isDown = false;
+          window.global && global.trigger('select-end');
         });
-      body.on('update-ui-by-target', this.updateByTarget.bind(this));
+    },
+    disable: function(){
+      this.isDisable = true;
+      this.container.css({opacity: 0.2});
+    },
+    enable: function(){
+      this.isDisable = false;
+      this.container.css({opacity: 1});
     },
     ui2Target: function(value01) {
       Utils.clean(this.ctx);
       this.drawShape();
-      this.drawShape(value01, '#099');
-      var control = this.control,
-        range = control.range;
-      control.value = (range[1] - range[0]) * value01 + range[0] * (1 - value01);
-      this.target.onStyleChange(this.key);
-      body.trigger('preview' + '-' + this.targetName);
+      this.drawShape(value01, '#eee');
+      var targets = this.targets;
+      var control = targets.controls('widthMax'), range = control.range;
+      var width = (range[1] - range[0]) * value01 + range[0] * (1 - value01);
+      targets.controls('widthMax', width);
     },
     updateByTarget: function() {
-      var control = this.control,
+      var control = this.targets.controls('widthMax'),
         range = control.range, value = control.value;
       var value01 = (value - range[0]) / (range[1] - range[0]);
       this.ui2Target(value01);

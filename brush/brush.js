@@ -79,6 +79,7 @@ define(['./../utils/utils', './../libs/event', './smooth'], function (Utils, Eve
           easing: easing
         });
       }
+      this.hsla2color();
     },
 
     reset: function () {
@@ -141,7 +142,7 @@ define(['./../utils/utils', './../libs/event', './smooth'], function (Utils, Eve
       sy = this.smoothY.add(pt[1]);//y更新
       sspeed = this.smoothSpeed.add(record.speed);//speed更新
       var dx = sx.value - sx.valueP, dy = sy.value - sy.valueP, dxP = sx.valueP - sx.valuePP,dyP = sy.valueP - sy.valuePP;
-      dPhi = acos((dx*dxP + dy*dyP)/ sqrt(dx * dx + dy * dy)/sqrt(dxP * dxP   + dyP * dyP ));
+      dPhi = acos((dx * dxP + dy * dyP)/ sqrt(dx * dx + dy * dy) / sqrt(dxP * dxP   + dyP * dyP ));
       dl = sqrt(dx * dx + dy * dy);
       var smoothes = {
         xPP: sx.valuePP,
@@ -257,7 +258,9 @@ define(['./../utils/utils', './../libs/event', './smooth'], function (Utils, Eve
       if (!ctx || !style || !controls) return;
 
       for (var key in style) {
-        controls[key].value = style[key];
+        if(controls[key]) {
+          controls[key].value = style[key];
+        }
       }
       Utils.resetCtx(ctx, controls);
       this.emit('style-change', controls);
@@ -287,7 +290,7 @@ define(['./../utils/utils', './../libs/event', './smooth'], function (Utils, Eve
       hsla = cs.join(',');
       return hsla;
     },
-    'hsla2color': function () { //默认的hsla转换
+    hsla2color: function () { //默认的hsla转换
       var controls = this.controls;
       if (!controls || !controls.lightSat) return;
       var opacity = controls.opacity ? controls.opacity.value : (this.opacity || 1);
@@ -302,6 +305,10 @@ define(['./../utils/utils', './../libs/event', './smooth'], function (Utils, Eve
       this.color = 'hsla(' + hue + ',' + sat + '%,' + light + '%,' + opacity + ')';
       this.colorShow = 'hsl(' + hue + ',' + sat + '%,' + light + '%)';
       this.colorShowSat = 'hsl(' + hue + ',100%, 40%)';
+    },
+    getColorShow: function(){
+      this.hsla2color();
+      return this.colorShow;
     },
     addHooks: function () {
       throw '必须重写，以加入业务逻辑';

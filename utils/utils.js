@@ -112,9 +112,13 @@ define([], function() {
   function hsla2obj(hsla) {
     var strs = hsla.split(')')[0].split(',');
     return {
-      'hue': parseInt(strs[0].split('(')[1]),
+      'hue': parseInt(strs[0].split('(')[1]) / 360,
       'sat': parseInt(strs[1].split('%')[0]),
       'light': parseInt(strs[2].split('%')[0]),
+      'lightSat': {
+        'light': parseInt(strs[2].split('%')[0]) / 100,
+        'sat': parseInt(strs[1].split('%')[0]) / 100
+      },
       'opacity': parseFloat(strs[3])
     };
   }
@@ -252,6 +256,35 @@ define([], function() {
     return a;
   }
 
+/**
+ * deepMerge 深度合并。
+ * @param  {Objects}  需要扩展的对象
+ * @return {Objects}  扩展完成的对象
+ *
+ * @example
+ *   merge(dest, source0, [...]);
+ */
+function deepMerge(dest) {
+  var sources = Array.prototype.slice.call(arguments, 1),
+    i, j, len, src;
+
+  for (j = 0, len = sources.length; j < len; j++) {
+    src = sources[j] || {};
+    for (i in src) {
+      if (src.hasOwnProperty(i)) {
+        var value = src[i];
+        var destValue = dest[i];
+        if (destValue && typeof (destValue) === 'object' && typeof (value) === 'object') {
+          dest[i] = deepMerge(destValue, value);
+          continue;
+        }
+        dest[i] = value;
+      }
+    }
+  }
+  return dest;
+}
+
   return {
     'getNormalNumber': getNormalNumber,
     'resetCtx': resetCtx,
@@ -267,6 +300,7 @@ define([], function() {
     'upper': upper,
     'keys': keys,
     'prevent': prevent,
+    'deepMerge': deepMerge,
     'isNone': isNone,
     'values': values,
     'getQueryString': getQueryString,

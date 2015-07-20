@@ -35,6 +35,7 @@ define(['./../utils/utils', './../render/painter_renderer'], function (Utils, Pa
     var backN = this.backN = opt.backN || 20; //可回退的次数
 
     //其他
+    this.global = opt.global;
     this.renderer = new PainterRenderer({
       backN: backN,
       brushes: brushes,
@@ -49,15 +50,18 @@ define(['./../utils/utils', './../render/painter_renderer'], function (Utils, Pa
     this.touchEvents();
     this.editEvents();
     this.uiEvents();
-    this.painteWorkEvents();
   }
 
   var testNode = $('#test-container')
   Painter.prototype.touchEvents = function(){
+    var global = this.global;
     var mainContainer = this.mainContainer[0];
     var hammer = this.hammer = new Hammer(mainContainer, {});
     hammer.get('pinch').set({enable: true });
     hammer.get('rotate').set({ enable: true });
+    hammer.on('tap', function(ev) {
+      global.trigger('painter-tap');
+    });
     this.pinch();
   };
 
@@ -128,8 +132,6 @@ define(['./../utils/utils', './../render/painter_renderer'], function (Utils, Pa
     var scale = this.pinchedScale;
     var leftTop = (this.pinchX - this.cx) * scale + this.cx;
     // testNode.text(leftTop);
-    // // var lt = 
-    // // if()
   };
 
   Painter.prototype.updateZoom = function() {
@@ -199,7 +201,7 @@ define(['./../utils/utils', './../render/painter_renderer'], function (Utils, Pa
   /////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////绘图设置///////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  ///
+
   /////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////交互事件///////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,25 +211,6 @@ define(['./../utils/utils', './../render/painter_renderer'], function (Utils, Pa
       .on('touchstart mousedown', this.touchstart.bind(this))
       .on('touchmove mousemove', this.touchmove.bind(this))
       .on('touchend mouseup touchleave mouseout', this.touchleave.bind(this));
-  };
-
-  Painter.prototype.painteWorkEvents = function () {
-    var self = this;
-    self.painterWorkStatus = false;
-    var timeEmit = 900;
-    this.container.on('painter-moving touchstart mousedown', function () {
-      if (!self.painterWorkStatus) {
-        self.painterWorkStatus = true;
-      }
-      body.trigger('painter-work');
-      window.clearTimeout(self.painterUnWorkId);
-    });
-    this.container.on('touchend mouseup touchleave mouseout', function () {
-      self.painterUnWorkId = setTimeout(function () {
-        body.trigger('painter-unwork');
-        self.painterWorkStatus = true;
-      }, timeEmit);
-    });
   };
 
   Painter.prototype.uiEvents = function () {
@@ -248,9 +231,9 @@ define(['./../utils/utils', './../render/painter_renderer'], function (Utils, Pa
   //////////////////////////move的阶段//////////////////////////
   Painter.prototype.touchmove = function (e) {
     if (!this.isAfterDown) return;
+    this.global.trigger('paint-start');
     var pt = this.getPt(e);
     this.mvPt = pt;
-    this.container.trigger('painter-moving');
     this.curBrush.draw(pt, this.ctxMainFront);
     prevent(e);
   };
@@ -267,6 +250,7 @@ define(['./../utils/utils', './../render/painter_renderer'], function (Utils, Pa
     this.mvPt = null;
     this.isAfterDown = false;
     prevent(e);
+    this.global.trigger('paint-end');
   };
 
   Painter.prototype.leaveEvents = function () {
