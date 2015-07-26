@@ -226,4 +226,11 @@
   width: 100%;
   height: auto;
 }
-
+.layer-tools-normal{
+  border-left: 2px solid rgba(0,0,120,0);
+  border-right: 2px solid rgba(0,0,120,0);
+}
+.layer-tools-selected{
+  border-left: 2px solid #222;
+  border-right: 2px solid #222;
+}

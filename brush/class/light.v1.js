@@ -136,7 +136,6 @@ var iindex = 0;
               var scaleList = this.scaleList;
 
               for (var i in scaleList) {
-                if(i > (scaleList.length - 2)) continue;
                 ctx.beginPath();
                 var obj = scaleList[i];
                 var widthPhi = obj.widthPhi;
@@ -235,19 +234,20 @@ var iindex = 0;
       var widthMax = controls.widthMax.value;
       var opacity = controls.opacity.value;
       var hue = Math.floor(controls.hue.value * 360);
+      var color = this.getValue('color');
       this.secondBol = true;
       var scaleList = this.scaleList = [];
       var drawN = this.drawN = Math.min(Math.floor(widthMax / 1.5) + 1, this.drawNMax);
       for (var i = 0; i < drawN; i++) {
         var ii = i / (drawN - 1);
-        var dii = Math.pow(1 - ii, 0.5);
+        // var dii = Math.pow(1 - ii, 0.5);
         var wii = Math.pow(ii, 4);
-        var cii = Math.pow(ii, 2);
-        var saturation = parseInt(40 + cii * 60);
-        var lightness = parseInt(100 - cii * 90);
-        var opact = dii * opacity;
+        // var cii = Math.pow(ii, 2);
+        // var saturation = parseInt(40 + cii * 60);
+        // var lightness = parseInt(100 - cii * 90);
+        // var opact = dii * opacity;
         scaleList.push({
-          'fillStyle': 'hsla(' + hue + ',' + saturation + '%,' + lightness + '%,' + opact + ')',
+          'fillStyle': color,
           'widthPhi': wii
         });
       }

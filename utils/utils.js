@@ -38,9 +38,13 @@ define([], function() {
   }
 
   function clean(canvas){
-    if(!canvas) return;
-    var ctx = (canvas.getContext)?canvas.getContext('2d'):canvas;
+    if (!canvas) return;
+    var ctx = (canvas.getContext) ? canvas.getContext('2d') : canvas;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
+
+  function cleanCtx(ctx){
+    ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
   }
 
   function genCanvas(opt) { //添加一个和node等大的canvas
@@ -154,6 +158,10 @@ define([], function() {
     return [x, y];
   };
 
+  function getTimeAbsolute() {//以秒为单位
+    return new Date().getTime() * 0.001;
+  }
+
   function getQueryStringByName(name) {
     var reg = new RegExp('[\?\&]' + name + '=([^\&]+)', 'i');
     var result = window.location.href.match(reg);
@@ -256,6 +264,17 @@ define([], function() {
     return a;
   }
 
+function clone(obj){
+  var result = Array.isArray(obj)?[]:{};
+    //clone
+    for(var j in obj){
+      if (obj.hasOwnProperty(j)) {
+        result[j] = obj[j];
+      }
+    }
+  return result;
+}
+
 /**
  * deepMerge 深度合并。
  * @param  {Objects}  需要扩展的对象
@@ -264,34 +283,62 @@ define([], function() {
  * @example
  *   merge(dest, source0, [...]);
  */
-function deepMerge(dest) {
+function deepMerge(dest, src, depth) {
   var sources = Array.prototype.slice.call(arguments, 1),
-    i, j, len, src;
-
-  for (j = 0, len = sources.length; j < len; j++) {
-    src = sources[j] || {};
+    i, j, len, src, result = clone(dest), depth = depth || 0;
+    if(depth++ > 2) throw '层数过深';
+    //
     for (i in src) {
       if (src.hasOwnProperty(i)) {
         var value = src[i];
         var destValue = dest[i];
+        if(value === destValue) continue;
         if (destValue && typeof (destValue) === 'object' && typeof (value) === 'object') {
-          dest[i] = deepMerge(destValue, value);
+          result[i] = deepMerge(destValue, value, depth);
           continue;
         }
-        dest[i] = value;
+        result[i] = value;
       }
     }
-  }
-  return dest;
+  return result;
 }
 
+   function hsla2color (){ //默认的hsla转换
+      var controls = this.controls;
+      if (!controls) return;
+      var opacity = controls.opacity ? controls.opacity.value : (this.opacity || 1);
+      var hue = controls.hue ? controls.hue.value : (this.hue || 0.4);
+      hue = hue * 360;
+      var lightSat = controls.lightSat ? controls.lightSat.value : (this.lightSat || {
+        sat: 1,
+        light: 1
+      });
+      var light = Math.round(lightSat.light * 100);
+      var sat = Math.round(lightSat.sat * 100);
+      this.color = 'hsla(' + hue + ',' + sat + '%,' + light + '%,' + opacity + ')';
+      this.colorShow = 'hsl(' + hue + ',' + sat + '%,' + light + '%)';
+      this.colorShowSat = 'hsl(' + hue + ',100%,40%)';
+    }
+
+  function controls2data(controls){
+    var result = {};
+    if(!controls) return result;
+    for(var key in controls) {
+      result[key] = controls[key].value;
+    }
+    return result;
+  }
+
   return {
+    'controls2data': controls2data,
     'getNormalNumber': getNormalNumber,
+    'getTimeAbsolute': getTimeAbsolute,
     'resetCtx': resetCtx,
     'getCurvatureBy3Pt': getCurvatureBy3Pt,
     'getQueryStringByName': getQueryStringByName,
     'animateSeries': animateSeries,
     'checkDrawData': checkDrawData,
+    'hsla2color': hsla2color,
     'rgbToHsl': rgbToHsl,
     'hsla2obj': hsla2obj,
     'distance': distance,
@@ -311,6 +358,7 @@ function deepMerge(dest) {
     'extend': extend,
     'merge': extend,
     'getId': getId,
+    'cleanCtx': cleanCtx,
     'clean': clean
   };
 

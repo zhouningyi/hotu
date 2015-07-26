@@ -1,21 +1,18 @@
 'use strict';
 
-define(['./utils/utils','ui/gui', 'editor/bg', 'editor/painter', 'ui/components/info_panel', 'ui/bgTools', 'render/exports', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', './model/user', './app_config', './model/browser', './ui/uploadSubmit', './action/actions', './ui/end_tools', './ui/components/preview_panel', './ui/global', './ui/top_tools'], function(Utils ,Gui, Bg, Painter, InfoPanel, BgTools, Exports, brushes, Url, Weixin, ModelDraw, User, config, browser, UploadSubmit, Actions, EndTools, PreviewPanel, global, TopTools) {
+define(['./utils/utils', 'ui/gui', 'ui/layer_tools', 'editor/editor', 'ui/components/info_panel', 'ui/bgTools', 'brush/brushes', 'model/url', 'wx/weixin', 'model/model_draw', './model/user', './app_config', './model/browser', './ui/uploadSubmit', './action/actions', './ui/end_tools_brush', './ui/end_tools_bg', './ui/components/preview_panel', './ui/global', './ui/top_tools'], function(Utils ,Gui, LayerTools, Editor, InfoPanel, BgTools, brushes, Url, Weixin, ModelDraw, User, config, browser, UploadSubmit, Actions, EndToolsBrush, EndToolsBg, PreviewPanel, global, TopTools) {
   var prevent = Utils.prevent;
   var clickEvent = 'touchstart mousedown';
 
   //绘图相关组件
-  var painter, bg, exports, gui, infoPanel, bgTools, actions, layers, uploadSubmit, modelDraw, endTools, topTools;
+  var painter, bg, editor, gui, infoPanel, bgTools, actions, layers, uploadSubmit, modelDraw, endToolsBrush, endToolsBg, topTools, layerTools;
 
   //组件相关的node
   var body = $('body'),
-    drawToolsNode = $('#draw-tools'),
-    endToolsNode = $('.end-tools'),
+    mainContainer = $('.main-container'),
+    layerToolsNode = $('#layer-tools'),
     importantToolsNode = $('.important-tools'),
-    mainNode = $('.main-container'),
     uiContainer = $('.ui-container'),
-    drawContainer = $('.draw-container'),
-    bgContainer = $('.bg-container'),
     layersContainer = $('.layers-container'),
     infoContainer = $('.info-container'),
     firstContainer = $('.first-container');
@@ -25,16 +22,14 @@ define(['./utils/utils','ui/gui', 'editor/bg', 'editor/painter', 'ui/components/
     this.dispatch(this.init.bind(this));
   }
 
-  Controller.prototype.test = function() {};
-
-  Controller.prototype.preInit = function() {
+  Controller.prototype.preInit = function () {
     config.browser = browser;
 
     actions = new Actions(); //操作列表
 
     var frameOpt = {
-      frameW: drawContainer.width(),
-      frameH: drawContainer.height(),
+      frameW: mainContainer.width(),
+      frameH: mainContainer.height(),
       config: config
     };
     modelDraw = this.modelDraw = new ModelDraw(frameOpt); //数据
@@ -45,7 +40,7 @@ define(['./utils/utils','ui/gui', 'editor/bg', 'editor/painter', 'ui/components/
 
   var isLoadLast = true;
   var url, weixin, user;
-  Controller.prototype.dispatch = function(next) { //登录等流程相关的组件 分出不同的流程
+  Controller.prototype.dispatch = function (next) { //登录等流程相关的组件 分出不同的流程
     var self = this;
     url = new Url(config); //从url中抽取信息 并修改config
     weixin = new Weixin(url); //微信的分享机制
@@ -56,7 +51,7 @@ define(['./utils/utils','ui/gui', 'editor/bg', 'editor/painter', 'ui/components/
     });
 
     user.login({
-      success: function(openid) {
+      success: function (openid) {
         user.setUserInfo({
           userid: openid,
           register: 'weixin'
@@ -76,55 +71,54 @@ define(['./utils/utils','ui/gui', 'editor/bg', 'editor/painter', 'ui/components/
     });
   };
 
-  Controller.prototype.init = function() {
+  Controller.prototype.init = function () {
     this.global = global;
     this.animInUI();
+    //编辑器参数
+    var painterOpt = config.painter;
+    var quality = painterOpt.quality = painterOpt.quality(browser);
+    editor =  this.editor = new Editor(mainContainer, {
+      brushes: brushes,
+      modelDraw: modelDraw,
+      painter: painterOpt,
+      layersContainer: layersContainer,
+      actions: actions
+    });
 
-    var previewPanel = new PreviewPanel(uiContainer,{
+    var previewPanel = new PreviewPanel(uiContainer, {
       brushes: brushes
     });
     window.infoPanel = new InfoPanel(infoContainer, {});
     window.infoPanel.help();
 
-    var painterOpt = config.painter;
-    var quality = painterOpt.quality = painterOpt.quality(browser);
-    var backN = painterOpt.backN;
-    painter = this.painter = new Painter(drawContainer, {
-      'brushes': brushes,
-      'modelDraw': modelDraw,
-      'quality': quality,
-      'backN': backN,
-      'global': global
-    });
-
-    //背景层
-    bg = this.bg = new Bg(bgContainer, {
-      'modelDraw': modelDraw,
-      'actions': actions
-    });
-
     bgTools = new BgTools({
       'container': uiContainer,
-      'bind': drawToolsNode,
+      'bind': layerToolsNode,
       'actions': actions,
-      'bg': bg,
+      'bg': editor.bg,
       'quality': quality
     });
-    
 
     var floatTagNode = $('');
-    exports = new Exports(floatTagNode, bg, painter);
-    modelDraw.exports = exports;
 
-    endTools = new EndTools(endToolsNode, {
-      targets: brushes
+    endToolsBrush = new EndToolsBrush(uiContainer, {
+      targets: brushes,
+      isOut: false
+    });
+
+    endToolsBg = new EndToolsBg(uiContainer, {
+      targets: actions,
+      isOut: true
     });
 
     topTools = new TopTools(uiContainer, {
-      painter: painter,
-      exports: exports
+      editor: editor
     });
-    
+
+    layerTools = new LayerTools(layerToolsNode, {
+      layers: editor.layers
+    });
+
     uploadSubmit = new UploadSubmit(firstContainer, {
       'config': config,
       'modelDraw': modelDraw,
@@ -134,80 +128,27 @@ define(['./utils/utils','ui/gui', 'editor/bg', 'editor/painter', 'ui/components/
     gui = new Gui();
 
     this.events();
-    painter.beginRecord(); //开始记录
     this.loadLast();
   };
 
-  Controller.prototype.loadLast = function() { //是否要载入banner提示
-    var modelDraw = this.modelDraw;
-    var self = this;
-    if (isLoadLast) {
-      modelDraw.getLastStorage({
-        success: function(d) {
-          if (!d) return;
-          self.processingDrawData(d);
-        },
-        fail: function() {
-          modelDraw.getLast({
-            userid: openid,
-            drawid: drawid
-          }, self.processingDrawData.bind(self));
-        }
-      });
-    } else {}
+  Controller.prototype.loadLast = function () { //是否要载入banner提示
+    if (isLoadLast) this.editor.load();//没有参数则载入最后编辑的数据
   };
 
-  Controller.prototype.animInUI = function() { //动画进入
+  Controller.prototype.animInUI = function () { //动画进入
     importantToolsNode.keyAnim('fadeInLeft', {
-      time: 0.4
+      time: 0.2
     });
-    drawToolsNode.keyAnim('fadeInLeft', {
-      time: 0.6
-    });
-    endToolsNode.keyAnim('fadeIn', {
-      time: 1
-    });
-  };
-
-  Controller.prototype.processingDrawData = function(d) {
-    var self = this;
-    setTimeout(function() {
-      if (typeof(d) === 'string') {
-        d = JSON.parse(d);
-      }
-
-      if (d) {
-        var drawing = d.drawing;
-        if (drawing) {
-          var drawid = drawing.drawid || drawing.id;
-        }
-      }
-
-      var drawing = d.drawing;
-      body.trigger('drawid', drawid);
-      self.painter.reload(d.drawing);
-      self.bg.reload(d.drawing);
+    layerToolsNode.keyAnim('fadeInLeft', {
+      time: 0.2,
+      delay: 0.1
     });
   };
 
   //事件
   Controller.prototype.events = function() {
-    this.painterEvents();
     this.iconEvents();
     this.uiEvents();
-  };
-
-  Controller.prototype.painterEvents = function() {
-    var self = this;
-    var isPainterIn = true;
-    this.global
-      .on('painter-tap', function () {
-      })
-      .on('paint-start', function() {
-      })
-      .on('main-color-change', function(e, bgColor) {
-        gui.setBackground(bgColor);
-      });
   };
 
   Controller.prototype.iconEvents = function() { //所有iconfont在点击后都会闪动
@@ -216,7 +157,7 @@ define(['./utils/utils','ui/gui', 'editor/bg', 'editor/painter', 'ui/components/
       node.keyAnim('fadeOutIn', {
         'time': 0.5,
         'icount': 5,
-        'cb': function() {
+        'cb': function () {
           node.clearKeyAnim();
         }
       });
@@ -241,7 +182,7 @@ define(['./utils/utils','ui/gui', 'editor/bg', 'editor/painter', 'ui/components/
           });
         },
         'layers': function() {
-          layers.switch();
+          // layers.switch();
         },
         // 'broadcast': painter.broadcast.bind(painter),
         'refresh': window.location.reload.bind(window.location)
@@ -298,31 +239,10 @@ define(['./utils/utils','ui/gui', 'editor/bg', 'editor/painter', 'ui/components/
     // });
 
     //上方的工具
-    importantToolsNode.find('i').on(clickEvent, function(e) {
+    importantToolsNode.find('i').on(clickEvent, function (e) {
       prevent(e);
-      var node = $(this);
-      var id = node.attr('id');
-      var cbs = {
-        'back': painter.back.bind(painter)
-      };
-      if (cbs[id]) cbs[id]();
+      editor.back();
     });
-
-    //挂在body上的一些事件
-    body
-      .on('left-tools-in', function() {
-        importantToolsNode.find('i').css('opacity', 0.2);
-      })
-      .on('left-tools-out', function() {
-        importantToolsNode.find('i').css('opacity', 1);
-      })
-      .on('blur', function() {
-        painter.blur();
-      })
-      .on('unblur', function() {
-        gui.in();
-        painter.unblur();
-      });
   };
 
   return Controller;

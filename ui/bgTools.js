@@ -1,7 +1,6 @@
 'use strict';
 //对UI的总体控制
 define(['./../utils/utils', './../render/renderer', './components/lightSatSelector', './components/hueSlider', './components/slider', './components/imageUploader'], function (Utils, Renderer, LightSatSelector, HueSlider, Slider, ImageUploader) {
-  
   var values = Utils.values;
   var prevent = Utils.prevent;
   var genCanvas = Utils.genCanvas;

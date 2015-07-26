@@ -3,11 +3,11 @@
 define(['./../libs/event', './class/mark.v1', './class/pen.v1', './class/fatdot.v1', './class/ink.v1', './class/fatTest', './class/eraser.v1', './class/fatLines.v1',  './class/caojian',  './class/light.v1'], function(EventsEmitter, mark, pen, fatdot, ink, FatTest, eraser, FatLines, Caojian, Light) { //加载brush基类
 
   function Brushes() {
-    this.creates([mark, fatdot, FatTest, FatLines, Light, pen]);//pen Pencil
+    this.creates([mark, fatdot, FatTest, FatLines, Light, eraser]);//pen Pencil
   }
   EventsEmitter.extend(Brushes, {
     curBrushid: null,
-    creates: function(brushConstruList) {
+    creates: function (brushConstruList) {
       var brushTypeList = this.brushTypeList = [];
       var brushObj = this.brushObj = {};
       var brushList = this.brushList = [];
@@ -60,21 +60,19 @@ define(['./../libs/event', './class/mark.v1', './class/pen.v1', './class/fatdot.
       curBrush.setControl(key, value);
       // this.emit('style-change');
     },
-    initEvents: function(){
+    initEvents: function () {
       this._curBrush
       .on('style-change', this.styleChangeHookBindThis);
       // .on('curBrush', this.styleChangeHookBindThis);
     },
-    styleChangeHook: function(){
+    styleChangeHook: function () {
       this.emit('style-change');
     },
     // brushChangeHook: function(){
     //   this.emit('brush-change');
     // },
-    getColorShow: function(){
-      if(this._curBrush){
-        return this._curBrush.getColorShow();
-      } 
+    getColorShow: function () {
+      if(this._curBrush) return this._curBrush.getColorShow();
     }
   });
 

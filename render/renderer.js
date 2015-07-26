@@ -17,11 +17,11 @@ define(['./../utils/utils', './../libs/event'], function(Utils, event) {
     },
     drawCurve: function (curve, ctx) {
       if(!curve) return;
+      ctx = ctx || this.ctx;
       var pt, pts = curve.c,
         index, ptN = pts.length,
-        ctx = ctx || this.ctx,
         brushes = this.brushes,
-        brush = (curve.brushType)? brushes.get(curve.brushType) :brushes.current(),
+        brush = (curve.brushType) ? brushes.get(curve.brushType): brushes.current(),
         style = curve.style;
         brush.setCurveStyles(style);
       for (index in pts) {

@@ -78,14 +78,14 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
       }
       ctx.closePath();
     },
-    initEvents: function() {
+    initEvents: function () {
       var sliderNode = this.sliderNode;
       var self = this;
-      sliderNode.on('touchstart mousedown', function(e) {
+      sliderNode.on('touchstart mousedown', function (e) {
           prevent(e);
           if(self.isDisable) return window.infoPanel && infoPanel.alert('这支笔不能调宽度哦');
           self.isDown = true;
-          window.global && global.trigger('select-start');
+          window.global && global.trigger('select-start', self.targets.current());
         })
         .on('touchstart mousedown touchmove mousemove', function(e) {
           prevent(e);

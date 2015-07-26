@@ -32,13 +32,11 @@ define(function () {
   };
 
   Gui.prototype.out = function (cb) {
-    this.outEnd(cb);
-    this.outLeft(cb);
-    this.isOut = true;
+    // this.outLeft(cb);
+    // this.isOut = true;
   };
 
   Gui.prototype.in = function (cb) {
-    this.inEnd(cb);
     this.inLeft(cb);
     this.isOut = false;
   };
@@ -54,10 +52,10 @@ define(function () {
   };
 
   Gui.prototype.setBackground = function (color) {
-    var colors = color.split(',');
-    colors[3] = '0.9)';
-    colors = colors.join(',');
-    this.toolLeft.css({background: colors});
+    // var colors = color.split(',');
+    // colors[3] = '0.9)';
+    // colors = colors.join(',');
+    // this.toolLeft.css({background: colors});
     // this.toolEnd.css({background: colors});
   };
   return Gui;

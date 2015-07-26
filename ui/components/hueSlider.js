@@ -56,7 +56,7 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
         if(!self.isable) return;
           prevent(e);
           self.isDown = true;
-          window.global && global.trigger('select-start');
+          window.global && global.trigger('select-start', self.targets.current());
         })
         .on('touchend mouseup touchleave mouseout', function(e) {
           if(!self.isable) return;
@@ -71,9 +71,9 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
             var pt = getPt(e);
             var x = pt[0];
             self.ui2Target(x / node.width());
+            self.emit('change');
           }
         });
-      body.on('update-ui-by-target', this.updateByTarget.bind(this));
     },
     initGradient: function(){
       var hueSliderLine = this.hueSliderLine;
@@ -123,7 +123,9 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
       ctx.closePath();
     },
     updateByTarget: function() {
-      this.ui2Target(this.targets.controls('hue').value);
+      var control = this.targets.controls('hue');
+      if(!control) return;
+      this.ui2Target(control.value);
     },
     ui2Target: function(hue01) {
       this.renderGradient(hue01);

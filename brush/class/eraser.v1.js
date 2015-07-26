@@ -13,7 +13,6 @@ define(['./brush_base_round'], function(Mark) {
     'id': 'eraser_v1',
     'name': '橡皮',
     'desc': '橡皮工具',
-    'color': '#fff',
     'globalCompositeOperation': 'destination-out',
     'controls': {
       'widthMax': {
@@ -28,6 +27,28 @@ define(['./brush_base_round'], function(Mark) {
         'value': 0.5,
         'constructorUI': 'Slider',
         'descUI': '透明',
+        'containerName': 'color'
+      },
+      'hue': {
+        'range': [0, 1],
+        'value': 0.5,
+        'descUI': '颜色',
+        'constructorUI': 'HueSlider',
+        'containerName': 'color'
+      },
+      'lightSat': {
+        'range': [{
+          'light': 0,
+          'sat': 0
+        }, {
+          'light': 1,
+          'sat': 1
+        }],
+        'value': {
+          'light': 0.4,
+          'sat': 0.9
+        },
+        'constructorUI': 'LightSatSelector',
         'containerName': 'color'
       }
     },

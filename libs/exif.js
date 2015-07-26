@@ -1,6 +1,5 @@
 'use strict';
 //https://raw.githubusercontent.com/jseidelin/exif-js/master/exif.js
-define(function() {
 
 
 /*
@@ -631,5 +630,4 @@ function loadAllImages()
 addEvent(window, "load", loadAllImages); 
  
 })();
-return EXIF;
-});
+window.EXIF = EXIF;

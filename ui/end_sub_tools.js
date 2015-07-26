@@ -8,17 +8,17 @@ define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
     this.initialize(container, options);
   }
 
+
   EventEmitter.extend(EndSubTools, {
     isOut: false,
     options: {
-      isOutInit: false,
       background: 'rgba(30,30,30,1)',
       parent: {
         height: 10,
         paddingTop: 10
       },
       tri: {
-        height: 7.5,
+        height: 10,
         width: 15
       },
       rectSmall:{
@@ -43,15 +43,15 @@ define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
       var container = this.container, options = this.options, tri = options.tri, rectSmall = options.rectSmall, rectPanel = options.rectPanel, parent = options.parent;
       var background = options.background;
       //次级方形栏
-      var mainNode = this.mainNode = $('<div class="end-tools-sub"></div>').css({
+      var mainNode = this.mainNode = $('<div class="end-tools-sub ' + options.type + '"></div>').css({
         bottom: parent.height + parent.paddingTop * 2
       });
-      if(options.isOutInit) {
+      if(options.isOut) {
         this.isOut = true;
          mainNode.css({
-          '-webkit-transform': 'translate3d(-100%, 0%, 0)',
-          '-ms-transform': 'translate3d(-100%, 0%, 0)',
-          'transform': 'translate3d(-100%, 0%, 0)'
+          '-webkit-transform': 'translate3d(100%, 0%, 0)',
+          '-ms-transform': 'translate3d(100%, 0%, 0)',
+          'transform': 'translate3d-100%, 0%, 0)'
          });
        }
        //

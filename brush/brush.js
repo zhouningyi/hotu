@@ -16,6 +16,7 @@ define(['./../utils/utils', './../libs/event', './smooth'], function (Utils, Eve
   }
 
   Event.extend(Brush, {
+    type: 'brush',
     'init': function (opt){
       this.opt = opt || {};
       this.setBrushStyles();
@@ -64,7 +65,6 @@ define(['./../utils/utils', './../libs/event', './smooth'], function (Utils, Eve
         });
       }
     },
-
     initSmoothes: function () {
       var smooth = this.smooth,
         obj, smoothN, easing;
@@ -234,11 +234,11 @@ define(['./../utils/utils', './../libs/event', './smooth'], function (Utils, Eve
         type: 'curve'
       };
     },
-    'buttonStyleFunc': function (){},
-    'onStyleChange': function (){},
+    'buttonStyleFunc': function () {},
+    'onStyleChange': function () {},
     'setBrushStyles': function () { //设置笔刷相关的基本参数
       var ctx = this.ctx;
-      if(!ctx || ctx.brushid === this.id) return;
+      if (!ctx || ctx.brushid === this.id) return;
       ctx.brushid = this.id
       Utils.resetCtx(ctx, this);
     },
@@ -280,6 +280,7 @@ define(['./../utils/utils', './../libs/event', './smooth'], function (Utils, Eve
     'setControl': function(key, value){
       var controls = this.controls;
       if(!key || value === undefined || value === null || !controls || !controls[key]) return;
+      if(controls[key].value === value) return;
       controls[key].value = value;
       this.emit('style-change', {key:key,value:value});
     },

@@ -1,7 +1,7 @@
 'use strict';
 
-define(['./../utils/exif', './../utils/binaryajax'], function (EXIF, Binary) {//'./../utils/exif'
-  var BinaryFile = Binary.BinaryFile;
+define([], function () {//'./../utils/exif'
+  var BinaryFile = window.Binary.BinaryFile;
   
   /**
    * BgImage 增加图片图层

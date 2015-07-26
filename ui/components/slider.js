@@ -46,7 +46,7 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, Events) {
           prevent(e);
           if(self.isDisable) return window.infoPanel && infoPanel.alert('这支笔不能调透明度哦');
           self.isDown = true;
-          window.global && global.trigger('select-start');
+          window.global && global.trigger('select-start', self.targets.current());
         })
         .on('touchend mouseup', function(e) {
           prevent(e);

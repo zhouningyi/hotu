@@ -1,6 +1,6 @@
 'use strict';
 //对UI的总体控制
-define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitter) {
+define(['./../../utils/utils', './../../libs/event'], function (Utils, EventEmitter) {
   var body = $('body');
   var isNone = Utils.isNone;
   var prevent = Utils.prevent;
@@ -15,9 +15,9 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
   EventEmitter.extend(LightSatSelector, {
     options: {
       height: 50,
-      nodeR: 20, //指示点的大小
+      nodeR: 10, //指示点的大小
       gridX: 5,
-      gridY: 5,
+      gridY: 5
     },
     isable: false,
     initialize: function(container, options) {
@@ -26,7 +26,7 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
       var targets;
       if (!(targets = this.targets = options.targets)) return console.log('LightSatSelector: 必须有targets');
       var key = this.key = 'lightSat';
-      if(!this.targets.controls(key)) return console.log('brush 没有lightSat变量');
+      if(!targets.controls(key)) return console.log('brush 没有lightSat变量');
 
       this.initDom();
       this.initEvents();
@@ -47,6 +47,7 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
     },
     updateByTarget: function() {
       var control = this.targets.controls('lightSat');
+      if(!control) return;
       var lightSat = control.value;
       this.lightSatGradient();
       this.updateLightSatPoint({
@@ -62,9 +63,9 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
     initDom: function() {
       var options = this.options;
       var node = this.node =
-        $('<div class="light-sat-container">\
-      <div class="light-sat-pointer"></div>\
-      <canvas width="' + this.container.width() + '" height="' + options.height + '"></canvas>\
+        $('<div class="light-sat-container">'+
+      '<div class="light-sat-pointer"></div>'+
+      '<canvas width="' + this.container.width() + '" height="' + options.height + '"></canvas>\
       </div>')
         .appendTo(this.container);
       this.gradientCanvas = node.find('canvas')[0];
@@ -77,10 +78,10 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
       var control = this.targets.controls('hue');
       var hue = Math.floor(control.value * 360);
 
-      var width = this.container.width(), height = options.height;
+      var width = this.canvasW = this.container.width(), height = this.canvasH = options.height;
 
-      var gridX = Math.floor(width / Math.round(width / options.gridX)); //让其格子的个数为整数
-      var gridY = Math.floor(height / Math.round(height / options.gridY));
+      var gridX = this.gridX = Math.floor(width / Math.round(width / options.gridX)); //让其格子的个数为整数
+      var gridY = this.gridY = Math.floor(height / Math.round(height / options.gridY));
 
       var ctx = this.gradientCtx;
       var xi, yi;
@@ -95,11 +96,12 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
     },
     initEvents: function() {
       var self = this;
-      this.node.on('touchstart mousedown', function(e) {
+      this.node
+        .on('touchstart mousedown', function(e) {
           if(!self.isable) return;
           prevent(e);
           self.isDown = true;
-          window.global && global.trigger('select-start');
+          window.global && global.trigger('select-start', self.targets.current());
         })
         .on('touchstart mousedown touchmove mousemove', function(e) {
           if(!self.isable) return;
@@ -120,15 +122,12 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
             });
           }
         })
-        .on('touchend mouseup touchleave mouseout', function(e) {
+        .on('touchend mouseup', function(e) {
           if(!self.isable) return;
           self.isDown = false;
           prevent(e);
           window.global && global.trigger('select-end');
         });
-      body
-        .on('update-ui-by-target' + this.targetName, this.updateByTarget.bind(this))
-        .on('update' + '-' + 'hue' + this.targetName, self.updateByTarget.bind(self));
     },
     updateLightSatPoint: function(obj) { //更新小球的位置 并触发事件
       var options = this.options;
@@ -139,6 +138,7 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, EventEmitt
         'backgroundColor': colorShow,
         'boxShadow': '1px 1px 0px rgba(150,150,150,0.4)'
       });
+      // this.updateGradient(obj);
     }
   })
 

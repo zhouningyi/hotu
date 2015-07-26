@@ -1,31 +1,41 @@
 'use strict';
 define(['./../utils/utils', './animation', './../libs/event', './renderer'], function (Utils, Animator, EventsEmiter, Renderer) {
   var obj2hsla = Utils.obj2hsla;
-  var merge = Utils.extend;
+  var merge = Utils.merge;
 
-  function PaintRenderer(opt) {
-    merge(this, opt);
-    this.renderer = new Renderer(opt);
+  function PaintRenderer(options) {
+    this.initialize(options);
   }
 
   EventsEmiter.extend(PaintRenderer, {
-    backN: 15,
-    stepPtN: 200,
-    brushes: null,
-    ctxFront: null,
-    ctxBack: null,
-    splitData: function (data) {
-      var backN = this.backN;
-      if (!Utils.checkDrawData(data)) return;
-      var curves = data.c, curveN = curves.length;
-      if (backN >= curveN) return {cache: curves, info: data};
+    options: {
+      backN: 15,
+      stepPtN: 200,
+      brushes: null,
+      ctxFront: null,
+      ctxBack: null
+    },
+    initialize: function (options) {
+      Utils.merge(this.options, options);
+      this.ctxFront = options.ctxFront;
+      this.ctxBack = options.ctxBack;
+      this.brushes = options.brushes;
+      this.renderer = new Renderer(options);
+    },
+    splitData: function (curves) {
+      var options = this.options;
+      var backN = options.backN;
+      // if (!Utils.checkDrawData(data)) return;
+      var curveN = curves.length;
+      if (backN >= curveN) return {cache: curves};
       var splitIndex = curveN - backN - 1;
-      return {cache: curves.slice(splitIndex), base: curves.slice(0, splitIndex), info: data};
+      return {cache: curves.slice(splitIndex), base: curves.slice(0, splitIndex)};
     },
 
-    reload: function (data, cb) {
+    reload: function (curves, cb) {
+      if(!curves) return;
       var self = this;
-      var datas = this.splitData(data);
+      var datas = this.splitData(curves);
       var base = datas.base;
       var cache = datas.cache;
       if (base) {
@@ -37,10 +47,11 @@ define(['./../utils/utils', './animation', './../libs/event', './renderer'], fun
       }
       return datas;
     },
-    
+
     renderBase: function (base, cb) {
+      var options = this.options;
       var animator = new Animator({
-        stepPtN: this.stepPtN,
+        stepPtN: options.stepPtN,
         brushes: this.brushes,
         ctx: this.ctxBack
       });
@@ -56,18 +67,19 @@ define(['./../utils/utils', './animation', './../libs/event', './renderer'], fun
 
       Utils.resetCtx(ctxFront);
       ctxFront.clearRect(0, 0, canvasFront.width, canvasFront.height);
-      var globalCompositeOperation = ctxFront.globalCompositeOperation;
+      var gcOpt = ctxFront.globalCompositeOperation;
       ctxFront.globalCompositeOperation = 'source-over';
       ctxFront.drawImage(canvasBack, 0, 0,  canvasFront.width / canvasFront.quality, canvasFront.height / canvasFront.quality);//画图的一瞬间 修改globalCompositeOperation 为正常叠加模式！
-      ctxFront.globalCompositeOperation = globalCompositeOperation;
+      ctxFront.globalCompositeOperation = gcOpt;
     },
 
     redrawCurves: function (cache) {//直接绘制一组线
       this.renderBackFront();
+      var ctxFront = this.ctxFront;
       //绘制笔
       for (var k in cache) {
         var curve = cache[k];
-        this.renderCurve(curve, this.ctxFront);
+        this.renderCurve(curve, ctxFront);
       }
     },
     renderCurve: function (cData, ctx) {

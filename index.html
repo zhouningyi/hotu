@@ -52,53 +52,18 @@ var _hmt = _hmt || [];
 <body>
 
   <div class="container main-container">
-     <div class="layers-container container">
-       <div class="bg-container container" style="pointer-events:none;">
-           <div class="bg-image-container container"></div>
-       </div>
-       <div class="draw-container container" style="pointer-events:none;"></div>
-    </div>
+     <div class="layers-container container" style=""></div>
     <div class="ui-container container">
-       <div class="important-tools transition-fast" id="important-tools">
+       <div class="important-tools transition-fast" id="important-tools" style="pointer-events:auto;">
          <i class="style-dark iconfont iconfont-mobile block dot icon-ios-undo" id="back" >&#xe610;</i>
        </div>
-
-      <div class="tools transition" id="draw-tools">
-<!--          <div class="ui-grid">
-           <i class="style-dark iconfont iconfont-mobile block icon-android-create" id="brush">&#xe614;</i>
-           <span class="icon-text gray-middle">画笔<span>
-         </div>
-
-         <div class="ui-grid">
-          <i class="style-dark iconfont iconfont-mobile block icon-social-buffer" id="background">&#xe615;</i>
-          <span class="icon-text gray-middle">背景<span>
-         </div>
-
-         <div class="ui-grid">
-          <i class="style-dark iconfont iconfont-mobile block icon-social-buffer" id="add">&#xe600;</i>
-          <span class="icon-text gray-middle">增加<span>
-         </div>
- -->
-       <!--  <div class="ui-grid">
-         <i class="style-normal iconfont iconfont-mobile block icon-social-buffer" id="layers">&#xe60f;</i>
-         <span class="icon-text gray-middle">图层<span>
-        </div> -->
-       <!-- <i class="style-normal iconfont-mobile block icon-shuffle" id="transfer"></i> -->
-        <!-- <div class="ui-grid"> -->
-         <!-- <i class="style-normal iconfont-mobile block icon-social-youtube" id="broadcast">&#xe60d;</i> -->
-        <!-- </div> -->
-        <!-- <div class="ui-grid"> -->
-         <!-- <i class="style-normal iconfont-mobile block icon-arrow-return-right" id="refresh">&#xe606;</i> -->
-        <!-- </div> -->
-     </div>
-    
-    <div class="end-tools transition" id="end-tools"></div>
+      <div class="tools transition" id="layer-tools"></div>
     </div>
   </div>
   
   <div class="info-container container"></div>
   <div class="container first-container" style="z-index:14"></div>
-  <div id="test-container" style="z-index:15;"></div>
+  <!-- <div id="test-container" style="z-index:15;"></div> -->
   </div>
       <script src="./libs/hammer.js"></script>
       <script src="./bower_components/zepto/zepto.min.js"></script>
@@ -106,6 +71,8 @@ var _hmt = _hmt || [];
       <script src="./libs/zepto_cookie.js"></script>
       <script src="./libs/easing.js"></script>
       <script src="./libs/jpeg_encoder_basic.js"></script>
+      <script src="./libs/binaryajax.js"></script>
+      <script src="./libs/exif.js"></script>
       <script data-main="./app.js" src="./bower_components/requirejs/require.min.js"></script>
     <!-- <script data-main="./dest/app.min" src="./bower_components/requirejs/require.min.js"></script> -->
 </body>

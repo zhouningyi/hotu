@@ -1,402 +1,115 @@
 'use strict';
 //'./../ui/util' 目前暂时不用
-define(['./../utils/utils', './../render/painter_renderer'], function (Utils, PainterRenderer) {
+define(['./../utils/utils', './../libs/event', './../render/painter_renderer'], function (Utils, EventEmitter, PainterRenderer) {
   var prevent = Utils.prevent; //清除默认事件
   var upper = Utils.upper; //首字母大写
   var isNone = Utils.isNone; //是否存在
 
   var body = $('body');
+  var testNode = $('#test-container');
 
-  function Painter(container, opt) {
-    opt = opt || {};
-    container = container || $('.container');
-    this.mainContainer = container.parent();
-    this.container = container;
-    var offset = container.offset();
-    this.left = offset.left;
-    this.top = offset.top;
-
-    //数据
-    this.modelDraw = opt.modelDraw;
-    this.containerW = container.width();
-    this.containerH = container.height();
-
-    //画板
-    this.quality = opt.quality || 2;
-    this.addLayers();
-    this.maxZoom = 4;
-    this.minZoom = 1;
-
-    //画笔相关
-    var brushes = this.brushes = opt.brushes;
-
-    //步骤相关
-    this.cacheCurves = []; //临时存储的
-    var backN = this.backN = opt.backN || 20; //可回退的次数
-
-    //其他
-    this.global = opt.global;
-    this.renderer = new PainterRenderer({
-      backN: backN,
-      brushes: brushes,
-      ctxFront: this.ctxMainFront,
-      ctxBack: this.ctxMainBack
-    });
-    this.saveN = 10;
-    this.frontDrawIndex = 0;
-    this.clickDistance = 4; //判断是否是点击事件
-    this.clickTime = 0.15;
-
-    this.touchEvents();
-    this.editEvents();
-    this.uiEvents();
+  function Painter(options) {
+    this.initialize(options);
   }
 
-  var testNode = $('#test-container')
-  Painter.prototype.touchEvents = function(){
-    var global = this.global;
-    var mainContainer = this.mainContainer[0];
-    var hammer = this.hammer = new Hammer(mainContainer, {});
-    hammer.get('pinch').set({enable: true });
-    hammer.get('rotate').set({ enable: true });
-    hammer.on('tap', function(ev) {
-      global.trigger('painter-tap');
-    });
-    this.pinch();
-  };
+  EventEmitter.extend(Painter, {
+    options: {
+    },
+    initialize: function (options) {
+      options = Utils.deepMerge(this.options, options);
+      this.modelDraw = options.modelDraw;//数据
+      this.quality = options.quality || 2;//画板
+      var brushes = this.brushes = options.brushes;//画笔相关
+      var layer = this.layer = options.layer;//图层
+      this.layers = options.layers;//
+      //步骤相关
+      this.cacheCurves = []; //临时存储的
+      var backN = this.backN = options.backN || 20; //可回退的次数
 
-  Painter.prototype.pinch = function(){
-    var self = this;
-    this.pinchedScale = this.pinchScale = 1;
-    this.pinchedX = this.pinchX = 0;
-    this.pinchedY = this.pinchY = 0;
-    this.cx = this.mainContainer.width() / 2;
-    this.cy = this.mainContainer.height() / 2;
-    this.isFirstPinch = true;
-    this.hammer
-    .on('pinchstart', function(e){
-      if(self.isFirstPinch){
-        self.cxFirst = e.center.x;
-        self.cyFirst = e.center.y;
-        // self.disFirst = getHammerDistance(e);
-        self.isFirstPinch = false;
-      }
-      self.isPinch = true;
-      if(self.isAfterDown){
-        self.isAfterDown = false;
-        self.redraw();
-        self.mvPt = null;
-      }
-      self.cxS = e.center.x;
-      self.cyS = e.center.y;
-      self.disS = getHammerDistance(e);
-    })
-    .on('pinchmove', function(e) {
-      if(!self.isPinch) return;
-      var scale = self.pinchScale = getHammerDistance(e) / self.disS * self.pinchedScale;
-      testNode.text('dx' + '|' + 'dy' + '|' + scale);
-       // * self.pinchedScale;
-      var center = e.center;
-      self.cx = center.x, self.cy = center.y;
-      self.pinchX = center.x - self.cxFirst;// + self.pinchedX;
-      self.pinchY = center.y - self.cyFirst;// + self.pinchedY;
-      self.updateZoom();
-    })
-    .on('pinchend', function(){
-      self.pinchedX = self.pinchX;
-      self.pinchedY = self.pinchY;
-
-      self.checkIsOutOfBound();
-
-      self.pinchedScale = self.pinchScale;
-      self.isPinch = false;
-      self.disS = null;
-    });
-  };
-
-  Painter.prototype.checkIsOutOfBound = function() {
-    if (this.pinchScale > this.maxZoom) {
-      this.pinchScale = this.maxZoom;
-      this.updateZoom();
-    } else if (this.pinchScale < this.minZoom) {
-      this.pinchScale = this.minZoom;
-      this.pinchX = 0;
-      this.pinchY = 0;
-      this.pinchedX = 0;
-      this.pinchedY = 0;
-      this.pinchedScale = 1;
-      this.updateZoom();
-      this.cx = this.mainContainer.width() / 2;
-      this.cy = this.mainContainer.height() / 2;
-    }
-    var scale = this.pinchedScale;
-    var leftTop = (this.pinchX - this.cx) * scale + this.cx;
-    // testNode.text(leftTop);
-  };
-
-  Painter.prototype.updateZoom = function() {
-    var dx = this.pinchX, dy = this.pinchY, scale = this.pinchScale;
-    var translate = 'translate3d(' + dx + 'px,' + dy + 'px,' + 0 + 'px) scale(' + scale + ',' + scale + ')';
-    
-    var origin = this.cx + 'px ' + this.cy + 'px';
-    this.mainContainer.css({
-      'transformOrigin': origin,
-      '-webkitTransformOrigin': origin,
-      'transform': translate,
-      '-webkitTransform': translate
-    });
-  };
-
-  function getHammerDistance(e){
-    if(!e) return;
-      var pointers = e.pointers;
-      var pointer1 = pointers[0];
-      var pointer2 = pointers[1];
-      var screenX1 = pointer1.screenX;
-      var screenY1 = pointer1.screenY;
-      var screenX2 = pointer2.screenX;
-      var screenY2 = pointer2.screenY;
-      return Utils.distance(screenX1, screenY1, screenX2, screenY2);
-  }
-
-  Painter.prototype.beginRecord = function () { //开始数据记录
-    this.timeStart = getTimeAbsolute(); //开始计时
-    this.cacheCurves = []; //tmp数据储存
-    this.modelDraw.beginRecord({frameW: this.containerW, frameH: this.containerH});
-  };
-
-  Painter.prototype.addLayers = function () {
-    var container = this.container;
-    this.appendCanvas('bg', container);
-    this.layerGroup('main', container);
-  };
-
-  Painter.prototype.layerGroup = function (name, container) { //一个多canvas的图层组
-    var quality = this.quality;
-    var layerContainer = this['node' + upper(name)] = $('<div class="container" id="' + name + '"></div>').appendTo(container);
-    this.appendCanvas(upper(name) + 'Back', layerContainer, quality, false);//////////////////////sssadadcqfc
-    this.appendCanvas(upper(name) + 'Front', layerContainer, quality);
-  };
-
-  Painter.prototype.appendCanvas = function (name, container, quality, appendBol) { //添加一个canvas层
-    quality = quality || this.quality || 2;
-    var canvas = $('<canvas width="' + this.containerW * quality + '" height="' + this.containerH * quality + '" id="' + name + '"></canvas>')
-      .css({
-        'position': 'absolute',
-        'top': 0,
-        'left': 0,
-        'width': this.containerW,
-        'height': this.containerH
+      //其他
+      this.renderer = new PainterRenderer({
+        backN: backN,
+        brushes: brushes,
+        ctxFront: layer.frontCtx,
+        ctxBack: layer.backCtx
       });
-    if (isNone(appendBol) || appendBol) canvas.appendTo(container); //默认是加入dom的;
+      this.saveN = 10;
+      this.frontDrawIndex = 0;
+      this.clickTime = 0.15;
 
-    canvas = this['canvas' + upper(name)] = canvas[0];
-    canvas.quality = quality;
-
-    var ctx = this['ctx' + upper(name)] = canvas.getContext('2d');
-    ctx.lineWidth = 0;
-    ctx.scale(quality, quality);
-  };
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////绘图设置///////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////交互事件///////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  Painter.prototype.editEvents = function () {
-    this.isAfterDown = false;
-    this.mainContainer
-      .on('touchstart mousedown', this.touchstart.bind(this))
-      .on('touchmove mousemove', this.touchmove.bind(this))
-      .on('touchend mouseup touchleave mouseout', this.touchleave.bind(this));
-  };
-
-  Painter.prototype.uiEvents = function () {
-  };
-
-  //////////////////////////start的阶段//////////////////////////
-  Painter.prototype.touchstart = function (e) {
-    var pt = this.getPt(e);
-    this.startPt = pt;
-    this.mvPt = null;
-    this.isAfterDown = true; //主要解决pc、mac的问题。
-    this.touchStartTime = getTimeAbsolute();
-    this.curBrush = this.brushes.current();
-    this.curBrush.begin(pt, this.ctxMainFront);
-    prevent(e);
-  };
-
-  //////////////////////////move的阶段//////////////////////////
-  Painter.prototype.touchmove = function (e) {
-    if (!this.isAfterDown) return;
-    this.global.trigger('paint-start');
-    var pt = this.getPt(e);
-    this.mvPt = pt;
-    this.curBrush.draw(pt, this.ctxMainFront);
-    prevent(e);
-  };
-
-  //////////////////////////leave的阶段//////////////////////////
-  Painter.prototype.touchleave = function (e) {
-    if (this.isAfterDown) {
-      var curve = this.curBrush.end(this.ctxMainFront);
-      this.modelDraw.addCurve(curve);
-      this.cacheCurves.push(curve);
-      this.leaveEvents();//touchleave时 按照事件移动距离 对本次操作类型进行判断
-      this.doneCurve();//完成绘制
-    }
-    this.mvPt = null;
-    this.isAfterDown = false;
-    prevent(e);
-    this.global.trigger('paint-end');
-  };
-
-  Painter.prototype.leaveEvents = function () {
-    var dt = getTimeAbsolute() - this.touchStartTime;
-    var mvPt = this.mvPt;
-    if (mvPt) {//具有touch事件
-      var distance = Math.sqrt(Math.pow(mvPt[0] - this.startPt[0], 2) + Math.pow(mvPt[1] - this.startPt[1], 2));
-      if (distance < this.clickDistance) {
-        this.container.trigger('painter-click');
+      this.initEvents();
+    },
+    initEvents: function () {
+      var curBrush, curFrontCtx, curve, self = this, brushes = this.brushes, layers = this.layers;
+      var cacheCurves = this.cacheCurves, modelDraw = this.modelDraw;
+      //
+      layers
+        .on('drawstart', function (d) {
+          curBrush = brushes.current();
+          curFrontCtx = layers.current().frontCtx;
+          curBrush.begin(d.pt, curFrontCtx);
+        })
+        .on('draw', function (d) {
+          window.global && global.trigger('paint-start');
+          curBrush && curBrush.draw(d.pt, curFrontCtx);
+        })
+        .on('drawend', function (d) {
+          if (!curBrush) return;
+          var curve = curBrush.end(curFrontCtx);
+          modelDraw.addCurve(curve);
+          self.cacheCurves.push(curve);
+          self.doneCurve(); //完成绘制
+          window.global && global.trigger('paint-end');
+        });
+    },
+    doneCurve: function () { //画完一笔 保存cacheCurves 并决策是否放到栅格化层中
+      var cacheCurves = this.cacheCurves;
+      var renderer = this.renderer;
+      var backCtx = this.layer.backCtx;
+      if (cacheCurves.length > this.backN) {
+        var curve = cacheCurves.splice(0, 1)[0];
+        renderer.renderCurve(curve, backCtx); //把出栈的线绘制到后面去
+        this.redraw(); //canvasFront刷新
       }
-    } else {
-      if (dt > this.clickTime) {
-        this.curBrush.dot(this.ctxMainFront, this.startPt, dt);
+    },
+    redraw: function () { //前端canvas重绘
+      this.layer.clean('front'); //清除画面
+      this.renderer.redrawCurves(this.cacheCurves);
+    },
+    save: function (obj, cb) {
+      if (this.modelDraw) this.modelDraw.save(obj, cb);
+    },
+    new: function () { //重启
+      this.cacheCurves = []; //tmp数据存储
+      this.layer.clean();
+    },
+    back: function () { //后退一步
+      var cache = this.cacheCurves;
+      if (cache.length > 0) {
+        cache.pop(); //临时组去除
+        this.redraw(); //绘制刷新
+        this.modelDraw.back();
       } else {
-        this.container.trigger('painter-click');
+        return window.infoPanel && infoPanel.alert('不能再返回的过去....');
       }
+    },
+    linkTo: function (editor) {
+      this.editor = editor;
+    },
+    data: function (c) {
+      if (!c) return console.log('no data');
+      if (!c || !c.length) return;
+      var lastCurve = c[c.length - 1];
+      if (lastCurve.c.length === 0) {
+        c.splice(c.length - 1, c.length);
+        if (!c.length) return;
+        lastCurve = c[c.length - 1];
+      }
+      this.brushes.current(lastCurve.brushType);
+      var datas = this.renderer.reload(c);
+      this.cacheCurves = datas.cache;
     }
-  };
-
-  Painter.prototype.doneCurve = function () { //画完一笔 保存cacheCurves 并决策是否放到栅格化层中
-    var cacheCurves = this.cacheCurves;
-    var renderer = this.renderer;
-    if (cacheCurves.length > this.backN) {
-      var curve = cacheCurves.splice(0, 1)[0];
-      renderer.renderCurve(curve, this.ctxMainBack); //把出栈的线绘制到后面去
-      this.redraw();//canvasFront刷新
-    }
-  };
-
-  Painter.prototype.redraw = function () { //前端canvas重绘
-    this.clean('MainFront'); //清除画面
-    this.renderer.redrawCurves(this.cacheCurves);
-  };
-
-  Painter.prototype.displayEvents = function () {};
-
-  Painter.prototype.getPt = function (e) { //获取点
-    var left = this.left, top = this.top;
-    var x, y, t = this.getTimeRelative().toFixed(4);
-    if (e.type.indexOf('mouse') !== -1) {
-      x = (e.x || e.pageX) - left;
-      y = (e.y || e.pageY) - top;
-    }else{
-      var touch = window.event.touches[0];
-      x = touch.pageX - left;
-      y = touch.pageY - top;
-    }
-    var pinchScale = this.pinchScale;
-    var originX = this.cx * (1 - pinchScale) + this.pinchX;
-    x = (x - originX) / pinchScale;
-    var originY = this.cy * (1 - pinchScale) + this.pinchY;
-    y = (y - originY) / pinchScale;
-    return [x, y, t];
-  };
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////下载上传///////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  // var _fixType = function (type) {
-  //   type = type.toLowerCase().replace(/jpg/i, 'jpeg');
-  //   var r = type.match(/png|jpeg|bmp|gif/)[0];
-  //   return 'image/' + r;
-  // };
-
-  Painter.prototype.save = function (obj, cb) {
-    if (this.modelDraw) this.modelDraw.save(obj, cb);
-  };
-
-  Painter.prototype.toImage = function () {
-    return [this.canvasMainFront];
-  };
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////其他操作///////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  Painter.prototype.getTimeRelative = function () {
-    return getTimeAbsolute() - this.timeStart;
-  };
-
-  function getTimeAbsolute() {
-    return new Date().getTime() * 0.001;
-  }
-
-  Painter.prototype.clean = function (name) { //清除画面
-    if (name) {
-      name = upper(name);
-      var ctx = this['ctx' + name];
-      ctx.closePath();
-      ctx.clearRect(0, 0, this.containerW, this.containerH);
-    } else {
-      this.clean('MainBack');
-      this.clean('MainFront');
-    }
-  };
-
-  Painter.prototype.restart = function () { //重启
-    this.clear();
-    this.modelDraw.clear();
-    body.trigger('refresh-dataid');
-    this.beginRecord();
-  };
-
-  Painter.prototype.clear = function () { //数据都初始化
-    this.modelDraw.clear();
-    this.clean();
-  };
-
-  Painter.prototype.back = function () { //后退一步
-    var cache = this.cacheCurves;
-    if (cache.length > 0) {
-      cache.pop(); //临时组去除
-      this.redraw(); //绘制刷新
-      this.modelDraw.back();
-    } else {
-      console.log('no-more-back');
-    }
-  };
-
-  Painter.prototype.blur = function () { //弱化
-    this.nodeMain.css({
-      opacity: 0.1
-    });
-  };
-
-  Painter.prototype.unblur = function () { //还原
-    this.nodeMain.css({
-      opacity: 1
-    });
-  };
-
-  Painter.prototype.reload = function (d) {
-    if (!d) return console.log('no reload data');
-    var c = d.c;
-    if(!c || !c.length) return;
-    var lastCurve = c[c.length - 1];
-    if (lastCurve.c.length === 0) {
-      c.splice(c.length - 1, c.length);
-      if(!c.length) return;
-      lastCurve = c[c.length - 1];
-    }
-    this.brushes.current(lastCurve.brushType);
-
-    this.modelDraw.oldData(d); //存储上次的数据
-    var datas = this.renderer.reload(d);
-    this.cacheCurves = datas.cache;
-  };
+  });
 
   return Painter;
 });

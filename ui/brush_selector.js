@@ -1,5 +1,4 @@
 'use strict';
-//对UI的总体控制
 define(['./../libs/event', './../utils/utils'], function(EventEmitter, Utils) {
 
   var body = $('body');
@@ -39,7 +38,7 @@ define(['./../libs/event', './../utils/utils'], function(EventEmitter, Utils) {
       //
       this.brushNode = $('\
         <div class="ui-grid">\
-           <i class="style-normal iconfont iconfont-mobile block icon-android-create" id="brush">&#xe614;</i>\
+           <i class="style-normal iconfont iconfont-mobile block icon-android-create" id="brush" style="color:#eee;">&#xe614;</i>\
            <div class="icon-text gray-middle">换笔<div>\
         </div>')
         .appendTo(this.container);
@@ -60,7 +59,8 @@ define(['./../libs/event', './../utils/utils'], function(EventEmitter, Utils) {
     },
     initEvents: function() {
       var self = this;
-      this.brushNode.on('touchstart mousedown', function() {
+      this.brushNode.on('touchstart mousedown', function(e) {
+        prevent(e);
         window.global && global.trigger('select-tool', self.id);
       }.bind(this));
       window.global && global.on('select-tool', function(id) {
@@ -76,9 +76,10 @@ define(['./../libs/event', './../utils/utils'], function(EventEmitter, Utils) {
         var node = $('<div class="tools-list-icon" id="' + brushId + '">' + brush.name + '</div>')
           .on('touchstart mousedown', function(e) {
             brushes.current($(this).attr('id'));
-            window.global && global.trigger('select-start');
+            window.global && global.trigger('select-start', self.targets.current());
             prevent(e);
           }).on('touchend mouseup', function(e) {
+            prevent(e);
             window.global && global.trigger('select-end');
           });
         if (brush.id == brushes.current().id) {

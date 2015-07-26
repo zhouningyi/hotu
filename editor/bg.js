@@ -1,76 +1,75 @@
 'use strict';
 
-define([], function () {
-  function Bg(container, opt) {
-    opt = opt || {};
-    var modelDraw = this.modelDraw = opt.modelDraw;
-    container = this.container = container || $('.container');
-    this.container = container;
-    this.containerW = container.width();
-    this.containerH = container.height();
-    var actions = this.actions = opt.actions;
-    var actionList = actions.actionList;
+define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
+  var upper = Utils.upper;
+  var cleanCtx = Utils.cleanCtx;
 
-    for (var k in actionList) {
-      var action = actionList[k];
-      action.set({
-        'container': container,
-        'modelDraw': modelDraw
-      });
-    }
-    this.dom();
-    this.events();
+  function Bg(options) {
+    this.initialize(options);
   }
 
-  Bg.prototype.dom = function (obj) {
-    obj = obj || {};
-    var quality = obj.quality || 1;
-    var canvas = $('<canvas width="' + this.containerW * quality + '" height="' + this.containerH * quality + '"></canvas>').css({
-      'width': this.containerW,
-      'height': this.containerH,
-      'pointerEvents': 'none',
-    });
-    canvas = this.canvas = canvas[0];
-    var ctx = this.ctx = canvas.getContext('2d');
-    ctx.scale(quality, quality);
-  };
-
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////背景替换///////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-
-  Bg.prototype.toImage = function () {
-    var actionList = this.actions.actionList;
-    var ctx = this.ctx;
-    for(var k in actionList){
-      var action = actionList[k];
-      action.toImage(ctx);
-    }
-    return this.canvas;
-  };
-
-  Bg.prototype.reload = function (d) {
-    if(!d) return;
-    var bg = d.bg;
-    var actions = this.actions.actionsObj;
-    if (bg) {
-      if (bg.image) {
-        // this.updateImage(bg.image.file);
-      }
-      if (bg.color) {
-        var color = bg.color;
-        for(var key in color){
-          actions.bgColor.controls[key].value = color[key];
-          actions.bgColor.onStyleChange(key);
+  EventEmitter.extend(Bg, {
+    options: {
+      tasks: ['bgColor']
+    },
+    initialize: function (options) {
+      Utils.deepMerge(this.options, options);
+      this.modelDraw = options.modelDraw;
+      var actions = this.actions = options.actions;
+      this.modelDraw = options.modelDraw;
+      var layer = this.layer = options.layer;
+      this.workOn(layer);
+      this.initEvents();
+      this.update();
+    },
+    linkTo: function (editor) {
+      this.editor = editor;
+    },
+    workOn: function (layer) {
+      if (!layer) return;
+      var actions = this.actions;
+      actions.each(function (id, action) {
+        action.workOn(layer);
+      });
+    },
+    new: function () {
+      this.layer.clean();
+    },
+    // update: function () {
+    //   var task, tasks = this.options.tasks;
+    //   for(var k in tasks) {
+    //     task = tasks[k];
+    //     var draw = this['update' + upper(task)];
+    //     draw && draw();
+    //   }
+    //   console.log('update');
+    //   this.actions.each(function (id, action){
+    //     console.log(action.toData());
+    //   });
+    //   // this.modelDraw.save('bg', );
+    // },
+    data: function (d) {
+      if (!d) return;
+      var color, image;
+      var actions = this.actions;
+      if (image = d.image) {
+          // this.updateImage(bg.image.file);
         }
-      }
+      if (color = d.color) actions.get('bgColor').render(color);
+    },
+    initEvents: function () {
+      var actions = this.actions;
+      var modelDraw = this.modelDraw;
+      actions.on('control-change', this.update.bind(this));
+    },
+    update: function () {
+      var actions = this.actions, modelDraw = this.modelDraw;
+      actions.each(function (id, action) {
+        action.update();
+        modelDraw.saveBg(action.key, action.toData());
+      });
     }
-  };
-
-  Bg.prototype.events = function () {
-
-  };
+  });
 
   return Bg;
 });

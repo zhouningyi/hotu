@@ -63,11 +63,13 @@ function Mark(obj){
     addHooks: function () {
       var controls = this.controls;
       var Easing = this.Easing;
-      var widthMax = this.widthMax || controls.widthMax.value;
+      var widthMax;
       var ctx = this.ctx;
       this
-        .on('begin', function() {
+        .on('begin', function () {
+          widthMax = this.widthMax || controls.widthMax.value;
           ctx = this.ctx;
+          if (ctx) ctx.globalCompositeOperation = this.globalCompositeOperation;
         })
         .on('draw', function(record) {
           if (!record) return console.log('record不存在');
