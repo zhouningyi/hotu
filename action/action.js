@@ -30,7 +30,7 @@ define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
     workOn: function (layer) {
       if(!layer) return;
       this.layer = layer;
-      this.ctx = layer.ctx || layer.frontCtx;
+      this.ctx = layer.ctx || layer.ctxBg;
     },
     _update: function () {
       Utils.resetCtx(this.ctx, this.options);

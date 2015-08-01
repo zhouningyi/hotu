@@ -70,7 +70,6 @@ var actionToolsNode, colorNode, commonNode, toolsListNode, curActionNode;
       toolsListNode.append(node);
     }
   };
-
   BgTools.prototype.renderControl = function () {
     var colorNode = this.colorNode;
     var commonNode = this.commonNode;

@@ -9,19 +9,20 @@ define(['./../utils/utils', './animation', './../libs/event', './renderer'], fun
 
   EventsEmiter.extend(PaintRenderer, {
     options: {
-      backN: 15,
+      backN: 6,
       stepPtN: 200,
       brushes: null,
       ctxFront: null,
       ctxBack: null
     },
     initialize: function (options) {
-      Utils.merge(this.options, options);
+      this.options = Utils.deepMerge(this.options, options);
       this.ctxFront = options.ctxFront;
       this.ctxBack = options.ctxBack;
       this.brushes = options.brushes;
       this.renderer = new Renderer(options);
     },
+
     splitData: function (curves) {
       var options = this.options;
       var backN = options.backN;
@@ -33,7 +34,7 @@ define(['./../utils/utils', './animation', './../libs/event', './renderer'], fun
     },
 
     reload: function (curves, cb) {
-      if(!curves) return;
+      if (!curves) return;
       var self = this;
       var datas = this.splitData(curves);
       var base = datas.base;
@@ -57,7 +58,7 @@ define(['./../utils/utils', './animation', './../libs/event', './renderer'], fun
       });
       animator.data({c: base});
       animator.on('step', this.renderBackFront.bind(this));//为了进入的时候 可以看到动画
-      if(cb) animator.on('end', cb);
+      if (cb) animator.on('end', cb);
     },
 
     renderBackFront: function () {

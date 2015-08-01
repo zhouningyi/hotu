@@ -46,10 +46,11 @@ define(['./../../utils/utils', './../../libs/event', './../data_preview', './../
       this.brushes.on('style-change', this.render.bind(this));
       this.brushes.on('current', this.render.bind(this));
 
-      global && global
+      window.global && global
         .on('main-color-change', this.setBg.bind(this))
         .on('select-start-brush', this.in.bind(this))
         .on('select-end', this.out.bind(this))
+        .on('paint-start', this.out.bind(this))
         .on('new-drawing', this.reset.bind(this));
     },
     setBg: function (color) {

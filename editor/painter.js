@@ -14,6 +14,7 @@ define(['./../utils/utils', './../libs/event', './../render/painter_renderer'], 
 
   EventEmitter.extend(Painter, {
     options: {
+      backN: 6
     },
     initialize: function (options) {
       options = Utils.deepMerge(this.options, options);
@@ -61,8 +62,9 @@ define(['./../utils/utils', './../libs/event', './../render/painter_renderer'], 
           self.doneCurve(); //完成绘制
           window.global && global.trigger('paint-end');
         });
+      window.global && global.on('painter-redraw', this.redraw.bind(this));
     },
-    doneCurve: function () { //画完一笔 保存cacheCurves 并决策是否放到栅格化层中
+    doneCurve: function () { //画完一笔 保存cacheCurves 并决策是否放到栅格化层中a
       var cacheCurves = this.cacheCurves;
       var renderer = this.renderer;
       var backCtx = this.layer.backCtx;

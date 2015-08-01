@@ -453,9 +453,9 @@
 
   100% {
     opacity: 0;
-    -webkit-transform: translate3d(0, 400%, 0);
-    -ms-transform: translate3d(0, 400%, 0);
-    transform: translate3d(0, 400%, 0);
+    -webkit-transform: translate3d(0, 800%, 0);
+    -ms-transform: translate3d(0, 800%, 0);
+    transform: translate3d(0, 800%, 0);
   }
 }
 
@@ -476,9 +476,9 @@
 
   100% {
     opacity: 0;
-    -webkit-transform: translate3d(0, 400%, 0);
-    -ms-transform: translate3d(0, 400%, 0);
-    transform: translate3d(0, 400%, 0);
+    -webkit-transform: translate3d(0, 800%, 0);
+    -ms-transform: translate3d(0, 800%, 0);
+    transform: translate3d(0, 800%, 0);
   }
 }
 /*///*/

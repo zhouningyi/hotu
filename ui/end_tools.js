@@ -62,7 +62,7 @@ define(['./../libs/event', './../utils/utils', './../ui/components/width_slider'
     initEvents: function () {
       var self = this;
       this.targets.on('current', this.updateSelectors.bind(this));
-      window.global && global.on('painter-tap', this.switch.bind(this));
+      // window.global && global.on('painter-tap', this.switch.bind(this));
       window.global && global.on('select-layer', function (layer) {
         var type = layer.type;
         if (type === 'add') return;

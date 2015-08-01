@@ -15,8 +15,8 @@ define(['./../utils/utils', './../libs/event', './painter', './bg', './layers'],
   EventEmitter.extend(Editor, {
     options: {
       'painter': {
-        backN: 10,
-        quality: 2
+        'backN': 6,
+        'quality': 1.5
       }
     },
     initialize: function (container, options) {
@@ -31,6 +31,7 @@ define(['./../utils/utils', './../libs/event', './painter', './bg', './layers'],
 
       this.brushes = options.brushes;
       this.actions = options.actions;
+      this.imagePreview = options.imagePreview;
       this.modelDraw = options.modelDraw.linkTo(this);
 
       this.initLayers();
@@ -46,6 +47,7 @@ define(['./../utils/utils', './../libs/event', './painter', './bg', './layers'],
         eventsNode: this.mainContainer
       });
     },
+    //画板层
     initPainter: function () {
       var options = Utils.deepMerge(this.options.painter, {
         'layer': this.layers.get('brush_default'),
@@ -56,11 +58,12 @@ define(['./../utils/utils', './../libs/event', './painter', './bg', './layers'],
       var painter = this.painter = new Painter(options);
       painter.linkTo(this);
     },
+    //背景层
     initBg: function () {
-      //背景层
       this.bg = new Bg({
         'modelDraw': this.modelDraw,
         'actions': this.actions,
+        'imagePreview': this.imagePreview,
         'layer': this.layers.get('background_default')
       });
     },
@@ -73,20 +76,22 @@ define(['./../utils/utils', './../libs/event', './painter', './bg', './layers'],
       d = this._data = this.modelDraw.load(d);
       if (!Utils.checkDrawData(d)) return console.log('数据不规范');
       this.painter.data(d.c);
-      this.bg.data(d.bg);
+      this.bg.data({
+        'bg': d.bg,
+        'image': d.image
+      });
     },
     new: function () {
       this.modelDraw.new();
       this.painter.new();
       this.bg.new();
-      window.global && global.trigger('new-drawing');
     },
     back: function () {
       this.painter.back();
     }
   });
 
-   Editor.prototype.data = Editor.prototype.load;
+  Editor.prototype.data = Editor.prototype.load;
 
   return Editor;
 });

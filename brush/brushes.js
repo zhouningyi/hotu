@@ -1,9 +1,8 @@
 'use strict';
 //这个模块和业务关系比较大 负责选择调用哪些模块
-define(['./../libs/event', './class/mark.v1', './class/pen.v1', './class/fatdot.v1', './class/ink.v1', './class/fatTest', './class/eraser.v1', './class/fatLines.v1',  './class/caojian',  './class/light.v1'], function(EventsEmitter, mark, pen, fatdot, ink, FatTest, eraser, FatLines, Caojian, Light) { //加载brush基类
-
+define(['./../libs/event', './class/mark.v1', './class/pen.v1', './class/fatdot.v1', './class/fatTest', './class/eraser.v1', './class/fatLines.v1',  './class/caojian',  './class/light.v1', './class/ink.v2'], function(EventsEmitter, mark, pen, fatdot, FatTest, eraser, FatLines, Caojian, Light, Ink) { //加载brush基类
   function Brushes() {
-    this.creates([mark, fatdot, FatTest, FatLines, Light, eraser]);//pen Pencil
+    this.creates([mark, fatdot, FatTest, FatLines, Light, Ink, eraser]);//pen Pencil
   }
   EventsEmitter.extend(Brushes, {
     curBrushid: null,

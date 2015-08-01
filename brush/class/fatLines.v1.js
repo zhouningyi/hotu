@@ -90,17 +90,17 @@ define(['./../brush'], function(Brush) {
             cos = this.cos = dy / l;
             sin = this.sin = -dx / l;
             }
-            for(var k = 0; k < r; k+= 6){
+            for(var k = -r/2; k < r/2; k+= 6){
               var xfrom = xP + cosp * k;
               var yFrom = yP + sinp * k;
               var xTo = x + cos * k;
               var yTo = y + sin * k;
               this.createLine(xfrom, yFrom, xTo, yTo, color);
-              var xfrom = xP - cosp * k;
-              var yFrom = yP - sinp * k;
-              var xTo = x - cos * k;
-              var yTo = y - sin * k;
-              this.createLine(xfrom, yFrom, xTo, yTo, color);
+              // var xfrom = xP - cosp * k;
+              // var yFrom = yP - sinp * k;
+              // var xTo = x - cos * k;
+              // var yTo = y - sin * k;
+              // this.createLine(xfrom, yFrom, xTo, yTo, color);
             }
           }
       })

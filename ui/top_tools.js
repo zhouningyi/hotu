@@ -17,6 +17,7 @@ define (['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) 
     initialize: function (container, options) {
       this.container = container;
       this.editor = options.editor;
+      this.modelDraw = options.modelDraw;
       //
       this.options = Utils.merge(this.options, options);
       this.initDom();
@@ -60,18 +61,28 @@ define (['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) 
       });
     },
     initUpload: function () {
+      var modelDraw = this.modelDraw;
+      var versionID;
       this.uploadNode =
       $('<i class="style-normal iconfont iconfont-mobile icon-android-upload inline-block" id="submit-message" style="color:hsl(160,100%,40%);">&#xe605;</i>')
       .appendTo(this.topToolsNode);
+      this.uploadNode.on('touchstart mousedown', function(){
+        versionID = 'upload_' + Math.floor(Math.random()*10000);
+        modelDraw.postDB(function(d){
+          console.log(d);
+        });
+      });
     },
-    initSubTools: function () {
-      this.endSubTools = new EndSubTools(this.container, {parent: this.options});
+    initEventsUpload: function(){
+      global && global.on('post-start', function(){
+      });
     },
     switch: function () {
       (this.isOut) ? this.in() : this.out();
     },
     in : function () {
       if (!this.isOut) return;
+      // 应该是 this.topToolsNode;
       this.container
       .keyAnim('fadeInSlowUp', {
         time: 0.1,

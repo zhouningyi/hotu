@@ -48,6 +48,7 @@ define(['./../utils/utils', './../libs/event', './smooth'], function (Utils, Eve
       this.setBrushStyles(); //是否ctx的绘图参数是否正确 属于本brush
       this.reset();
       this.ptP = this.firstPt = pt;//记录第一个点
+      this.processing(pt);
       this.emit('begin', {
         pt: pt
       });

@@ -11,11 +11,11 @@ define(['./brush_base_round'], function(BrushBase) {
     pow = Math.pow,
     sqrt = Math.sqrt;
 
-  function Mark(obj) {
+  function Light(obj) {
     this.init(obj);
   }
 
-  BrushBase.extend(Mark, {
+  BrushBase.extend(Light, {
     init: function(obj) {
       BrushBase.prototype.init.call(this, obj);
     },
@@ -300,5 +300,5 @@ var iindex = 0;
       });
     }
   });
-  return Mark;
+  return Light;
 });

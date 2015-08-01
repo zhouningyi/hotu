@@ -55,10 +55,7 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, Event) {
       var out = this.out.bind(this);
       var imageNode = this.imageNode, panelNode = this.panelNode;
       window.global && global
-        .on('paint-start', out)
-        .on('select-start', out)
-        .on('select-layer', out)
-        .on('painter-tap', out)
+        .on('in-using', out)
         .on('draw-image', this.image.bind(this));
     },
     image: function (imageHTML) {
@@ -66,8 +63,8 @@ define(['./../../utils/utils', './../../libs/event'], function(Utils, Event) {
       if (this.isImageIn) return;
       this.in();
       this.isImageIn = true;
-      var style = 'color:#ccc;z-index:1;text-align:center;margin-left:auto;margin-right:auto;position:relative;line-height:30px;';
-      imageHTML += '<div style="' + style + '">长按 / 另存为下载</div>';
+      var style = 'color:#ccc;z-index:1;text-align:center;margin-left:auto;margin-right:auto;position:relative;line-height:30px;font-size:12px;';
+      imageHTML += '<div style="' + style + '">长按图片下载 点击空白还原</div>';
       window.clearTimeout(this.clearId);
       this.panelNode
       .css('top', this.options.imageTop)

@@ -18,6 +18,12 @@ define([], function() {
     e.stopPropagation();
   }
 
+  function limit(d, min, max){
+    if(d<min) d = min;
+    if (d>max) d = max;
+    return d;
+  }
+
   function isNone(d) { //清除默认事件
     return (d === undefined || d === null || isNaN(d));
   }
@@ -135,8 +141,10 @@ define([], function() {
     return 'hsla(' + hue + ',' + sat + '%,' + light + '%,1)';
   }
 
-  function getPt(e) { //获取点相对于容器的位置
-    var node = $(e.target);
+  function getPt(e, node, index) { //获取点相对于容器的位置
+    if(index === undefined || index === null) index = 0;
+    if(!node) node = $(e.target);
+    node = $(node);
     var nodeW = node.width();
     var nodeH = node.height();
     var offset = node.offset();
@@ -148,7 +156,7 @@ define([], function() {
       y = e.y || e.pageY;
       return [x - left, y - top];
     }
-    var touch = window.event.touches[0];
+    var touch = window.event.touches[index];
     x = touch.pageX - left;
     y = touch.pageY - top;
     x = (x < nodeW) ? x : nodeW;
@@ -284,9 +292,8 @@ function clone(obj){
  *   merge(dest, source0, [...]);
  */
 function deepMerge(dest, src, depth) {
-  var sources = Array.prototype.slice.call(arguments, 1),
-    i, j, len, src, result = clone(dest), depth = depth || 0;
-    if(depth++ > 2) throw '层数过深';
+  var i, j, len, src, result = clone(dest), depth = depth || 0;
+    if(depth++ > 3) throw '层数过深';
     //
     for (i in src) {
       if (src.hasOwnProperty(i)) {
@@ -359,7 +366,8 @@ function deepMerge(dest, src, depth) {
     'merge': extend,
     'getId': getId,
     'cleanCtx': cleanCtx,
-    'clean': clean
+    'clean': clean,
+    'limit': limit
   };
 
 });

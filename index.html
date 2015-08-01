@@ -18,7 +18,8 @@
   position: absolute;
   top: 60px;
   right: 20px;
-  height: 28px;
+  min-height: 10px;
+  height: auto;
   line-height: 28px;
   text-align: center;
   color: #fff;
@@ -34,11 +35,11 @@
           rel="apple-touch-icon-precomposed">
   <link rel="apple-touch-startup-image" href="/img/startup.png" />
   <script>
-// var ua = navigator.userAgent.toLowerCase();
-// var href = window.location.href;
-// if (ua.indexOf('micromessenger') !== -1 && (href.indexOf('code') === -1)) {//微信中打开 且短网址 如不是从长网址回退
-//     window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2b66f49eb82d70de&redirect_uri=http%3A%2F%2Fhotu.co%2Fhotu%2F&response_type=code&scope=snsapi_base&state=fromidequuualstodirectannndfromTypeequuualstoname#wechat_redirect';
-// }
+var ua = navigator.userAgent.toLowerCase();
+var href = window.location.href;
+if (ua.indexOf('micromessenger') !== -1 && (href.indexOf('code') === -1)) {//微信中打开 且短网址 如不是从长网址回退
+    window.location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx2b66f49eb82d70de&redirect_uri=http%3A%2F%2Fhotu.co%2Fhotu%2F&response_type=code&scope=snsapi_base&state=fromidequuualstodirectannndfromTypeequuualstoname#wechat_redirect';
+}
 var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
@@ -46,26 +47,29 @@ var _hmt = _hmt || [];
   var s = document.getElementsByTagName("script")[0];
   s.parentNode.insertBefore(hm, s);
 })();
+
 </script>
   <link rel="stylesheet" href="./dest/app.min.css">
 </head>
 <body>
 
   <div class="container main-container">
-     <div class="layers-container container" style=""></div>
+    <div class="zoom-container container" style="">
+      <div class="layers-container container" style=""></div>
+    </div>
     <div class="ui-container container">
-       <div class="important-tools transition-fast" id="important-tools" style="pointer-events:auto;">
-         <i class="style-dark iconfont iconfont-mobile block dot icon-ios-undo" id="back" >&#xe610;</i>
-       </div>
       <div class="tools transition" id="layer-tools"></div>
     </div>
   </div>
   
   <div class="info-container container"></div>
-  <div class="container first-container" style="z-index:14"></div>
-  <!-- <div id="test-container" style="z-index:15;"></div> -->
+  <div class="container first-container" style="z-index:14">
+      <div class="important-tools transition-fast" id="important-tools" style="pointer-events:auto;">
+        <i class="style-dark iconfont iconfont-mobile block dot icon-ios-undo" id="back" >&#xe610;</i>
+      </div>
   </div>
-      <script src="./libs/hammer.js"></script>
+  <div id="test-container" style="z-index:115;"></div>
+  </div>
       <script src="./bower_components/zepto/zepto.min.js"></script>
       <script src="./bower_components/anim/anim.js"></script>
       <script src="./libs/zepto_cookie.js"></script>

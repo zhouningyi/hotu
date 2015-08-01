@@ -43,9 +43,8 @@ define(function() {
 
     'sns': { //和社交相关的属性
     },
-    
     'painter': {
-      'backN': 15,
+      'backN': 6,
       'quality': function (browser) { //根据浏览器的情况进行设置
         var setting = {
           'ipad': 1.6,

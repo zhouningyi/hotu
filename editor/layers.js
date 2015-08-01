@@ -1,5 +1,5 @@
 'use strict';
-define(['./../libs/event', './../utils/utils', './layer', './layers.exports', './layers.events'], function(EventEmitter, Utils, Layer, Exports, Events) {
+define(['./../libs/event', './../utils/utils', './layers.exports', './layers.events','./layer_brush','./layer_bg'], function(EventEmitter, Utils, Exports, Events, LayerBrush, LayerBg) {
   var body = $('body');
 
   function Layers(container, options) {
@@ -13,16 +13,16 @@ define(['./../libs/event', './../utils/utils', './layer', './layers.exports', '.
       brush_default: {
         type: 'brush',
         quality: 2,
-        index: 1,
+        index: 2,
         id: 'brush_default',
         current: true
       },
       background_default: {
         type: 'background',
         quality: 2,
-        index: 2,
+        index: 0,
         id: 'background_default'
-      }
+      },
     },
     zList: ['background_default', 'brush_default'],
     options: {
@@ -66,25 +66,50 @@ define(['./../libs/event', './../utils/utils', './layer', './layers.exports', '.
       if (!options.type) return console.log('必须带有类型');
       if (!options.id) options.id = 'id_' + parseInt(Math.random() * 10000);
       this._data[options.id] = options;
-      this.create(options);
+      //
+      var zList = this.zList;
+      var tmp = zList[1];
+      zList[1] = (options.id); 
+      zList[2] = tmp;
+      var layer =  this.create(options);
+      window.global && global.trigger('add-layer', layer);
+      /////////////////////////////////////////////////todo
+      return layer;
     },
     create: function (options) {
       var container = this.container;
-      var layer = options.layer = new Layer(container, options);
+      var Com = {
+        brush: LayerBrush,
+        background: LayerBg
+      }[options.type];
+      var layer = options.layer = new Com(container, options);
       if(options.current) this.current(options.id);
+      return layer;
     },
 
    //选择
     current: function (id) {
+      var self = this;
       var curLayer = this.curLayer;
       if (!id) return curLayer;
       if (curLayer && curLayer.id === id) return curLayer;
-      this.unSelect(curLayer);
-      this.curLayer = this.get(id);
-      this.select(this.curLayer);
+      curLayer = this.curLayer = this.get(id);
+      this.each(function(layer){
+        if(layer === curLayer) return self.select(layer);
+        self.unSelect(layer);
+      });
       return this.curLayer;
     },
 
+    getByType: function(type){
+      if(!type) return;
+      var ds = this._data;
+      for (var k in ds) {
+        var d = ds[k];
+        if(!d.layer) continue;
+        if (d.layer.options.type === type) return d.layer;
+      }
+    },
     get: function (id) {
       var layers = this._data;
       for (var k in layers) {
@@ -92,8 +117,11 @@ define(['./../libs/event', './../utils/utils', './layer', './layers.exports', '.
         if (layer.id === id) return layer.layer;
       }
     },
+    unSelectAllLayers: function(){
+    },
     unSelect: function (layer) {
       if (!layer) return;
+      layer.disable();
       this.emit('unselect', layer);
     },
 
@@ -105,6 +133,7 @@ define(['./../libs/event', './../utils/utils', './layer', './layers.exports', '.
       } else if (type === 'background') {
         this.isDraw = false;
       }
+      layer.enable();
       this.emit('select', layer);
     },
     //

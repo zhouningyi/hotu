@@ -38,6 +38,7 @@ define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
       var events = 'touchstart mousedown mousemove touchmove';
       this.container.on(events, prevent);
       this.container.delegate('*', events, prevent);
+      // window.global && global.on('painter-tap', this.switch.bind(this));
     },
     initDom: function(){
       var container = this.container, options = this.options, tri = options.tri, rectSmall = options.rectSmall, rectPanel = options.rectPanel, parent = options.parent;
@@ -94,6 +95,9 @@ define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
         left: w / 2 + l - tri.width 
       });
     },
+    switch: function () {
+      (this.isOut) ? this.in() : this.out();
+    },
     in: function(){
       if(!this.isOut) return;
       this.mainNode
@@ -102,7 +106,7 @@ define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
       });
       this.isOut = false;
     },
-    out: function(){
+    out: function () {
       if(this.isOut) return;
       this.mainNode
       .keyAnim('fadeOutSlowLeft', {

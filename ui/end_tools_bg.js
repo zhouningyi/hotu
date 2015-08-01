@@ -3,8 +3,10 @@
 define(['./end_tools', './../utils/utils', './../ui/components/width_slider', './../ui/components/slider', './../ui/color_selector', './../ui/brush_selector', './end_sub_tools'], function(EndToolsBase, Utils, WidthSlider, Slider, ColorSelector, BrushSelector, EndSubTools) {
   var body = $('body');
 
-  function EndTools(container, opt) {
-    this.initialize(container, opt);
+  function EndTools(container, options) {
+    this.initialize(container, options);
+    this.preview = options.preview;
+    this.initEventsImage();
   }
 
   EndToolsBase.extend(EndTools, {
@@ -62,6 +64,13 @@ define(['./end_tools', './../utils/utils', './../ui/components/width_slider', '.
         'key': 'opacity',
         'targets': this.targets
       });
+    },
+    initEventsImage: function(){
+      window.global && global.on('preview-image-ready', this.initSelectorsImage.bind(this));
+    },
+    initSelectorsImage: function(d){
+      var preview = this.preview;
+      console.log(d, preview);
     },
     updateSelectors: function (){//并不是所有的笔触都有默认的控制器
       var selectors = this.selectors, targets = this.targets;

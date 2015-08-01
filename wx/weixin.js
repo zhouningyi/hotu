@@ -49,7 +49,7 @@
         },
         success: function (d) {
           if (d && d.openid) {
-            $('body').trigger('openid', d.openid);
+            window.global && global.trigger('userid', d.openid);
             return obj.success(d.openid);
           }
           return obj.fail(d);

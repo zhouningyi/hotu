@@ -32,6 +32,7 @@ define(['./../utils/utils', './../libs/event', './drawDataInfo'], function (Util
 
   Events.extend(ModelDraw, {
     options: {
+      autosaveInterval: 30000,
       prevStorageKeys: ['cur_drawing_data_hotu_v1', 'cur_drawing_data_hotu', 'cur_drawing_data_hotu_v11', 'cur_drawing_data_hotu_v12', 'cur_drawing_data_hotu_v13'],
     },
     initialize: function () {},
@@ -89,14 +90,6 @@ define(['./../utils/utils', './../libs/event', './drawDataInfo'], function (Util
         } catch (e) {}
       }
     },
-    autoSubmit: function () { //开始自动保存
-      var interval = this.options.autosaveInterval || 15000;
-      this.save();
-      this.submitID = setTimeout(this.autoSubmit.bind(this), interval);
-    },
-    cancelSubmit: function () { //取消自动保存
-      window.clearTimeout(this.submitID);
-    },
     /**保存背景操作*/
     saveBg: function (key, value) {
       var d = this.curDrawData;
@@ -105,6 +98,16 @@ define(['./../utils/utils', './../libs/event', './drawDataInfo'], function (Util
       d.bg[key] = value;
       this.saveStorage();
     },
+
+    /**保存图片操作*/
+    saveImage: function (key, value) {
+      var d = this.curDrawData;
+      if (!d) return console.log('no curDrawData');
+      if (!d.image) d.image = {};
+      d.image[key] = value;
+      this.saveStorage();
+    },
+
     /**保存额外信息*/
     saveInfo: function (key, value) {
       var d = this.curDrawData;
@@ -119,17 +122,19 @@ define(['./../utils/utils', './../libs/event', './drawDataInfo'], function (Util
     /**载入数据或载入最后编辑的数据或创建数据*/
     load: function (d) {
       d = d || this.getLastStorage();
-      d.info = computeDrawInfo(d);
       if (d && d.c && d.c.length) {
+        d.info = computeDrawInfo(d);
         this.curDrawData = d;
         return this.start();
       }
-      return this.create();
+      return this.new();
     },
     /**新建数据*/
     new: function () { //新建数据
+      var drawid = Utils.getId('frame');
+      window.global && global.trigger('new-drawing', drawid);
       var d = this.curDrawData = {
-        id: Utils.getId('frame'),
+        id: drawid,
         frameW: this.frameW || $(window).width(),
         frameH: this.frameH || $(window).height(),
         type: 'frame',
@@ -157,24 +162,35 @@ define(['./../utils/utils', './../libs/event', './drawDataInfo'], function (Util
     getLastStorage: function () { //从localStorage寻找数据
       if (typeof(Storage) == 'undefined') return console.log('不能自动保存');
       var d = window.localStorage.getItem(tmpStorageKey);
+      if(!d) return;
       return JSON.parse(d).drawing;
     },
     /**载入数据*/
     initEvents: function () {
+      var self = this;
       window.global && global
         .on('openid', function (openid) {
-          self.userid = openid;
+          self.userid =  openid;
+          self.curDrawData.userid = openid;
         })
         .on('drawid', function (drawid) {
           self.drawid = drawid;
+          self.curDrawData.drawid = drawid;
         });
     },
     getTimeRelative: function () {
       return Utils.getTimeAbsolute() - this.timeStart;
     },
     //对数据库的操作
+    autoSubmit: function () { //开始自动保存
+      var interval = this.options.autosaveInterval || 30000;
+      this.save();
+      this.submitID = setTimeout(this.autoSubmit.bind(this), interval);
+    },
+    cancelSubmit: function () { //取消自动保存
+      window.clearTimeout(this.submitID);
+    },
     deleteDB: function (query, cb) { //删除某幅图
-      cb = cb || function () {};
       query = {
         // userid: query.userid,
         drawid: query.drawid
@@ -185,23 +201,52 @@ define(['./../utils/utils', './../libs/event', './drawDataInfo'], function (Util
         'dataType': 'json',
         'data': query,
         'success': function (d) {
-          cb(1, d);
+          window.global && global.trigger('delete-success');
+          cb && cb(1, d);
         },
         'error': function (e) {
           cb(0);
         }
       });
     },
-    post: function (cb) { //取回数据库已经存的内容
+    /**上传单张图片
+     输入:{imgBase64: imgBase64,imageName: imageName}
+    */
+    postImage: function(data, cb){
+      $.ajax({
+        'url': 'http://hotu.co/hotu-api/api/hotu/image',
+        'type': 'POST',
+        'dataType': 'json',
+        'data': data,
+        'success': function (d) {
+          window.global && global.trigger('post-image-success', d);
+          cb && cb(d);
+        },
+        'error': function (e) {
+          window.global && global.trigger('post-image-fail');
+          window.infoPanel && infoPanel.alert('图片被服务器无情拒绝了..');
+          cb && cb(0);
+        }
+      });
+    },
+    addDrawName: function(drawName, drawid){
       var d = this.curDrawData;
+      if(d.drawid === drawid){
+        d.drawName = drawName;
+      }
+    },
+    updateDrawNameDB: function(drawName, drawid){
+    },
+    postDB: function (cb) { //取回数据库已经存的内容
+      var d = this.curDrawData;
+      if(!d.c || !d.c.length) return;
       d.time = this.getTimeRelative();
       var userName = d.userName;
-      var drawName = d.drawName;
+      var drawName = d.drawName || '';
+      print(userName + '|' + drawName);
       var drawid = d.id;
       d.info = computeDrawInfo(d);
-
-      cb = cb || function () {};
-      var random = parseInt(Math.random() * 100000000);
+      var random = parseInt(Math.random() * 100000);
       var saveData = {
         'userid': this.userid || this.config.login.userid,
         'userName': userName,
@@ -212,16 +257,18 @@ define(['./../utils/utils', './../libs/event', './drawDataInfo'], function (Util
         'imgName': drawid + '_' + random + '.png',
         'dataName': drawid + '_' + random + '.js'
       };
-
+      window.global && global.trigger('post-start', uploadId);
       $.ajax({
         'url': 'http://hotu.co/hotu-api/api/hotu/drawing',
         'type': 'POST',
         'dataType': 'json',
         'data': saveData,
         'success': function (d) {
-          cb(1, d);
+          window.global && global.trigger('post-success');
+          cb && cb(1, d);
         },
         'error': function (e) {
+          window.global && global.trigger('post-fail');
           console.log(e, 'save-err');
           cb(0);
         }
@@ -285,18 +332,13 @@ define(['./../utils/utils', './../libs/event', './drawDataInfo'], function (Util
         }
       });
     },
-    saveImage: function () {
-      // if (this.exports) {
-      //   this.imageBase64 = this.exports.toImage('small').dataURL;
-      // }
-    },
     //config相关
     getConfig: function () { // 把app_config存在localstorage里
-      var config = this.config;
-      var savekey = config.login.saveKey;
-      var cfg = JSON.parse(window.localStorage.getItem(savekey));
-      if (!cfg) return false;
-      config.login = cfg.login;
+      // var config = this.config;
+      // var savekey = config.login.saveKey;
+      // var cfg = JSON.parse(window.localStorage.getItem(savekey));
+      // if (!cfg) return false;
+      // config.login = cfg.login;
     }
   });
   return ModelDraw;

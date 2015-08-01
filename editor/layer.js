@@ -1,6 +1,5 @@
 'use strict';
 define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
-
   var body = $('body');
   var prevent = Utils.prevent;
 
@@ -16,62 +15,27 @@ define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
   EventEmitter.extend(Layer, {
     isHide: false,
     options: {
-      type: 'brush', //brush  background image
+      zoom:{
+        min: 1,
+        max: 4
+      },
+      type: 'xxxx', //brush  background a
       quality: 2,
       id: 'id_' + parseInt(Math.random() * 10000)
     },
     initialize: function (container, options) {
       this.container = container;
+      this.width = container.width();
+      this.height = container.height();
       this.options = Utils.deepMerge(this.options, options);
       this.type = options.type;
       this.id = options.id;
 
       this.initDom();
       this.initEvents();
-
-      this.layerContainer = container.find('.layer');
     },
     initDom: function () {
-      if (this.type === 'brush') return this.initDomBrushLayer();
-      this.initDomCommonLayer();
-    },
-    initDomBrushLayer: function () {
-      var options = this.options, quality = options.quality || 2, id = options.id;
-      var container = this.container;
-      var w = container.width();
-      var h = container.height();
-      var canvasStyle = 'position:absolute;top:0;left:0;width:' + w + 'px; height:' + h + 'px;';
-      $(
-        '<div class="container layer transition"  id="' + id + '" style="pointer-events:none; z-index:1;">\
-          <canvas width="' + w * quality + '" height="' + h * quality + '" style="z-index:1;' + canvasStyle + '" class="front"></canvas>\
-        </div>'
-        ).appendTo(container);
-      //backCanvas 是离线的
-      var backCanvas = this.backCanvas = $('<canvas width="' + w * quality + '" height="' + h * quality + '" class="back"></canvas>')[0];
-      var backCtx = this.backCtx = backCanvas.getContext('2d');
-      backCanvas.quality = quality;
-      backCtx.scale(quality, quality);
-      //
-      var frontCanvas = this.frontCanvas = this.canvas = container.find('.front')[0];
-      var frontCtx = this.frontCtx = this.ctx = frontCanvas.getContext('2d');
-      frontCanvas.quality = quality;
-      frontCtx.scale(quality, quality);
-    },
-    initDomCommonLayer: function () {
-      var options = this.options, quality = options.quality || 2, id = options.id;
-      var container = this.container;
-      var w = container.width();
-      var h = container.height();
-      var canvasStyle = 'position:absolute;top:0;left:0;width:' + w + 'px; height:' + h + 'px;';
-      $(
-        '<div class="container layer"  id="' + id + '" style="pointer-events:none; z-index:0;">\
-          <canvas width="' + w * quality + '" height="' + h * quality + '" style="z-index:1;' + canvasStyle + '" class="main"></canvas>\
-        </div>'
-        ).appendTo(container);
-      var canvas = this.canvas = this.frontCanvas = container.find('.main')[0];
-      var ctx = this.ctx = this.frontCtx = canvas.getContext('2d');
-      canvas.quality = quality;
-      ctx.scale(quality, quality);
+      console.log('请替换')
     },
     clean: function (type) {//清除canvas内容
       if (type === 'front' || !type) {
@@ -113,12 +77,13 @@ define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
       this.off();
     },
     getCanvas: function () {
-      if(this.type === 'brush') return [this.backCanvas, this.frontCanvas];
-      return [this.frontCanvas];
+      console.log('请覆盖');
     },
     addTo: function (editor) {
       this.editor = editor;
     },
+    enable: function(){},
+    disable: function(){},
     getPt: function (e) { //获取点
     var left = this.left,
       top = this.top;
@@ -137,8 +102,6 @@ define(['./../libs/event', './../utils/utils'], function (EventEmitter, Utils) {
     var originY = this.cy * (1 - pinchScale) + this.pinchY;
     y = (y - originY) / pinchScale;
     return [x, y, t];
-  },
-  restart: function () {//删除后重新新建一幅画
   }
   });
   return Layer;
